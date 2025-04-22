@@ -1,5 +1,6 @@
 using System.Collections;
 using Il2CppScheduleOne.Property;
+using Il2CppSystem;
 using MelonLoader;
 using MelonLoader.Utils;
 using MoreRealisticLaundering.Config;
@@ -138,12 +139,29 @@ namespace MoreRealisticLaundering.PhoneApp
                                 noneEntryText.text = "Choose one of your businesses";
                             }
                         }
+
+                        // Erstelle eine Kopie von Entries
+                        priceOptionsTransform = UnityEngine.Object.Instantiate(detailEntriesTransform, detailEntriesTransform.parent);
+                        if (priceOptionsTransform != null)
+                        {
+                            priceOptionsTransform.name = "PriceOptions";
+                            priceOptionsTransform.gameObject.SetActive(false); // Deaktiviere das Preis-Options-Objekt
+
+                            Transform noneEntryPriceTransform = priceOptionsTransform.Find("None");
+                            if (noneEntryPriceTransform != null)
+                            {
+                                Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
+                                if (noneEntryText != null)
+                                {
+                                    noneEntryText.text = "Adjusting the prices of properties";
+                                }
+                            }
+                        }
                     }
                 }
 
                 // Setze den Namen des geklonten Objekts
                 clonedApp.name = IDName;
-
 
                 // Aktualisiere das App-Icon
                 GameObject appIconByName = Utils.GetAppIconByName(cloningName, 1);
@@ -222,10 +240,10 @@ namespace MoreRealisticLaundering.PhoneApp
                             MelonLogger.Error("Viewport Content not found!");
                         }
 
-
                         optionsTransform = detailEntriesTransform;
                         AddSpaceFromTemplate(viewportContentTransform);
                         AddOptionsForBusiness(detailEntriesTransform);
+                        AddPriceOptionsForRealEstate(priceOptionsTransform);
                     }
                 }
 
@@ -235,34 +253,6 @@ namespace MoreRealisticLaundering.PhoneApp
                 // Registriere die App
                 MRLCore.Instance.RegisterApp(appIconByName, Title);
                 _isLaunderingAppLoaded = true;
-            }
-        }
-
-        void CheckForNewBusinesses()
-        {
-            MelonLogger.Msg("Checking for new businesses...");
-            if (Business.OwnedBusinesses != null)
-            {
-                foreach (Business business in Business.OwnedBusinesses)
-                {
-                    if (business == null)
-                    {
-                        MelonLogger.Warning("Encountered a null business in OwnedBusinesses. Skipping...");
-                        continue;
-                    }
-
-                    if (!MRLCore.Instance.processedBusinesses.Contains(business.name))
-                    {
-                        MRLCore.Instance.ApplyCap(business);
-                        MRLCore.Instance.processedBusinesses.Add(business.name);
-                        MRLCore.Instance.createdBusinessesEntries.Add(business.name);
-                        MRLCore.Instance.CreateAppEntryForBusiness(business);
-                    }
-                    else
-                    {
-                        MelonLogger.Warning($"Business '{business.name}' already processed. Skipping...");
-                    }
-                }
             }
         }
 
@@ -304,7 +294,7 @@ namespace MoreRealisticLaundering.PhoneApp
         }
 
         public void AddEntryFromTemplate(string newObjectName, string newTitle, string newSubtitle, Business business, GameObject template = null, Color newBackgroundColor = default,
-        string imagePath = null, Transform viewportContentTransform = null)
+        string imagePath = null, Transform viewportContentTransform = null, bool isFirstEntry = false)
         {
             if (viewportContentTransform == null)
             {
@@ -382,8 +372,8 @@ namespace MoreRealisticLaundering.PhoneApp
 
             if (business)
             {
-                Button headerButton = headerTransform.GetComponent<Button>();
 
+                Button headerButton = headerTransform.GetComponent<Button>();
                 if (headerButton != null)
                 {
                     headerButton.name = newObjectName + " Button";
@@ -393,12 +383,134 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
             }
 
+            if (newObjectName == "Rays Real Estate")
+            {
+                Button headerButton = headerTransform.GetComponent<Button>();
+                if (headerButton != null)
+                {
+                    headerButton.name = newObjectName + " Button";
+                    headerButton.onClick.RemoveAllListeners(); // Remove existing listeners to avoid old functionality after copying
+                    void FuncThatCallsFunc() => RealEstateButtonClicked();
+                    headerButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+                }
+            }
+
+            // Set the new entry as the first child if isFirstEntry is true
+            if (isFirstEntry)
+            {
+                newEntry.transform.SetAsFirstSibling();
+            }
             newEntry.SetActive(true);
             //  MelonLogger.Msg($"Added new entry: {newObjectName} with text: {newTitle}");
             AddSpaceFromTemplate(viewportContentTransform); // Add space after the new entry
         }
 
 
+        void RealEstateButtonClicked()
+        {
+            if (optionsTransform == null)
+            {
+                MelonLogger.Error("optionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            // Überprüfe, ob priceOptionsTransform bereits aktiv ist
+            if (priceOptionsTransform == null)
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            if (!priceOptionsTransform.gameObject.activeSelf)
+            {
+                priceOptionsTransform.gameObject.SetActive(true);
+            }
+
+            // Deaktiviere optionsTransform
+            if (optionsTransform.gameObject.activeSelf)
+            {
+                optionsTransform.gameObject.SetActive(false);
+            }
+
+            // Aktiviere priceOptionsTransform und alle Kinder
+            if (priceOptionsTransform != null)
+            {
+                priceOptionsTransform.gameObject.SetActive(true);
+
+                foreach (var child in priceOptionsTransform)
+                {
+                    if (child is Transform transformChild)
+                    {
+                        if (transformChild.gameObject && !transformChild.gameObject.activeSelf)
+                        {
+                            transformChild.gameObject.SetActive(true);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+            }
+
+            // Lade die Preise für OwnedBusinesses und UnownedBusinesses
+            if (Business.OwnedBusinesses == null && Business.UnownedBusinesses == null)
+            {
+                MelonLogger.Error("OwnedBusinesses or UnownedBusinesses is null! Cannot load price values.");
+                return;
+            }
+            else
+            {
+                // OwnedBusinesses
+                foreach (Business business in Business.OwnedBusinesses)
+                {
+                    if (business == null) continue;
+
+                    string displayName = business.name;
+                    if (displayName == "PostOffice")
+                    {
+                        displayName = "Post Office";
+                    }
+                    float price = business.Price;
+                    SetInputFieldValue(priceOptionsTransform, displayName, price);
+                }
+
+                // UnownedBusinesses
+                foreach (Business business in Business.UnownedBusinesses)
+                {
+                    if (business == null) continue;
+
+                    string displayName = business.name;
+                    if (displayName == "PostOffice")
+                    {
+                        displayName = "Post Office";
+                    }
+                    float price = business.Price;
+                    SetInputFieldValue(priceOptionsTransform, displayName, price);
+                }
+            }
+        }
+
+        private void SetInputFieldValue(Transform parentTransform, string displayName, float value)
+        {
+            Transform inputFieldTransform = parentTransform.Find($"{displayName} Horizontal Container/{displayName} Input");
+            if (inputFieldTransform != null)
+            {
+                InputField inputField = inputFieldTransform.GetComponent<InputField>();
+                if (inputField != null)
+                {
+                    inputField.text = value.ToString();
+                }
+                else
+                {
+                    MelonLogger.Error($"InputField component not found for {displayName}.");
+                }
+            }
+            else
+            {
+                MelonLogger.Error($"Transform not found for {displayName}.");
+            }
+        }
 
         void BusinessButtonClicked(Business business)
         {
@@ -406,6 +518,18 @@ namespace MoreRealisticLaundering.PhoneApp
             {
                 MelonLogger.Error("optionsTransform is null! Ensure it is initialized before calling BusinessButtonClicked.");
                 return;
+            }
+
+            if (priceOptionsTransform != null)
+            {
+                if (priceOptionsTransform.gameObject.activeSelf)
+                {
+                    priceOptionsTransform.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Ensure it is initialized before calling BusinessButtonClicked.");
             }
 
             _selectedBusiness = business;
@@ -416,6 +540,11 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform launderTimeContainer = optionsTransform.Find("Launder Time Horizontal Container");
             Transform taxationContainer = optionsTransform.Find("Taxation Horizontal Container");
 
+            if (!optionsTransform.gameObject.activeSelf)
+            {
+                optionsTransform.gameObject.SetActive(true);
+                //   MelonLogger.Msg("Activated Options Transform.");
+            }
             if (maxLaunderContainer != null && !maxLaunderContainer.gameObject.activeSelf)
             {
                 maxLaunderContainer.gameObject.SetActive(true);
@@ -557,7 +686,7 @@ namespace MoreRealisticLaundering.PhoneApp
             AddLabelInputPair("Maximum Launder", detailEntriesTransform, "$");
             AddLabelInputPair("Launder Time", detailEntriesTransform, "hr");
             AddLabelInputPair("Taxation", detailEntriesTransform, "%");
-            AddSaveButton(detailEntriesTransform);
+            AddSaveButton(detailEntriesTransform, "BusinessDetails");
 
             //   MelonLogger.Msg("Added options for business to detailEntriesTransform.");
         }
@@ -760,12 +889,20 @@ namespace MoreRealisticLaundering.PhoneApp
                     MelonLogger.Warning($"Taxation < 1. Applying '19 %' as value.");
                 }
             }
+            else if (labelText.Contains("Post Office") || labelText.Contains("Taco Tickler") || labelText.Contains("Laundromat") || labelText.Contains("Car Wash"))
+            {
+                // Überprüfe, ob die Eingabe leer ist oder kleiner als 1000
+                if (string.IsNullOrEmpty(input) || float.TryParse(input, out float parsedValue) && parsedValue < 1000)
+                {
+                    inputFieldComponent.text = "1000";
+                    MelonLogger.Warning($"{labelText} was < 1000. Applying '$1000' as value.");
+                }
+            }
 
-            // Hier kannst du den Code hinzufügen, der ausgeführt werden soll, wenn die Eingabe abgeschlossen ist
-            // MelonLogger.Msg($"Input completed: {input}");
+
         }
 
-        void AddSaveButton(Transform parentTransform)
+        void AddSaveButton(Transform parentTransform, string saveString = null)
         {
             if (parentTransform == null)
             {
@@ -813,22 +950,29 @@ namespace MoreRealisticLaundering.PhoneApp
             if (buttonImage == null)
             {
                 buttonImage = saveButtonObject.AddComponent<Image>();
-                string imagePath = Path.Combine(ConfigFolder, "SaveButton.png");
-                if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                if (saveButtonSprite == null)
                 {
-                    byte[] imageData = File.ReadAllBytes(imagePath);
-                    Texture2D texture = new Texture2D(2, 2);
-                    if (texture.LoadImage(imageData))
+                    string imagePath = Path.Combine(ConfigFolder, "SaveButton.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                     {
-                        Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                        inputBackgroundSprite = newSprite;
-                        buttonImage.sprite = newSprite;
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            saveButtonSprite = newSprite;
+                            buttonImage.sprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            buttonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
+                        }
                     }
-                    else
-                    {
-                        MelonLogger.Error($"Failed to load image from path: {imagePath}");
-                        buttonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
-                    }
+                }
+                else
+                {
+                    buttonImage.sprite = saveButtonSprite;
                 }
             }
 
@@ -870,8 +1014,19 @@ namespace MoreRealisticLaundering.PhoneApp
                 layoutElement.preferredWidth = 360; // Bevorzugte Breite des Buttons
             }
 
-            void FuncThatCallsFunc() => SaveBusinessDetails(buttonText);
-            saveButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+
+            if (saveString == "BusinessDetails")
+            {
+                void FuncThatCallsFunc() => SaveBusinessDetails(buttonText);
+                saveButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+            }
+
+            if (saveString == "RealEstate")
+            {
+                void FuncThatCallsFunc() => SaveRealEstate(buttonText);
+                saveButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+            }
+
         }
 
         void SaveBusinessDetails(Text buttonText)
@@ -885,8 +1040,6 @@ namespace MoreRealisticLaundering.PhoneApp
                 isSaveStillRunning = false;
                 return;
             }
-
-            //MelonLogger.Msg($"Saving details for business: {_selectedBusiness.name}");
 
             // Greife auf die Eingabefelder zu und speichere die Werte
             Transform maxLaunderInputTransform = optionsTransform.Find("Maximum Launder Horizontal Container/Maximum Launder Input");
@@ -989,19 +1142,22 @@ namespace MoreRealisticLaundering.PhoneApp
                 displayName = "Post Office";
             }
 
-
-            if (!string.IsNullOrEmpty(FilePath) && File.Exists(FilePath))
+            if (appIconSprite == null)
             {
-                byte[] imageData = File.ReadAllBytes(FilePath);
-                Texture2D texture = new Texture2D(2, 2);
-                if (texture.LoadImage(imageData))
+                string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                 {
-                    Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                    appIconSprite = newSprite;
-                }
-                else
-                {
-                    MelonLogger.Error($"Failed to load image from path: {FilePath}");
+                    byte[] imageData = File.ReadAllBytes(imagePath);
+                    Texture2D texture = new Texture2D(2, 2);
+                    if (texture.LoadImage(imageData))
+                    {
+                        Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                        appIconSprite = newSprite;
+                    }
+                    else
+                    {
+                        MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                    }
                 }
             }
 
@@ -1014,6 +1170,157 @@ namespace MoreRealisticLaundering.PhoneApp
             MelonLogger.Msg($"Details for {displayName} have been saved and applied successfully.");
         }
 
+        void SaveRealEstate(Text buttonText)
+        {
+            isSaveStillRunning = true;
+            buttonText.text = "Saving...";
+
+            if (priceOptionsTransform == null)
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Cannot save real estate prices.");
+                buttonText.text = "Save & Apply";
+                isSaveStillRunning = false;
+                return;
+            }
+
+            // Greife auf die Eingabefelder zu und speichere die Werte
+            Transform laundromatPriceInputTransform = priceOptionsTransform.Find("Laundromat Horizontal Container/Laundromat Input");
+            Transform tacoTicklersPriceInputTransform = priceOptionsTransform.Find("Taco Ticklers Horizontal Container/Taco Ticklers Input");
+            Transform carWashPriceInputTransform = priceOptionsTransform.Find("Car Wash Horizontal Container/Car Wash Input");
+            Transform postOfficePriceInputTransform = priceOptionsTransform.Find("Post Office Horizontal Container/Post Office Input");
+
+            float laundromatPrice = MRLCore.Instance.config.Laundromat_Price;
+            float tacoTicklersPrice = MRLCore.Instance.config.Taco_Ticklers_Price;
+            float carWashPrice = MRLCore.Instance.config.Car_Wash_Price;
+            float postOfficePrice = MRLCore.Instance.config.Post_Office_Price;
+
+            //   MelonLogger.Msg($"Current Prices: {laundromatPrice}, {tacoTicklersPrice}, {carWashPrice}, {postOfficePrice}");
+
+            // Aktualisiere den Preis für Laundromat
+            if (laundromatPriceInputTransform != null)
+            {
+                InputField laundromatPriceInputField = laundromatPriceInputTransform.GetComponent<InputField>();
+                if (laundromatPriceInputField != null && float.TryParse(laundromatPriceInputField.text, out float parsedLaundromatPrice))
+                {
+                    laundromatPrice = parsedLaundromatPrice;
+                }
+            }
+
+            // Aktualisiere den Preis für Taco Ticklers
+            if (tacoTicklersPriceInputTransform != null)
+            {
+                InputField tacoTicklersPriceInputField = tacoTicklersPriceInputTransform.GetComponent<InputField>();
+                if (tacoTicklersPriceInputField != null && float.TryParse(tacoTicklersPriceInputField.text, out float parsedTacoTicklersPrice))
+                {
+                    tacoTicklersPrice = parsedTacoTicklersPrice;
+                }
+            }
+
+            // Aktualisiere den Preis für Car Wash
+            if (carWashPriceInputTransform != null)
+            {
+                InputField carWashPriceInputField = carWashPriceInputTransform.GetComponent<InputField>();
+                if (carWashPriceInputField != null && float.TryParse(carWashPriceInputField.text, out float parsedCarWashPrice))
+                {
+                    carWashPrice = parsedCarWashPrice;
+                }
+            }
+
+            // Aktualisiere den Preis für Post Office
+            if (postOfficePriceInputTransform != null)
+            {
+                InputField postOfficePriceInputField = postOfficePriceInputTransform.GetComponent<InputField>();
+                if (postOfficePriceInputField != null && float.TryParse(postOfficePriceInputField.text, out float parsedPostOfficePrice))
+                {
+                    postOfficePrice = parsedPostOfficePrice;
+                }
+            }
+
+            //   MelonLogger.Msg($"Updated Prices: {laundromatPrice}, {tacoTicklersPrice}, {carWashPrice}, {postOfficePrice}");
+
+            // Speichere die aktualisierten Preise in der Konfiguration
+            MRLCore.Instance.config.Laundromat_Price = laundromatPrice;
+            MRLCore.Instance.config.Taco_Ticklers_Price = tacoTicklersPrice;
+            MRLCore.Instance.config.Car_Wash_Price = carWashPrice;
+            MRLCore.Instance.config.Post_Office_Price = postOfficePrice;
+
+            // Speichere die aktualisierte Konfiguration
+            ConfigManager.Save(MRLCore.Instance.config);
+
+            // Aktualisiere die Preise in den PropertyListings
+            MRLCore.Instance.ApplyPricesToPropertyListings();
+            MRLCore.Instance.ApplyPricesToUnownedBusinesses();
+
+            // Zeige eine Benachrichtigung an
+            if (MRLCore.Instance.notificationsManager != null)
+            {
+                string subTitleString = "Prices updated.";
+
+                if (appIconSprite == null)
+                {
+                    string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    {
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            appIconSprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                        }
+                    }
+                }
+                MRLCore.Instance.notificationsManager.SendNotification("Prices Saved", subTitleString, appIconSprite, 5, true);
+            }
+
+            buttonText.text = "Save & Apply";
+            isSaveStillRunning = false;
+
+            MelonLogger.Msg("Real estate prices have been saved and applied successfully.");
+        }
+
+        public void AddPriceOptionsForRealEstate(Transform parentTransform)
+        {
+            priceOptionsTransform = parentTransform;
+            if (parentTransform == null)
+            {
+                MelonLogger.Error("detailEntriesTransform is null! Cannot add price options.");
+                return;
+            }
+
+            // Füge ein VerticalLayoutGroup hinzu, falls es nicht existiert
+            VerticalLayoutGroup optionVerticalLayout = priceOptionsTransform.GetComponent<VerticalLayoutGroup>();
+            if (optionVerticalLayout == null)
+            {
+                optionVerticalLayout = priceOptionsTransform.gameObject.AddComponent<VerticalLayoutGroup>();
+            }
+
+            // Konfiguriere das Layout
+            optionVerticalLayout.childControlWidth = true;
+            optionVerticalLayout.childForceExpandWidth = false;
+            optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
+            optionVerticalLayout.spacing = -20f; // Abstand zwischen den Optionen
+
+            // Füge die Label-Input-Paare für die vier Unternehmen hinzu
+            AddLabelInputPair("Laundromat", priceOptionsTransform, "$");
+            AddLabelInputPair("Post Office", priceOptionsTransform, "$");
+            AddLabelInputPair("Car Wash", priceOptionsTransform, "$");
+            AddLabelInputPair("Taco Ticklers", priceOptionsTransform, "$");
+            /* AddLabelInputPair("Motel", priceOptionsTransform, "$");
+             AddLabelInputPair("Bungalow", priceOptionsTransform, "$");
+             AddLabelInputPair("Barn", priceOptionsTransform, "$");
+             AddLabelInputPair("Docks Warehouse", priceOptionsTransform, "$"); */
+
+            // Füge einen Save-Button hinzu
+            AddSaveButton(priceOptionsTransform, "RealEstate");
+
+            MelonLogger.Msg("Added price options for real estate to priceOptionsTransform.");
+        }
+
         public GameObject dansHardwareTemplate;
         public GameObject gasMartWestTemplate;
         public GameObject viewPortContentSpaceTemplate;
@@ -1023,12 +1330,12 @@ namespace MoreRealisticLaundering.PhoneApp
         public static string _appName;
         public bool _isLaunderingAppLoaded = false;
         public Transform optionsTransform = null;
+        public Transform priceOptionsTransform = null;
         Sprite inputBackgroundSprite = null;
-
+        Sprite saveButtonSprite = null;
         Sprite appIconSprite = null;
         private Business _selectedBusiness = null;
         private string _selectedBusinessName = null;
         public bool isSaveStillRunning = false;
-
     }
 }

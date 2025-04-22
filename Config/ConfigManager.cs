@@ -52,6 +52,12 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Laundromat_Tax_Percentage = configState.Laundromat_Tax_Percentage;
                         isConfigUpdated = true;
                     }
+                    if (loadedConfigState.Laundromat_Price <= 0f)
+                    {
+                        MelonLogger.Warning("Invalid Laundromat_Price in config. Reverting to default (10000).");
+                        loadedConfigState.Laundromat_Price = configState.Laundromat_Price;
+                        isConfigUpdated = true;
+                    }
 
                     // Überprüfe und aktualisiere die Werte für Taco Ticklers
                     if (loadedConfigState.Taco_Ticklers_Cap <= 0f)
@@ -69,6 +75,12 @@ namespace MoreRealisticLaundering.Config
                     {
                         MelonLogger.Warning("Invalid Taco_Ticklers_Tax_Percentage in config. Reverting to default (19%).");
                         loadedConfigState.Taco_Ticklers_Tax_Percentage = configState.Taco_Ticklers_Tax_Percentage;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Taco_Ticklers_Price <= 0f)
+                    {
+                        MelonLogger.Warning("Invalid Taco_Ticklers_Price in config. Reverting to default (100000).");
+                        loadedConfigState.Taco_Ticklers_Price = configState.Taco_Ticklers_Price;
                         isConfigUpdated = true;
                     }
 
@@ -90,6 +102,12 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Car_Wash_Tax_Percentage = configState.Car_Wash_Tax_Percentage;
                         isConfigUpdated = true;
                     }
+                    if (loadedConfigState.Car_Wash_Price <= 0f)
+                    {
+                        MelonLogger.Warning("Invalid Car_Wash_Price in config. Reverting to default (30000).");
+                        loadedConfigState.Car_Wash_Price = configState.Car_Wash_Price;
+                        isConfigUpdated = true;
+                    }
 
                     // Überprüfe und aktualisiere die Werte für Post Office
                     if (loadedConfigState.Post_Office_Cap <= 0f)
@@ -107,6 +125,12 @@ namespace MoreRealisticLaundering.Config
                     {
                         MelonLogger.Warning("Invalid Post_Office_Tax_Percentage in config. Reverting to default (19%).");
                         loadedConfigState.Post_Office_Tax_Percentage = configState.Post_Office_Tax_Percentage;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Post_Office_Price <= 0f)
+                    {
+                        MelonLogger.Warning("Invalid Post_Office_Price in config. Reverting to default (20000).");
+                        loadedConfigState.Post_Office_Price = configState.Post_Office_Price;
                         isConfigUpdated = true;
                     }
 
@@ -132,7 +156,7 @@ namespace MoreRealisticLaundering.Config
             {
                 string contents = JsonConvert.SerializeObject(config, Newtonsoft.Json.Formatting.Indented);
                 File.WriteAllText(ConfigManager.FilePath, contents);
-              //  MelonLogger.Msg("Configuration saved successfully.");
+                MelonLogger.Msg("Configuration saved successfully.");
             }
             catch (Exception ex)
             {
@@ -150,7 +174,7 @@ namespace MoreRealisticLaundering.Config
 
                 case "taco_ticklers":
                 case "tacoticklers":
-                 case "taco ticklers":
+                case "taco ticklers":
                     return config.Taco_Ticklers_Laundering_time_hours;
 
                 case "car_wash":
@@ -179,7 +203,7 @@ namespace MoreRealisticLaundering.Config
 
                 case "taco_ticklers":
                 case "tacoticklers":
-                 case "taco ticklers":
+                case "taco ticklers":
                     return config.Taco_Ticklers_Tax_Percentage;
 
                 case "car_wash":

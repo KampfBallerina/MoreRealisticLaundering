@@ -9,8 +9,10 @@ using Il2CppInterop.Runtime;
 
 using UnityEngine.UI;
 using MoreRealisticLaundering.Util;
+using MoreRealisticLaundering.PhoneApp;
+using Il2CppTMPro;
 
-[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.0.1", "KampfBallerina", null)]
+[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.1.0", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MoreRealisticLaundering
@@ -83,7 +85,14 @@ namespace MoreRealisticLaundering
             }
             if (contentRect == null)
             {
-                contentRect = HomeScreenScrollRectContent.GetComponent<RectTransform>();
+                if (HomeScreenScrollRectContent == null)
+                {
+                    return;
+                }
+                else
+                {
+                    contentRect = HomeScreenScrollRectContent.GetComponent<RectTransform>();
+                }
                 if (contentRect == null)
                 {
                     return;
@@ -166,16 +175,19 @@ namespace MoreRealisticLaundering
         public override void OnLateUpdate()
         {
             bool toggle = false;
-            if (IsHomescreenLoaded && CompatabilityIconsPage.GetComponentsInChildren<Transform>().Count > 1)
+            if (IsHomescreenLoaded && CompatabilityIconsPage)
             {
-                ((MelonBase)this).LoggerInstance.Msg("Missing app found, attempting to patch. Count: " + (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Count - 1));
-                GameObject[] array = (from t in (IEnumerable<Transform>)CompatabilityIconsPage.GetComponentsInChildren<Transform>(includeInactive: true)
-                                      select t.gameObject into obj
-                                      where obj.transform != CompatabilityIconsPage
-                                      select obj).ToArray();
-                foreach (GameObject child2 in array)
+                if (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Count > 1)
                 {
-                    MelonCoroutines.Start(Patcher(child2));
+                    ((MelonBase)this).LoggerInstance.Msg("Missing app found, attempting to patch. Count: " + (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Count - 1));
+                    GameObject[] array = (from t in (IEnumerable<Transform>)CompatabilityIconsPage.GetComponentsInChildren<Transform>(includeInactive: true)
+                                          select t.gameObject into obj
+                                          where obj.transform != CompatabilityIconsPage
+                                          select obj).ToArray();
+                    foreach (GameObject child2 in array)
+                    {
+                        MelonCoroutines.Start(Patcher(child2));
+                    }
                 }
             }
             IEnumerator Patcher(GameObject child)
@@ -325,17 +337,28 @@ namespace MoreRealisticLaundering
             MelonCoroutines.Start(MRLCore.Instance.WaitAndApplyCaps());
             MelonCoroutines.Start(InitHomescreen());
             MelonCoroutines.Start(MRLCore.launderingApp.InitializeLaunderApp());
+            MelonCoroutines.Start(MRLCore.Instance.CheckForUnownedBusinesses());
         }
 
         private void ResetAllVariables()
         {
             LoggerInstance.Msg("Resetting all variables to default values...");
+            HomeScreenScrollRect = null;
+            IconsPageTemplate = null;
+            HomeScreenScrollRectContent = null;
+            HomeScreenHorizontalLayoutGroup = null;
+            CompatabilityIconsPage = null;
+            UIAppPages.Clear();
+            AllApps.Clear();
+            currentAppPage = 0;
+            snapOffset = -30f;
+            snapDuration = 0.15f;
+            snapVelocity = 0f;
+            isInitialSnapDone = false;
+            IsHomescreenLoaded = false;
 
             // Setze die Konfiguration zurück
             MRLCore.Instance.config = null;
-
-            //Refresh the Saved Caps
-            MRLCore.Instance.FillCapDictionary();
 
             // Leere die Dictionaries
             MRLCore.Instance.maxiumumLaunderValues.Clear();
@@ -367,19 +390,6 @@ namespace MoreRealisticLaundering
             Business.onOperationStarted = null;
             Business.onOperationFinished = null;
 
-            HomeScreenScrollRect = null;
-            IconsPageTemplate = null;
-            HomeScreenScrollRectContent = null;
-            HomeScreenHorizontalLayoutGroup = null;
-            CompatabilityIconsPage = null;
-            UIAppPages.Clear();
-            AllApps.Clear();
-            currentAppPage = 0;
-            snapOffset = -30f;
-            snapDuration = 0.15f;
-            snapVelocity = 0f;
-            isInitialSnapDone = false;
-            IsHomescreenLoaded = false;
 
             LoggerInstance.Msg("All variables have been reset.");
         }
@@ -398,31 +408,27 @@ namespace MoreRealisticLaundering
                 MelonLogger.Error("Failed to register laundering listeners: " + ex.Message);
             }
         }
-        void CheckForNewBusinesses()
+        public IEnumerator CheckForUnownedBusinesses()
         {
-            MelonLogger.Msg("Checking for new businesses...");
-            if (Business.OwnedBusinesses != null)
+            MelonLogger.Msg("Checking for unowned businesses...");
+            if (Business.UnownedBusinesses != null && Business.UnownedBusinesses.Count > 0)
             {
-                foreach (Business business in Business.OwnedBusinesses)
+                MelonLogger.Msg("Found unowned businesses. Processing...");
+                while (!MRLCore.launderingApp._isLaunderingAppLoaded)
                 {
-                    if (business == null)
-                    {
-                        MelonLogger.Warning("Encountered a null business in OwnedBusinesses. Skipping...");
-                        continue;
-                    }
-
-                    if (!MRLCore.Instance.processedBusinesses.Contains(business.name))
-                    {
-                        MRLCore.Instance.ApplyCap(business);
-                        MRLCore.Instance.processedBusinesses.Add(business.name);
-                        MRLCore.Instance.createdBusinessesEntries.Add(business.name);
-                        MRLCore.Instance.CreateAppEntryForBusiness(business);
-                    }
-                    else
-                    {
-                        MelonLogger.Warning($"Business '{business.name}' already processed. Skipping...");
-                    }
+                    yield return new WaitForSeconds(2f); // Warte 2 Sekunde
                 }
+                ApplyPricesToUnownedBusinesses();
+                ApplyPricesToPropertyListings();
+
+                string imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
+                MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
+                yield break;
+            }
+            else
+            {
+                MelonLogger.Msg("No unowned businesses found.");
+                yield break;
             }
         }
 
@@ -729,6 +735,173 @@ namespace MoreRealisticLaundering
 
             LoggerInstance.Error("Failed to find the CreditCard icon.");
             return null;
+        }
+
+        public void ApplyPricesToUnownedBusinesses()
+        {
+            if (Business.UnownedBusinesses != null)
+            {
+                foreach (Business business in Business.UnownedBusinesses)
+                {
+                    if (business == null)
+                    {
+                        MelonLogger.Warning("Encountered a null business in UnownedBusinesses. Skipping...");
+                        continue;
+                    }
+
+                    if (MRLCore.Instance.aliasMap.TryGetValue(business.name, out string key))
+                    {
+                        float price = key switch
+                        {
+                            "Laundromat" => MRLCore.Instance.config.Laundromat_Price,
+                            "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
+                            "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
+                            "Post Office" => MRLCore.Instance.config.Post_Office_Price,
+                            _ => 999999f // Standardwert, falls das Business nicht gefunden wird
+                        };
+
+                        business.Price = price;
+                        //   MelonLogger.Msg($"Set price for unowned business '{business.name}' to {price:C}.");
+                    }
+                    else
+                    {
+                        MelonLogger.Warning($"Business '{business.name}' not found in aliasMap. Skipping price assignment.");
+                    }
+                }
+            }
+            else
+            {
+                MelonLogger.Warning("UnownedBusinesses is null. Cannot apply prices.");
+            }
+        }
+
+        public void ApplyPricesToPropertyListings()
+        {
+            // Suche nach dem "RE Office"-Objekt im Spiel
+            GameObject reOfficeWhiteboard = GameObject.Find("Map/Container/RE Office/Interior/Whiteboard (1)");
+            if (reOfficeWhiteboard == null)
+            {
+                MelonLogger.Warning("RE Office not found. Cannot apply prices to PropertyListings.");
+                return;
+            }
+
+            // Suche nach allen PropertyListing-Objekten unter "RE Office"
+            Transform[] propertyListings = new Transform[]
+            {
+                reOfficeWhiteboard.transform.Find("PropertyListing Laundromat"),
+                reOfficeWhiteboard.transform.Find("PropertyListing Taco Ticklers"),
+                reOfficeWhiteboard.transform.Find("PropertyListing Car Wash"),
+                reOfficeWhiteboard.transform.Find("PropertyListing Post Office")
+            };
+
+            foreach (Transform propertyListing in propertyListings)
+            {
+                if (propertyListing == null)
+                {
+                    MelonLogger.Warning("A PropertyListing was not found. Skipping...");
+                    continue;
+                }
+
+                // Hole den Namen des PropertyListings
+                string listingName = propertyListing.name.Replace("PropertyListing ", "").Trim();
+
+                // Hole den Preis aus der Konfiguration
+                if (MRLCore.Instance.aliasMap.TryGetValue(listingName, out string key))
+                {
+                    float price = key switch
+                    {
+                        "Laundromat" => MRLCore.Instance.config.Laundromat_Price,
+                        "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
+                        "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
+                        "Post Office" => MRLCore.Instance.config.Post_Office_Price,
+                        _ => 999999f // Standardwert, falls das Business nicht gefunden wird
+                    };
+
+                    // Suche nach dem "Price"-Objekt und aktualisiere den Text
+                    Transform priceTransform = propertyListing.Find("Price");
+                    if (priceTransform != null)
+                    {
+                        TextMeshPro priceText = priceTransform.GetComponent<TextMeshPro>();
+                        if (priceText != null)
+                        {
+                            priceText.text = $"${price}";
+                            //   MelonLogger.Msg($"Set price for {listingName} to {price:C}.");
+                        }
+                        else
+                        {
+                            MelonLogger.Warning($"Price TextMeshPro component not found for {listingName}.");
+                        }
+                    }
+                    else
+                        MelonLogger.Warning($"Price object not found for {listingName}.");
+                }
+                else
+                {
+                    MelonLogger.Warning($"Business '{listingName}' not found in aliasMap. Skipping price assignment.");
+                }
+            }
+            UpdateSellSignPrices();
+        }
+
+        private void UpdateSellSignPrices()
+        {
+            // Suche nach den Verkaufsschildern
+            GameObject sellSignPostOffice = GameObject.Find("@Businesses/PostOffice/ForSaleSign_Blue (1)");
+            GameObject sellSignCarWash = GameObject.Find("@Businesses/Car Wash/ForSaleSign_Blue");
+            GameObject sellSignLaundromat = GameObject.Find("@Businesses/Laundromat/ForSaleSign_Blue (1)");
+            GameObject sellSignTacoTicklers = GameObject.Find("@Businesses/Taco Ticklers/ForSaleSign_Blue (1)");
+
+            // Aktualisiere die Preise für jedes Schild
+            UpdateSignPrice(sellSignPostOffice, "Post Office");
+            UpdateSignPrice(sellSignCarWash, "Car Wash");
+            UpdateSignPrice(sellSignLaundromat, "Laundromat");
+            UpdateSignPrice(sellSignTacoTicklers, "Taco Ticklers");
+        }
+
+        private void UpdateSignPrice(GameObject sellSign, string businessName)
+        {
+            if (sellSign == null)
+            {
+                MelonLogger.Warning($"Sell sign for {businessName} not found. Skipping...");
+                return;
+            }
+
+            // Hole den Preis aus der Konfiguration
+            if (MRLCore.Instance.aliasMap.TryGetValue(businessName, out string key))
+            {
+                float price = key switch
+                {
+                    "Laundromat" => MRLCore.Instance.config.Laundromat_Price,
+                    "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
+                    "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
+                    "Post Office" => MRLCore.Instance.config.Post_Office_Price,
+                    _ => 999999f // Standardwert, falls das Business nicht gefunden wird
+                };
+
+                // Suche nach dem "Price"-Objekt und aktualisiere den Text
+                Transform priceTransform = sellSign.transform.Find("Price");
+                if (priceTransform != null)
+                {
+                    TextMeshPro priceText = priceTransform.GetComponent<TextMeshPro>();
+                    if (priceText != null)
+                    {
+                        priceText.text = $"${price}";
+                        MelonLogger.Msg($"Updated sell sign price for {businessName} to ${price}.");
+                    }
+                    else
+                    {
+                        MelonLogger.Warning($"Price TextMeshPro component not found for sell sign of {businessName}.");
+                    }
+                }
+                else
+                {
+                    MelonLogger.Warning($"Price object not found for sell sign of {businessName}.");
+                }
+            }
+            else
+            {
+                MelonLogger.Warning($"Business '{businessName}' not found in aliasMap. Skipping sell sign price assignment.");
+            }
         }
 
         public Sprite CreditCardIcon;
