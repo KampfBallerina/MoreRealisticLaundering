@@ -581,19 +581,19 @@ namespace MoreRealisticLaundering
 
                     MRLCore.launderingApp.AddEntryFromTemplate(displayName, displayName, subTitle, business, template, color, imagePath);
 
-                    LoggerInstance.Msg($"Created app entry for business: {business.name}");
+                    MelonLogger.Msg($"Created app entry for business: {business.name}");
 
                     // Füge das Business zur Liste der erstellten AppEntries hinzu
                     createdAppEntries.Add(business.name);
                 }
                 else
                 {
-                    LoggerInstance.Warning($"No template found for business: {business.name}");
+                    MelonLogger.Warning($"No template found for business: {business.name}");
                 }
             }
             else
             {
-                LoggerInstance.Error("Templates are not initialized. Cannot create app entries.");
+                MelonLogger.Error("Templates are not initialized. Cannot create app entries.");
             }
         }
 
@@ -624,7 +624,7 @@ namespace MoreRealisticLaundering
 
                 operation.completionTime_Minutes = launderingTime * 60;
                 string displayName = operation.business.name == "PostOffice" ? "Post Office" : operation.business.name;
-                LoggerInstance.Msg($"Boosting Laundering Operation: {displayName} Amount: {operation.amount:N0} Completion Time: {operation.completionTime_Minutes}");
+                //    MelonLogger.Msg($"Speeding up Laundering Operation: {displayName} Amount: {operation.amount:N0} Completion Time: {operation.completionTime_Minutes}");
                 MRLCore.Instance.boostedOps.Add(operation);
             }
         }
@@ -636,12 +636,12 @@ namespace MoreRealisticLaundering
                 if (operation != null && operation.business != null)
                 {
                     string displayName = operation.business.name == "PostOffice" ? "Post Office" : operation.business.name;
-                    LoggerInstance.Msg($"Laundering started: {displayName} {operation.amount:N0} {operation.minutesSinceStarted:N0} minutes since started. {operation.completionTime_Minutes:N0} minutes to complete.");
+                    //    MelonLogger.Msg($"Laundering started: {displayName} {operation.amount:N0} {operation.minutesSinceStarted:N0} minutes since started. {operation.completionTime_Minutes:N0} minutes to complete.");
                 }
             }
             catch (Exception ex)
             {
-                LoggerInstance.Error($"Error in OnLaunderingStarted: {ex.Message}");
+                MelonLogger.Error($"Error in OnLaunderingStarted: {ex.Message}");
             }
         }
 
@@ -652,7 +652,7 @@ namespace MoreRealisticLaundering
                 if (operation != null && operation.business != null)
                 {
                     string displayName = operation.business.name == "PostOffice" ? "Post Office" : operation.business.name;
-                    LoggerInstance.Msg($"Laundering finished: {displayName} {operation.amount:N0} {operation.minutesSinceStarted:N0} minutes since started. {operation.completionTime_Minutes:N0} minutes to complete.");
+                    //   MelonLogger.Msg($"Laundering finished: {displayName} {operation.amount:N0} {operation.minutesSinceStarted:N0} minutes since started. {operation.completionTime_Minutes:N0} minutes to complete.");
 
                     float taxAmount = CalculateTaxedPayout(operation);
                     DeductBankMoney(taxAmount, operation.business.name);
@@ -673,7 +673,7 @@ namespace MoreRealisticLaundering
                     string transactionText = $"Tax for {businessName}";
                     moneyManager.ReceiveOnlineTransaction(transactionText, -amount, 1, transactionText);
                     moneyManager.CreateOnlineTransaction(transactionText, -amount, 1, transactionText);
-                    LoggerInstance.Msg($"Removed {amount:N0} from Bank Account.");
+                    //    MelonLogger.Msg($"Removed {amount:N0} from Bank Account.");
 
                     if (notificationsManager != null)
                     {
@@ -708,7 +708,7 @@ namespace MoreRealisticLaundering
                 float taxedPayout = launderedAmount - taxAmount;
 
                 string displayName = operation.business.name == "PostOffice" ? "Post Office" : operation.business.name;
-                LoggerInstance.Msg($"Calculating Taxes for {displayName}: Amount: {launderedAmount:N0}, Tax: {taxAmount:N0}, Payout: {taxedPayout:N0}");
+                //    MelonLogger.Msg($"Calculating Taxes for {displayName}: Amount: {launderedAmount:N0}, Tax: {taxAmount:N0}, Payout: {taxedPayout:N0}");
                 operation.amount = taxedPayout;
 
                 return taxAmount;

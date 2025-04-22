@@ -1280,7 +1280,7 @@ namespace MoreRealisticLaundering.PhoneApp
             buttonText.text = "Save & Apply";
             isSaveStillRunning = false;
 
-            MelonLogger.Msg("Real estate prices have been saved and applied successfully.");
+            // MelonLogger.Msg("Real estate prices have been saved and applied successfully.");
         }
 
         public void AddPriceOptionsForRealEstate(Transform parentTransform)
@@ -1318,7 +1318,7 @@ namespace MoreRealisticLaundering.PhoneApp
             // Füge einen Save-Button hinzu
             AddSaveButton(priceOptionsTransform, "RealEstate");
 
-            MelonLogger.Msg("Added price options for real estate to priceOptionsTransform.");
+            // MelonLogger.Msg("Added price options for real estate to priceOptionsTransform.");
         }
 
         public GameObject dansHardwareTemplate;
