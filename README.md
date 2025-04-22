@@ -34,4 +34,5 @@ Adjusts laundering operations to reflect the configured settings, ensuring a mor
 ### Custom Notifications:
 
 Sends in-game notifications for key events, such as when changes are saved, taxes are deducted, or laundering operations are completed.
+
 ![Tax Notification](https://github.com/user-attachments/assets/11ae48d4-dc88-482e-83e8-1ed492a0ec3a)
