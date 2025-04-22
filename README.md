@@ -8,6 +8,7 @@ MoreRealisticLaundering, enhances the in-game money laundering mechanics by intr
 
 Adds a custom app to the in-game phone, enabling players to manage their businesses directly from the app.
 The app includes detailed options for each business, such as adjusting settings and viewing business-specific information.
+
 ![App Icon](https://github.com/user-attachments/assets/46d504fb-d764-4bb3-bf3a-a7760cb7376f)
 
 ### Automatic Business Detection:
@@ -18,6 +19,7 @@ Ensures that all businesses are processed and updated dynamically.
 ### Customizable Business Settings:
 Allows players to adjust the maximum laundering capacity, laundering time, and taxation percentage for each business (e.g., Laundromat, Taco Ticklers, Car Wash, Post Office).
 These settings can be saved and applied dynamically through an intuitive interface.
+
 ![App Content](https://github.com/user-attachments/assets/bb97d8d0-00c1-415c-b507-17e90bc75507)
 
 ### Realistic Taxation System:
@@ -29,6 +31,7 @@ Displays notifications for tax deductions and provides detailed logs of transact
 
 Adjusts laundering times and capacities dynamically based on the player's configuration.
 Adjusts laundering operations to reflect the configured settings, ensuring a more realistic and personalized experience.
+
 ![Correct Launder Computers](https://github.com/user-attachments/assets/415b77d6-353c-4215-b080-8b74ba7a50d2)
 
 ### Custom Notifications:
