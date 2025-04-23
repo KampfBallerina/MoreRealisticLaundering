@@ -12,7 +12,6 @@
 [*]Extract the [b]Mods[/b] and [b]UserData[/b] folders of the ZIP file into your game's directory.
 [*]Launch the game, and the mod will automatically initialize.
 [/list]
-
 [size=5]Configuration[/size]
 - The mod generates a configuration file ([b]MoreRealisticLaundering.json[/b]) in the [b]UserData[/b] folder.
 - You can edit this file to customize the default settings for each business; however, this is optional.
