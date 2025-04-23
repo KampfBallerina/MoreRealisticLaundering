@@ -81,6 +81,10 @@ namespace MoreRealisticLaundering
 
         public override void OnUpdate()
         {
+            if (isLegitVersion)
+            {
+                return;
+            }
             if (!IsHomescreenLoaded)
             {
                 return;
@@ -180,6 +184,10 @@ namespace MoreRealisticLaundering
 
         public override void OnLateUpdate()
         {
+            if (isLegitVersion)
+            {
+                return;
+            }
             bool toggle = false;
             if (IsHomescreenLoaded && CompatabilityIconsPage != null && CompatabilityIconsPage.transform.childCount > 0)
             {
