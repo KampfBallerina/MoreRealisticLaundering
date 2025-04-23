@@ -343,12 +343,13 @@ namespace MoreRealisticLaundering
         {
             // Wait for other Mods that create Apps to load
             bool delayedInit = false;
-            while (!delayedInit)
+            while (!delayedInit && !isLegitVersion)
             {
                 MelonLogger.Msg("Waiting 8 Seconds for other mods to load their apps..");
                 delayedInit = true;
                 yield return new WaitForSeconds(8f);
             }
+
             MelonCoroutines.Start(MRLCore.Instance.WaitAndApplyCaps());
             if (!isLegitVersion)
             {
