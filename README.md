@@ -10,6 +10,13 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
 
+## What's new in Version 1.1.2?
+- Enhanced the `Legit Mode` that you can only access via the configuration file `MoreRealisticLaundering.json`.
+- Legit Mode will allow you to use the config file only, without any ingame UI (Mobile App).
+- This aims for players that do not want the seduction of tweaking the settings like cheats in real time but want to use the general features for their playstyle.
+- To enable the Legit Mode, set the `Use_Legit_Version` variable to `true` (default is false, which will create the "Tax & Wash" app as usual).
+
+
 ## Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.
 2. Extract the `Mods` and `UserData` folders of the ZIP file into your game's directory.
@@ -57,10 +64,6 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 
 ![Tax Notification](https://github.com/user-attachments/assets/11ae48d4-dc88-482e-83e8-1ed492a0ec3a)
 
----
-
-## New Features and Changes
-
 ### Enhanced Real Estate Management:
 - Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices (currently only businesses).
 - Allows players to view and adjust the prices of unowned (and owned) businesses directly from the app.
@@ -86,11 +89,6 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Dynamically applies updated prices to all relevant in-game objects, including property listings and sell signs, ensuring consistency across the game world.
 
 ![Correct Dialogs](https://github.com/user-attachments/assets/6308dc12-2db2-480c-948c-03127f846d8b)
-
-### Switched to NET472:
-- The mod now targets .NET Framework 4.7.2 for improved compatibility with Unity and MelonLoader.
-- Ensures better support for legacy systems and avoids runtime issues caused by incompatible .NET versions.
-- Simplifies deployment by removing the need for users to install additional .NET runtimes.
 
 ---
 

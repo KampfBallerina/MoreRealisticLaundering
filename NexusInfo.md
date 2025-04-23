@@ -6,6 +6,12 @@
 - Not compatible with most mods that modify the Deliveries App (e.g. [url=https://www.nexusmods.com/schedule1/mods/521]DeliveryApp Improvements[/url])
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
+[size=5]What's new in Version 1.1.2?[/size]
+- Enhanced the [b]Legit Mode[/b] that you can only access via the configuration file [b]MoreRealisticLaundering.json[/b].
+- Legit Mode will allow you to use the config file only, without any ingame UI (Mobile App).
+- This aims for players that do not want the seduction of tweaking the settings like cheats in real time but want to use the general features for their playstyle.
+- To enable the Legit Mode, set the [b]Use_Legit_Version[/b] variable to [b]true[/b] (default is false, which will create the "Tax & Wash" app as usual).
+
 [size=5]Installation[/size]
 [list=1]
 [*]Download the latest release from the [url=https://github.com/user/MoreRealisticLaundering/releases]GitHub Releases[/url] page.
@@ -51,8 +57,6 @@
 
 [center][img]https://github.com/user-attachments/assets/11ae48d4-dc88-482e-83e8-1ed492a0ec3a[/img][/center]
 
-[size=5]New Features and Changes[/size]
-
 [size=3]Enhanced Real Estate Management:[/size]
 - Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices (currently only businesses).
 - Allows players to view and adjust the prices of unowned (and owned) businesses directly from the app.
@@ -78,11 +82,6 @@
 - Dynamically applies updated prices to all relevant in-game objects, including property listings and sell signs, ensuring consistency across the game world.
 
 [center][img]https://github.com/user-attachments/assets/6308dc12-2db2-480c-948c-03127f846d8b[/img][/center]
-
-[size=3]Switched to NET472:[/size]
-- The mod now targets .NET Framework 4.7.2 for improved compatibility with Unity and MelonLoader.
-- Ensures better support for legacy systems and avoids runtime issues caused by incompatible .NET versions.
-- Simplifies deployment by removing the need for users to install additional .NET runtimes.
 
 [size=5]Download Mirrors[/size]
 - [url=https://github.com/KampfBallerina/MoreRealisticLaundering][b]GitHub[/b][/url]
