@@ -9,19 +9,18 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Not compatible with most mods that modify the Deliveries App
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
----
 
 ## Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.
 2. Extract the `Mods` and `UserData` folders of the ZIP file into your game's directory.
 3. Launch the game, and the mod will automatically initialize.
 
----
 
 ## Configuration
 - The mod generates a configuration file (`MoreRealisticLaundering.json`) in the `UserData` folder.
 - You can edit this file to customize the default settings for each business however this is optional
 - Use the custom app ingame to modify everything dynamically
+
 
 ---
 
