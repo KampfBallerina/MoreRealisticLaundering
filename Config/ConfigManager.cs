@@ -46,7 +46,7 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Laundromat_Laundering_time_hours = configState.Laundromat_Laundering_time_hours;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Laundromat_Tax_Percentage <= 0 || loadedConfigState.Laundromat_Tax_Percentage > 100)
+                    if (loadedConfigState.Laundromat_Tax_Percentage < 0 || loadedConfigState.Laundromat_Tax_Percentage > 100)
                     {
                         MelonLogger.Warning("Invalid Laundromat_Tax_Percentage in config. Reverting to default (19%).");
                         loadedConfigState.Laundromat_Tax_Percentage = configState.Laundromat_Tax_Percentage;
@@ -71,7 +71,7 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Taco_Ticklers_Laundering_time_hours = configState.Taco_Ticklers_Laundering_time_hours;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Taco_Ticklers_Tax_Percentage <= 0 || loadedConfigState.Taco_Ticklers_Tax_Percentage > 100)
+                    if (loadedConfigState.Taco_Ticklers_Tax_Percentage < 0 || loadedConfigState.Taco_Ticklers_Tax_Percentage > 100)
                     {
                         MelonLogger.Warning("Invalid Taco_Ticklers_Tax_Percentage in config. Reverting to default (19%).");
                         loadedConfigState.Taco_Ticklers_Tax_Percentage = configState.Taco_Ticklers_Tax_Percentage;
@@ -96,7 +96,7 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Car_Wash_Laundering_time_hours = configState.Car_Wash_Laundering_time_hours;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Car_Wash_Tax_Percentage <= 0 || loadedConfigState.Car_Wash_Tax_Percentage > 100)
+                    if (loadedConfigState.Car_Wash_Tax_Percentage < 0 || loadedConfigState.Car_Wash_Tax_Percentage > 100)
                     {
                         MelonLogger.Warning("Invalid Car_Wash_Tax_Percentage in config. Reverting to default (19%).");
                         loadedConfigState.Car_Wash_Tax_Percentage = configState.Car_Wash_Tax_Percentage;
@@ -121,7 +121,7 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Post_Office_Laundering_time_hours = configState.Post_Office_Laundering_time_hours;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Post_Office_Tax_Percentage <= 0 || loadedConfigState.Post_Office_Tax_Percentage > 100)
+                    if (loadedConfigState.Post_Office_Tax_Percentage < 0 || loadedConfigState.Post_Office_Tax_Percentage > 100)
                     {
                         MelonLogger.Warning("Invalid Post_Office_Tax_Percentage in config. Reverting to default (19%).");
                         loadedConfigState.Post_Office_Tax_Percentage = configState.Post_Office_Tax_Percentage;

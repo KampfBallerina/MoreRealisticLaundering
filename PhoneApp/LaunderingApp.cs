@@ -862,6 +862,29 @@ namespace MoreRealisticLaundering.PhoneApp
 
         void onEndEditCheck(InputField inputFieldComponent, string value, string labelText)
         {
+
+            if (appIconSprite == null)
+            {
+                string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                {
+                    byte[] imageData = File.ReadAllBytes(imagePath);
+                    Texture2D texture = new Texture2D(2, 2);
+                    if (texture.LoadImage(imageData))
+                    {
+                        Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                        appIconSprite = newSprite;
+                    }
+                    else
+                    {
+                        MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                    }
+                }
+            }
+
+
+            string subTitleString; //= $"for <color=#329AC5>{displayName}</color>";
+
             string input = value.Trim(); // Entferne Leerzeichen am Anfang und Ende der Eingabe
             if (labelText == "Maximum Launder")
             {
@@ -869,6 +892,11 @@ namespace MoreRealisticLaundering.PhoneApp
                 if (string.IsNullOrEmpty(input) || int.TryParse(input, out int parsedValue) && parsedValue < 1000)
                 {
                     inputFieldComponent.text = "1000";
+                    if (MRLCore.Instance.notificationsManager != null)
+                    {
+                        subTitleString = $"Has to be <color=#329AC5>at least $1000</color>";
+                        MRLCore.Instance.notificationsManager.SendNotification("Maximum Launder", subTitleString, appIconSprite, 3, true);
+                    }
                     MelonLogger.Warning($"Maximum Launder value was < 1000. Applying '$1000' as value.");
                 }
             }
@@ -878,28 +906,41 @@ namespace MoreRealisticLaundering.PhoneApp
                 if (string.IsNullOrEmpty(input) || int.TryParse(input, out int parsedValue) && parsedValue < 4)
                 {
                     inputFieldComponent.text = "24";
+                    if (MRLCore.Instance.notificationsManager != null)
+                    {
+                        subTitleString = $"Has to be <color=#329AC5>at least 4 hrs</color>";
+                        MRLCore.Instance.notificationsManager.SendNotification("Launder Time", subTitleString, appIconSprite, 3, true);
+                    }
                     MelonLogger.Warning($"Launder Time was < 4. Applying '24 hrs' as value.");
                 }
             }
             else if (labelText == "Taxation")
             {
-                if (string.IsNullOrEmpty(input) || float.TryParse(input, out float parsedValue) && parsedValue < 1)
+                if (string.IsNullOrEmpty(input) || float.TryParse(input, out float parsedValue) && (parsedValue < 0 || parsedValue > 100))
                 {
                     inputFieldComponent.text = "19";
-                    MelonLogger.Warning($"Taxation < 1. Applying '19 %' as value.");
+                    if (MRLCore.Instance.notificationsManager != null)
+                    {
+                        subTitleString = $"Has to be between <color=#329AC5> 0 to 100 %</color>";
+                        MRLCore.Instance.notificationsManager.SendNotification("Taxation", subTitleString, appIconSprite, 3, true);
+                    }
+                    MelonLogger.Warning($"Taxation < 0 or > 100. Applying '19 %' as value.");
                 }
             }
-            else if (labelText.Contains("Post Office") || labelText.Contains("Taco Tickler") || labelText.Contains("Laundromat") || labelText.Contains("Car Wash"))
+            else if (labelText.Contains("Post Office") || labelText.Contains("PostOffice") || labelText.Contains("Taco Tickler") || labelText.Contains("Laundromat") || labelText.Contains("Car Wash"))
             {
                 // Überprüfe, ob die Eingabe leer ist oder kleiner als 1000
                 if (string.IsNullOrEmpty(input) || float.TryParse(input, out float parsedValue) && parsedValue < 1000)
                 {
                     inputFieldComponent.text = "1000";
+                    if (MRLCore.Instance.notificationsManager != null)
+                    {
+                        subTitleString = $"Has to be <color=#329AC5>at least $1000</color>";
+                        MRLCore.Instance.notificationsManager.SendNotification("Taxation", subTitleString, appIconSprite, 3, true);
+                    }
                     MelonLogger.Warning($"{labelText} was < 1000. Applying '$1000' as value.");
                 }
             }
-
-
         }
 
         void AddSaveButton(Transform parentTransform, string saveString = null)

@@ -4,6 +4,13 @@
 
 MoreRealisticLaundering enhances the in-game money laundering mechanics by introducing more detailed customization and management options for businesses.
 
+## Known Incompatiblities / Issues
+- Not compatible with most translation mods
+- Not compatible with most mods that modify the Deliveries App
+- Custom app takes long to be visible: Allows other mods to load their custom apps before
+
+---
+
 ## Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.
 2. Extract the `Mods` and `UserData` folders of the ZIP file into your game's directory.

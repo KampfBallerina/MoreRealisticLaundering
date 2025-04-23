@@ -12,7 +12,7 @@ using MoreRealisticLaundering.Util;
 using MoreRealisticLaundering.PhoneApp;
 using Il2CppTMPro;
 
-[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.1.0", "KampfBallerina", null)]
+[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.1.1", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MoreRealisticLaundering
@@ -46,7 +46,7 @@ namespace MoreRealisticLaundering
 
         private float snapVelocityThreshold = 200f;
 
-        private bool isInitialSnapDone;
+        private bool isInitialSnapDone = false;
 
         private RectTransform contentRect;
 
@@ -60,7 +60,7 @@ namespace MoreRealisticLaundering
 
         private float dragThreshold = 15f;
 
-        public bool IsHomescreenLoaded;
+        public bool IsHomescreenLoaded = false;
 
         public override void OnInitializeMelon()
         {
@@ -97,6 +97,10 @@ namespace MoreRealisticLaundering
                 {
                     return;
                 }
+            }
+            if (UIAppPages == null || UIAppPages.Count <= 0)
+            {
+                return;
             }
             HomeScreenScrollRect.enabled = UIAppPages.Count > 1;
             if (!HomeScreenScrollRect.enabled)
@@ -175,14 +179,14 @@ namespace MoreRealisticLaundering
         public override void OnLateUpdate()
         {
             bool toggle = false;
-            if (IsHomescreenLoaded && CompatabilityIconsPage)
+            if (IsHomescreenLoaded && CompatabilityIconsPage != null && CompatabilityIconsPage.transform.childCount > 0)
             {
-                if (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Count > 1)
+                if (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Length > 1)
                 {
-                    ((MelonBase)this).LoggerInstance.Msg("Missing app found, attempting to patch. Count: " + (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Count - 1));
+                    ((MelonBase)this).LoggerInstance.Msg("Missing app found, attempting to patch. Count: " + (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Length - 1));
                     GameObject[] array = (from t in (IEnumerable<Transform>)CompatabilityIconsPage.GetComponentsInChildren<Transform>(includeInactive: true)
                                           select t.gameObject into obj
-                                          where obj.transform != CompatabilityIconsPage
+                                          where obj.transform != CompatabilityIconsPage.transform
                                           select obj).ToArray();
                     foreach (GameObject child2 in array)
                     {
@@ -330,9 +334,9 @@ namespace MoreRealisticLaundering
             bool delayedInit = false;
             while (!delayedInit)
             {
-                MelonLogger.Msg("Waiting 6 Seconds for other mods to load their apps..");
+                MelonLogger.Msg("Waiting 8 Seconds for other mods to load their apps..");
                 delayedInit = true;
-                yield return new WaitForSeconds(6f);
+                yield return new WaitForSeconds(8f);
             }
             MelonCoroutines.Start(MRLCore.Instance.WaitAndApplyCaps());
             MelonCoroutines.Start(InitHomescreen());
@@ -619,6 +623,7 @@ namespace MoreRealisticLaundering
                     "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Laundering_time_hours,
                     "Car Wash" => MRLCore.Instance.config.Car_Wash_Laundering_time_hours,
                     "PostOffice" => MRLCore.Instance.config.Post_Office_Laundering_time_hours,
+                    "Post Office" => MRLCore.Instance.config.Post_Office_Laundering_time_hours,
                     _ => 24 // Default fallback
                 };
 
@@ -655,7 +660,10 @@ namespace MoreRealisticLaundering
                     //   MelonLogger.Msg($"Laundering finished: {displayName} {operation.amount:N0} {operation.minutesSinceStarted:N0} minutes since started. {operation.completionTime_Minutes:N0} minutes to complete.");
 
                     float taxAmount = CalculateTaxedPayout(operation);
-                    DeductBankMoney(taxAmount, operation.business.name);
+                    if (taxAmount > 0)
+                    {
+                        DeductBankMoney(taxAmount, operation.business.name);
+                    }
                 }
             }
             catch (Exception ex)
@@ -671,7 +679,7 @@ namespace MoreRealisticLaundering
                 if (moneyManager != null)
                 {
                     string transactionText = $"Tax for {businessName}";
-                    moneyManager.ReceiveOnlineTransaction(transactionText, -amount, 1, transactionText);
+                    //moneyManager.ReceiveOnlineTransaction(transactionText, -amount, 1, transactionText);
                     moneyManager.CreateOnlineTransaction(transactionText, -amount, 1, transactionText);
                     //    MelonLogger.Msg($"Removed {amount:N0} from Bank Account.");
 
@@ -700,6 +708,7 @@ namespace MoreRealisticLaundering
                     "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Tax_Percentage / 100,
                     "Car Wash" => MRLCore.Instance.config.Car_Wash_Tax_Percentage / 100,
                     "PostOffice" => MRLCore.Instance.config.Post_Office_Tax_Percentage / 100,
+                    "Post Office" => MRLCore.Instance.config.Post_Office_Tax_Percentage / 100,
                     _ => 0.19f // Default fallback
                 };
 
@@ -756,6 +765,7 @@ namespace MoreRealisticLaundering
                             "Laundromat" => MRLCore.Instance.config.Laundromat_Price,
                             "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
                             "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
+                            "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
                             "Post Office" => MRLCore.Instance.config.Post_Office_Price,
                             _ => 999999f // Standardwert, falls das Business nicht gefunden wird
                         };
@@ -814,6 +824,7 @@ namespace MoreRealisticLaundering
                         "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
                         "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
                         "Post Office" => MRLCore.Instance.config.Post_Office_Price,
+                        "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
                         _ => 999999f // Standardwert, falls das Business nicht gefunden wird
                     };
 
@@ -875,6 +886,7 @@ namespace MoreRealisticLaundering
                     "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
                     "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
                     "Post Office" => MRLCore.Instance.config.Post_Office_Price,
+                    "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
                     _ => 999999f // Standardwert, falls das Business nicht gefunden wird
                 };
 
@@ -886,7 +898,7 @@ namespace MoreRealisticLaundering
                     if (priceText != null)
                     {
                         priceText.text = $"${price}";
-                        MelonLogger.Msg($"Updated sell sign price for {businessName} to ${price}.");
+                        //    MelonLogger.Msg($"Updated sell sign price for {businessName} to ${price}.");
                     }
                     else
                     {
