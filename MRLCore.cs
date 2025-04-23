@@ -12,7 +12,7 @@ using MoreRealisticLaundering.Util;
 using MoreRealisticLaundering.PhoneApp;
 using Il2CppTMPro;
 
-[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.1.1.1", "KampfBallerina", null)]
+[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.1.2", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MoreRealisticLaundering
@@ -21,6 +21,8 @@ namespace MoreRealisticLaundering
     {
         public static MRLCore Instance { get; private set; }
         private bool isFirstStart = true;
+
+        private bool isLegitVersion = false;
 
         private ScrollRect HomeScreenScrollRect;
 
@@ -315,6 +317,15 @@ namespace MoreRealisticLaundering
             if (sceneName == "Main")
             {
                 MRLCore.Instance.config = Config.ConfigManager.Load();
+                if (MRLCore.Instance.config.Use_Legit_Version)
+                {
+                    LoggerInstance.Msg("Use_Legit_Version is enabled. Adjusting behavior accordingly.");
+                    isLegitVersion = true;
+                }
+                else
+                {
+                    LoggerInstance.Msg("Use_Legit_Version is disabled. Proceeding with default behavior.");
+                }
                 MRLCore.Instance.FillCapDictionary();
                 MRLCore.Instance.InitializeListeners();
                 MRLCore.Instance.moneyManager = UnityEngine.Object.FindObjectOfType<MoneyManager>();
@@ -339,9 +350,13 @@ namespace MoreRealisticLaundering
                 yield return new WaitForSeconds(8f);
             }
             MelonCoroutines.Start(MRLCore.Instance.WaitAndApplyCaps());
-            MelonCoroutines.Start(InitHomescreen());
-            MelonCoroutines.Start(MRLCore.launderingApp.InitializeLaunderApp());
+            if (!isLegitVersion)
+            {
+                MelonCoroutines.Start(InitHomescreen());
+                MelonCoroutines.Start(MRLCore.launderingApp.InitializeLaunderApp());
+            }
             MelonCoroutines.Start(MRLCore.Instance.CheckForUnownedBusinesses());
+
         }
 
         private void ResetAllVariables()
@@ -363,6 +378,7 @@ namespace MoreRealisticLaundering
 
             // Setze die Konfiguration zurück
             MRLCore.Instance.config = null;
+            isLegitVersion = false;
 
             // Leere die Dictionaries
             MRLCore.Instance.maxiumumLaunderValues.Clear();
@@ -418,15 +434,17 @@ namespace MoreRealisticLaundering
             if (Business.UnownedBusinesses != null && Business.UnownedBusinesses.Count > 0)
             {
                 MelonLogger.Msg("Found unowned businesses. Processing...");
-                while (!MRLCore.launderingApp._isLaunderingAppLoaded)
+                if (!isLegitVersion)
                 {
-                    yield return new WaitForSeconds(2f); // Warte 2 Sekunde
+                    while (!MRLCore.launderingApp._isLaunderingAppLoaded)
+                    {
+                        yield return new WaitForSeconds(2f); // Warte 2 Sekunde
+                    }
+                    string imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
+                    MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
                 }
                 ApplyPricesToUnownedBusinesses();
                 ApplyPricesToPropertyListings();
-
-                string imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
-                MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
                 yield break;
             }
             else

@@ -34,6 +34,12 @@ namespace MoreRealisticLaundering.Config
                     ConfigState loadedConfigState = JsonConvert.DeserializeObject<ConfigState>(fileContent) ?? new ConfigState();
                     bool isConfigUpdated = false;
 
+                    // Überprüfe und aktualisiere den Wert von Use_Legit_Version
+                    if (loadedConfigState.Use_Legit_Version != configState.Use_Legit_Version)
+                    {
+                        MelonLogger.Msg($"Use_Legit_Version is set to {loadedConfigState.Use_Legit_Version}.");
+                    }
+                    
                     // Überprüfe und aktualisiere die Werte für Laundromat
                     if (loadedConfigState.Laundromat_Cap <= 0f)
                     {

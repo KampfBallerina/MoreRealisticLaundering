@@ -5,17 +5,19 @@ namespace MoreRealisticLaundering.Config
 {
 	public class ConfigState
 	{
+		public bool Use_Legit_Version = false;
+		
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Laundromat_Cap = 1000f;
 		public int Laundromat_Laundering_time_hours = 24;
 		public float Laundromat_Tax_Percentage = 19f;
-		public float Laundromat_Price = 10000f; 
-		
+		public float Laundromat_Price = 10000f;
+
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Taco_Ticklers_Cap = 10000f;
 		public int Taco_Ticklers_Laundering_time_hours = 24;
 		public float Taco_Ticklers_Tax_Percentage = 19f;
-		public float Taco_Ticklers_Price = 100000f; 
+		public float Taco_Ticklers_Price = 100000f;
 
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Car_Wash_Cap = 5000f;
