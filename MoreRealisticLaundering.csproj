@@ -454,6 +454,7 @@
 		<Reference Include="UnityEngine.XRModule">
 			<HintPath>f:\Steam Spiele\steamapps\common\Schedule I\MelonLoader\Il2CppAssemblies\UnityEngine.XRModule.dll</HintPath>
 		</Reference>
+		<Reference Include="Microsoft.CSharp" />
 	</ItemGroup>
 
 	<PropertyGroup>

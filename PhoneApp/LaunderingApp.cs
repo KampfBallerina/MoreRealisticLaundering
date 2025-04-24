@@ -42,7 +42,7 @@ namespace MoreRealisticLaundering.PhoneApp
                 yield return new WaitForSeconds(1f);
             }
 
-            //           MelonLogger.Msg("Instance is now available!");
+            // MelonLogger.Msg("Instance is now available!");
         }
 
 
@@ -155,7 +155,7 @@ namespace MoreRealisticLaundering.PhoneApp
                                 {
                                     noneEntryText.text = "Adjusting the prices of properties";
                                 }
-                            }
+                            }   
                         }
                     }
                 }

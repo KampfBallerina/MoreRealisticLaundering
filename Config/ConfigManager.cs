@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using Il2CppInterop.Common;
 using MelonLoader;
 using MelonLoader.Utils;
 using Newtonsoft.Json;
@@ -31,18 +28,62 @@ namespace MoreRealisticLaundering.Config
                 try
                 {
                     string fileContent = File.ReadAllText(ConfigManager.FilePath);
-                    ConfigState loadedConfigState = JsonConvert.DeserializeObject<ConfigState>(fileContent) ?? new ConfigState();
+                    dynamic jsonObject = JsonConvert.DeserializeObject<dynamic>(fileContent) ?? new ConfigState();
                     bool isConfigUpdated = false;
 
-                    // Überprüfe und aktualisiere den Wert von Use_Legit_Version
-                    if (loadedConfigState.Use_Legit_Version != configState.Use_Legit_Version)
+                    void EnsureFieldExists<T>(string fieldName, T defaultValue)
                     {
-                        MelonLogger.Msg($"Use_Legit_Version is set to {loadedConfigState.Use_Legit_Version}.");
+                        if (jsonObject[fieldName] == null)
+                        {
+                            MelonLogger.Warning($"Field '{fieldName}' is missing in the config. Adding default value ({defaultValue}).");
+                            jsonObject[fieldName] = defaultValue;
+                            isConfigUpdated = true;
+                        }
                     }
-                    
+
+                    // Ergänze alle Felder aus ConfigState
+                    EnsureFieldExists("Use_Legit_Version", configState.Use_Legit_Version);
+
+                    EnsureFieldExists("Laundromat_Cap", configState.Laundromat_Cap);
+                    EnsureFieldExists("Laundromat_Laundering_time_hours", configState.Laundromat_Laundering_time_hours);
+                    EnsureFieldExists("Laundromat_Tax_Percentage", configState.Laundromat_Tax_Percentage);
+                    EnsureFieldExists("Laundromat_Price", configState.Laundromat_Price);
+
+                    EnsureFieldExists("Taco_Ticklers_Cap", configState.Taco_Ticklers_Cap);
+                    EnsureFieldExists("Taco_Ticklers_Laundering_time_hours", configState.Taco_Ticklers_Laundering_time_hours);
+                    EnsureFieldExists("Taco_Ticklers_Tax_Percentage", configState.Taco_Ticklers_Tax_Percentage);
+                    EnsureFieldExists("Taco_Ticklers_Price", configState.Taco_Ticklers_Price);
+
+                    EnsureFieldExists("Car_Wash_Cap", configState.Car_Wash_Cap);
+                    EnsureFieldExists("Car_Wash_Laundering_time_hours", configState.Car_Wash_Laundering_time_hours);
+                    EnsureFieldExists("Car_Wash_Tax_Percentage", configState.Car_Wash_Tax_Percentage);
+                    EnsureFieldExists("Car_Wash_Price", configState.Car_Wash_Price);
+
+                    EnsureFieldExists("Post_Office_Cap", configState.Post_Office_Cap);
+                    EnsureFieldExists("Post_Office_Laundering_time_hours", configState.Post_Office_Laundering_time_hours);
+                    EnsureFieldExists("Post_Office_Tax_Percentage", configState.Post_Office_Tax_Percentage);
+                    EnsureFieldExists("Post_Office_Price", configState.Post_Office_Price);
+
+                    if (isConfigUpdated)
+                    {
+                        File.WriteAllText(ConfigManager.FilePath, jsonObject.ToString(Formatting.Indented));
+                        MelonLogger.Msg("Config file updated with missing fields.");
+                    }
+
+                    ConfigState loadedConfigState = jsonObject.ToObject<ConfigState>();
+
+                    // Check if Use Legit Version is a boolean
+                    if (loadedConfigState.Use_Legit_Version != true || loadedConfigState.Use_Legit_Version != false)
+                    {
+                        MelonLogger.Warning("Invalid Use_Legit_Version in config. Adding default value (false).");
+                        loadedConfigState.Use_Legit_Version = configState.Use_Legit_Version;
+                        isConfigUpdated = true;
+                    }
+
                     // Überprüfe und aktualisiere die Werte für Laundromat
                     if (loadedConfigState.Laundromat_Cap <= 0f)
                     {
+                        MelonLogger.Warning("Invalid Laundromat_Cap in config. Reverting to default (1000).");
                         loadedConfigState.Laundromat_Cap = configState.Laundromat_Cap;
                         isConfigUpdated = true;
                     }
@@ -68,6 +109,7 @@ namespace MoreRealisticLaundering.Config
                     // Überprüfe und aktualisiere die Werte für Taco Ticklers
                     if (loadedConfigState.Taco_Ticklers_Cap <= 0f)
                     {
+                        MelonLogger.Warning("Invalid Taco_Ticklers_Cap in config. Reverting to default (10000).");
                         loadedConfigState.Taco_Ticklers_Cap = configState.Taco_Ticklers_Cap;
                         isConfigUpdated = true;
                     }
@@ -118,6 +160,7 @@ namespace MoreRealisticLaundering.Config
                     // Überprüfe und aktualisiere die Werte für Post Office
                     if (loadedConfigState.Post_Office_Cap <= 0f)
                     {
+                        MelonLogger.Warning("Invalid Post_Office_Cap in config. Reverting to default (2000).");
                         loadedConfigState.Post_Office_Cap = configState.Post_Office_Cap;
                         isConfigUpdated = true;
                     }
@@ -144,6 +187,7 @@ namespace MoreRealisticLaundering.Config
                     if (isConfigUpdated)
                     {
                         ConfigManager.Save(loadedConfigState);
+                        isConfigUpdated = false; // Reset after saving
                     }
                     result = loadedConfigState;
                 }
