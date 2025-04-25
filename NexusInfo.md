@@ -1,4 +1,4 @@
-[size=6]MoreRealisticLaundering[/size]
+[size=6][center]MoreRealisticLaundering[/center][/size]
 [center][img]https://github.com/user-attachments/assets/5c807458-11ea-47bb-a13a-af9b8e534587[/img][/center]
 
 [size=5]Known Incompatiblities / Issues[/size]
