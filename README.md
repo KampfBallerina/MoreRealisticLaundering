@@ -27,7 +27,7 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 ## Configuration
 - The mod generates a configuration file (`MoreRealisticLaundering.json`) in the `UserData` folder.
 - You can edit this file to customize the default settings for each business / property; however this is optional as long as you're not using the legit mode.
-- Use the custom app ingame to modify everything dynamically
+- Use the custom app ingame to modify everything dynamically without any restarts
 
 
 ---

@@ -8,18 +8,21 @@
 
 [size=5]What's new in Version 1.2.0?[/size]
 - Enhancement for Ray's Real Estate: Now also supports private properties
+- Dialogue Adaptions for Donna (Motel Owner) and Ming (Sweatshop Owner)
 - Missing fields in the MoreRealisticLaundering.json will now be added instead of simply using the default values.
+
+[center][img]https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49[/img][/center]
 
 [size=5]Installation[/size]
 [list=1]
 [*]Download the latest release from the [url=https://github.com/user/MoreRealisticLaundering/releases]GitHub Releases[/url] page.
 [*]Extract the [b]Mods[/b] and [b]UserData[/b] folders of the ZIP file into your game's directory.
-[*]Launch the game, and the mod will automatically initialize.
+[*]Launch the game and the mod will automatically initialize.
 [/list]
 [size=5]Configuration[/size]
 - The mod generates a configuration file ([b]MoreRealisticLaundering.json[/b]) in the [b]UserData[/b] folder.
 - You can edit this file to customize the default settings for each / property; however this is optional as long as you're not using the legit mode.
-- Use the custom app in-game to modify everything dynamically.
+- Use the custom app in-game to modify everything dynamically without any restarts.
 
 [size=5]Features[/size]
 -Please check the Changelog or the New Features and Changes section down below
@@ -63,10 +66,10 @@
 [center][img]https://github.com/user-attachments/assets/11ae48d4-dc88-482e-83e8-1ed492a0ec3a[/img][/center]
 
 [size=3]Enhanced Real Estate Management:[/size]
-- Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices (currently only businesses).
-- Allows players to view and adjust the prices of unowned (and owned) businesses directly from the app.
+- Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices.
+- Allows players to view and adjust the prices of unowned (and owned) properties directly from the app.
 
-[center][img]https://github.com/user-attachments/assets/869aa50b-d60a-49f2-99cf-2936fd200075[/img][/center]
+[center][img]https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49[/img][/center]
 
 [size=3]Property Listings Price Updates:[/size]
 - Automatically updates the prices displayed on the property listings in "Ray's Real Estate Office" based on the player's configuration.
@@ -87,6 +90,8 @@
 - Dynamically applies updated prices to all relevant in-game objects, including property listings and sell signs, ensuring consistency across the game world.
 
 [center][img]https://github.com/user-attachments/assets/6308dc12-2db2-480c-948c-03127f846d8b[/img][/center]
+
+[center][img]https://github.com/user-attachments/assets/15372eb1-7fb8-45c0-8c26-41dc02ae4954[/img][/center]
 
 [size=5]Download Mirrors[/size]
 - [url=https://github.com/KampfBallerina/MoreRealisticLaundering][b]GitHub[/b][/url]
