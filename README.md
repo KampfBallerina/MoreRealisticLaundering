@@ -2,7 +2,7 @@
 ![LaunderingIcon](https://github.com/user-attachments/assets/5c807458-11ea-47bb-a13a-af9b8e534587)
 ## Summary
 
-MoreRealisticLaundering enhances the in-game money laundering mechanics by introducing more detailed customization and management options for businesses.
+MoreRealisticLaundering enhances the in-game money laundering mechanics by introducing more detailed customization and management options for business and private properties.
 
 ## Known Incompatiblities / Issues
 - Not compatible with most translation mods
@@ -10,11 +10,9 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
 
-## What's new in Version 1.1.2?
-- Enhanced the `Legit Mode` that you can only access via the configuration file `MoreRealisticLaundering.json`.
-- Legit Mode will allow you to use the config file only, without any ingame UI (Mobile App).
-- This aims for players that do not want the seduction of tweaking the settings like cheats in real time but want to use the general features for their playstyle.
-- To enable the Legit Mode, set the `Use_Legit_Version` variable to `true` (default is false, which will create the "Tax & Wash" app as usual).
+## What's new in Version 1.2.0?
+- Enhancement for Ray's Real Estate: Now also supports private properties
+- Missing fields in the MoreRealisticLaundering.json will now be added instead of simply using the default values.
 
 
 ## Installation
@@ -25,13 +23,20 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 
 ## Configuration
 - The mod generates a configuration file (`MoreRealisticLaundering.json`) in the `UserData` folder.
-- You can edit this file to customize the default settings for each business however this is optional
+- You can edit this file to customize the default settings for each business / property; however this is optional as long as you're not using the legit mode.
 - Use the custom app ingame to modify everything dynamically
 
 
 ---
 
 ## Features
+
+### Legit Mode:
+- Use the `MoreRealisticLaundering.json` to enable the `Use_Legit_Version` and set it to `true`.
+- All settings will be loaded on startup, using the JSONs configuration.
+- This might help with compatibility issues with some other mods (try it out).
+- No Custom App will be loaded ingame. To stop the seduction to cheat.
+- Default value is `false` for this mode.
 
 ### Dynamic App Integration:
 - Adds a custom app to the in-game phone, enabling players to manage their businesses directly from the app.
@@ -65,8 +70,8 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 ![Tax Notification](https://github.com/user-attachments/assets/11ae48d4-dc88-482e-83e8-1ed492a0ec3a)
 
 ### Enhanced Real Estate Management:
-- Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices (currently only businesses).
-- Allows players to view and adjust the prices of unowned (and owned) businesses directly from the app.
+- Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices.
+- Allows players to view and adjust the prices of unowned (and owned) properties directly from the app.
   
   ![Rays Real Estate](https://github.com/user-attachments/assets/869aa50b-d60a-49f2-99cf-2936fd200075)
 
@@ -77,7 +82,7 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 ![Properties Whiteboard](https://github.com/user-attachments/assets/96145491-afef-4aa5-abb4-a9b506e21d9c)
 
 ### Sell Sign Price Updates:
-- Updates the prices displayed on the "For Sale" signs for each business (e.g., Laundromat, Taco Ticklers, Car Wash, Post Office).
+- Updates the prices displayed on the "For Sale" signs for each property.
 - Ensures that the prices on the signs match the configured values.
   
 ![Property Signs](https://github.com/user-attachments/assets/a9bda137-ad6e-4bdb-81d0-18631dd660f9)
@@ -86,7 +91,7 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Ensures that all input fields in the app are validated to prevent invalid values (e.g. prices below a minimum threshold of $1000).
 
 ### Dynamic Price Application:
-- Dynamically applies updated prices to all relevant in-game objects, including property listings and sell signs, ensuring consistency across the game world.
+- Dynamically applies updated prices to all relevant in-game objects, including property listings, sell signs and dialogues ensuring consistency across the game world.
 
 ![Correct Dialogs](https://github.com/user-attachments/assets/6308dc12-2db2-480c-948c-03127f846d8b)
 

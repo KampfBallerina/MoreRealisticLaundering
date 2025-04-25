@@ -155,7 +155,8 @@ namespace MoreRealisticLaundering.PhoneApp
                                 {
                                     noneEntryText.text = "Adjusting the prices of properties";
                                 }
-                            }   
+                            }
+
                         }
                     }
                 }
@@ -242,6 +243,7 @@ namespace MoreRealisticLaundering.PhoneApp
 
                         optionsTransform = detailEntriesTransform;
                         AddSpaceFromTemplate(viewportContentTransform);
+                        AddPriceOptionsForHomeProperties(priceOptionsTransform);
                         AddOptionsForBusiness(detailEntriesTransform);
                         AddPriceOptionsForRealEstate(priceOptionsTransform);
                     }
@@ -254,6 +256,13 @@ namespace MoreRealisticLaundering.PhoneApp
                 MRLCore.Instance.RegisterApp(appIconByName, Title);
                 _isLaunderingAppLoaded = true;
             }
+        }
+
+        public void ChangeBackgroundColor(bool isToggled, Image backgroundImage, Image knobImage)
+        {
+            MelonLogger.Msg($"Switch toggled: {isToggled}");
+            knobImage.color = isToggled ? Color.grey : Color.white; // Change knob color when toggled
+            backgroundImage.color = isToggled ? Color.white : Color.gray; // Change background color when toggled
         }
 
         public void AddSpaceFromTemplate(Transform viewportContentTransform = null)
@@ -432,25 +441,140 @@ namespace MoreRealisticLaundering.PhoneApp
                 optionsTransform.gameObject.SetActive(false);
             }
 
-            // Aktiviere priceOptionsTransform und alle Kinder
-            if (priceOptionsTransform != null)
-            {
-                priceOptionsTransform.gameObject.SetActive(true);
+            // Aktiviere die vier Container in priceOptionsTransform, falls sie deaktiviert sind
+            Transform laundromatContainer = priceOptionsTransform.Find("Laundromat Horizontal Container");
+            Transform postOfficeContainer = priceOptionsTransform.Find("Post Office Horizontal Container");
+            Transform carWashContainer = priceOptionsTransform.Find("Car Wash Horizontal Container");
+            Transform tacoTicklersContainer = priceOptionsTransform.Find("Taco Ticklers Horizontal Container");
 
-                foreach (var child in priceOptionsTransform)
+            if (laundromatContainer != null && !laundromatContainer.gameObject.activeSelf)
+            {
+                laundromatContainer.gameObject.SetActive(true);
+            }
+            if (postOfficeContainer != null && !postOfficeContainer.gameObject.activeSelf)
+            {
+                postOfficeContainer.gameObject.SetActive(true);
+            }
+            if (carWashContainer != null && !carWashContainer.gameObject.activeSelf)
+            {
+                carWashContainer.gameObject.SetActive(true);
+            }
+            if (tacoTicklersContainer != null && !tacoTicklersContainer.gameObject.activeSelf)
+            {
+                tacoTicklersContainer.gameObject.SetActive(true);
+            }
+
+            // Deaktiviere die vier Container in priceOptionsTransform, falls sie deaktiviert sind
+            Transform motelContainer = priceOptionsTransform.Find("Motel Horizontal Container");
+            Transform SweatshopContainer = priceOptionsTransform.Find("Sweatshop Horizontal Container");
+            Transform bungalowContainer = priceOptionsTransform.Find("Bungalow Horizontal Container");
+            Transform barnContainer = priceOptionsTransform.Find("Barn Horizontal Container");
+            Transform docksContainer = priceOptionsTransform.Find("Docks Warehouse Horizontal Container");
+            Transform manorContainer = priceOptionsTransform.Find("Manor Horizontal Container");
+
+            if (motelContainer != null && motelContainer.gameObject.activeSelf)
+            {
+                motelContainer.gameObject.SetActive(false);
+            }
+            if (SweatshopContainer != null && SweatshopContainer.gameObject.activeSelf)
+            {
+                SweatshopContainer.gameObject.SetActive(false);
+            }
+            if (bungalowContainer != null && bungalowContainer.gameObject.activeSelf)
+            {
+                bungalowContainer.gameObject.SetActive(false);
+            }
+            if (barnContainer != null && barnContainer.gameObject.activeSelf)
+            {
+                barnContainer.gameObject.SetActive(false);
+            }
+            if (docksContainer != null && docksContainer.gameObject.activeSelf)
+            {
+                docksContainer.gameObject.SetActive(false);
+            }
+            if (manorContainer != null && manorContainer.gameObject.activeSelf)
+            {
+                manorContainer.gameObject.SetActive(false);
+            }
+
+            // Setze den Business Toggle Button auf Pressed
+            Transform businessToggleButtonTransform = priceOptionsTransform.Find("ToggleContainer/ToggleButton");
+            GameObject businessToggleButtonObject = businessToggleButtonTransform?.gameObject;
+            if (businessToggleButtonObject != null)
+            {
+
+                Image buttonImage = businessToggleButtonObject.GetComponent<Image>();
+                if (buttonImage != null)
                 {
-                    if (child is Transform transformChild)
+                    if (toggleButtonPressedSprite == null)
                     {
-                        if (transformChild.gameObject && !transformChild.gameObject.activeSelf)
+                        string imagePath = Path.Combine(ConfigFolder, "ToggleButtonPressed.png");
+                        if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                         {
-                            transformChild.gameObject.SetActive(true);
+                            byte[] imageData = File.ReadAllBytes(imagePath);
+                            Texture2D texture = new Texture2D(2, 2);
+                            if (texture.LoadImage(imageData))
+                            {
+                                Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                                toggleButtonPressedSprite = newSprite;
+                                buttonImage.sprite = newSprite;
+                            }
+                            else
+                            {
+                                MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                                buttonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
+                            }
                         }
                     }
+                    else
+                    {
+                        buttonImage.sprite = toggleButtonPressedSprite;
+                    }
+                }
+                else
+                {
+                    MelonLogger.Warning("Button Image component not found!");
                 }
             }
-            else
+
+            // Setze den Home Toggle Button auf nicht gedrückt
+            Transform homeToggleButtonTransform = priceOptionsTransform.Find("ToggleContainer/SecondToggleButton");
+            GameObject homeToggleButtonObject = homeToggleButtonTransform?.gameObject;
+            if (homeToggleButtonObject != null)
             {
-                MelonLogger.Error("priceOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+
+                Image homeButtonImage = homeToggleButtonObject.GetComponent<Image>();
+                if (homeButtonImage != null)
+                {
+                    if (toggleButtonSprite == null)
+                    {
+                        string imagePath = Path.Combine(ConfigFolder, "ToggleButton.png");
+                        if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                        {
+                            byte[] imageData = File.ReadAllBytes(imagePath);
+                            Texture2D texture = new Texture2D(2, 2);
+                            if (texture.LoadImage(imageData))
+                            {
+                                Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                                toggleButtonSprite = newSprite;
+                                homeButtonImage.sprite = newSprite;
+                            }
+                            else
+                            {
+                                MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                                homeButtonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
+                            }
+                        }
+                    }
+                    else
+                    {
+                        homeButtonImage.sprite = toggleButtonSprite;
+                    }
+                }
+                else
+                {
+                    MelonLogger.Warning("Home Button Image component not found!");
+                }
             }
 
             // Lade die Preise für OwnedBusinesses und UnownedBusinesses
@@ -486,6 +610,52 @@ namespace MoreRealisticLaundering.PhoneApp
                         displayName = "Post Office";
                     }
                     float price = business.Price;
+                    SetInputFieldValue(priceOptionsTransform, displayName, price);
+                }
+            }
+
+            // Lade die Preise für UnownedProperties und OwnedProperties
+            if (Property.UnownedProperties == null && Property.OwnedProperties == null)
+            {
+                MelonLogger.Error("UnownedProperties or OwnedProperties is null! Cannot load price values.");
+                return;
+            }
+            else
+            {
+                // UnownedProperties
+                foreach (Property property in Property.UnownedProperties)
+                {
+                    if (property == null || property.name == "RV") continue;
+
+                    string displayName = property.name;
+                    if (displayName == "MotelRoom")
+                    {
+                        displayName = "Motel";
+                    }
+                    if (displayName == "DocksWarehouse")
+                    {
+                        displayName = "Docks Warehouse";
+                    }
+
+                    float price = property.Price;
+                    SetInputFieldValue(priceOptionsTransform, displayName, price);
+                }
+
+                // OwnedProperties
+                foreach (Property property in Property.OwnedProperties)
+                {
+                    if (property == null || property.name == "RV") continue;
+
+                    string displayName = property.name;
+                    if (displayName == "MotelRoom")
+                    {
+                        displayName = "Motel";
+                    }
+                    if (displayName == "DocksWarehouse")
+                    {
+                        displayName = "Docks Warehouse";
+                    }
+                    float price = property.Price;
                     SetInputFieldValue(priceOptionsTransform, displayName, price);
                 }
             }
@@ -680,7 +850,7 @@ namespace MoreRealisticLaundering.PhoneApp
             optionVerticalLayout.childControlWidth = true;
             optionVerticalLayout.childForceExpandWidth = false;
             optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -20f; // Abstand zwischen den Optionen
+            optionVerticalLayout.spacing = -25f; // Abstand zwischen den Optionen
 
             // Füge die Optionen hinzu
             AddLabelInputPair("Maximum Launder", detailEntriesTransform, "$");
@@ -921,7 +1091,7 @@ namespace MoreRealisticLaundering.PhoneApp
                     inputFieldComponent.text = "19";
                     if (MRLCore.Instance.notificationsManager != null)
                     {
-                        subTitleString = $"Has to be between <color=#329AC5> 0 to 100 %</color>";
+                        subTitleString = $"Has to be <color=#329AC5> 0 to 100 %</color>";
                         MRLCore.Instance.notificationsManager.SendNotification("Taxation", subTitleString, appIconSprite, 3, true);
                     }
                     MelonLogger.Warning($"Taxation < 0 or > 100. Applying '19 %' as value.");
@@ -936,9 +1106,23 @@ namespace MoreRealisticLaundering.PhoneApp
                     if (MRLCore.Instance.notificationsManager != null)
                     {
                         subTitleString = $"Has to be <color=#329AC5>at least $1000</color>";
-                        MRLCore.Instance.notificationsManager.SendNotification("Taxation", subTitleString, appIconSprite, 3, true);
+                        MRLCore.Instance.notificationsManager.SendNotification("Property Price", subTitleString, appIconSprite, 3, true);
                     }
                     MelonLogger.Warning($"{labelText} was < 1000. Applying '$1000' as value.");
+                }
+            }
+            else if (labelText.Contains("Motel") || labelText.Contains("Bungalow") || labelText.Contains("Barn") || labelText.Contains("Docks Warehouse") || labelText.Contains("Manor"))
+            {
+                // Überprüfe, ob die Eingabe leer ist oder kleiner als 100
+                if (string.IsNullOrEmpty(input) || float.TryParse(input, out float parsedValue) && parsedValue < 100)
+                {
+                    inputFieldComponent.text = "1000";
+                    if (MRLCore.Instance.notificationsManager != null)
+                    {
+                        subTitleString = $"Has to be <color=#329AC5>at least $100</color>";
+                        MRLCore.Instance.notificationsManager.SendNotification("Property Price", subTitleString, appIconSprite, 3, true);
+                    }
+                    MelonLogger.Warning($"{labelText} was < 100. Applying '$1000' as value.");
                 }
             }
         }
@@ -954,7 +1138,15 @@ namespace MoreRealisticLaundering.PhoneApp
             GameObject saveSpaceObject = new GameObject("SaveSpace");
             saveSpaceObject.transform.SetParent(parentTransform, false);
             RectTransform saveSpaceRect = saveSpaceObject.AddComponent<RectTransform>();
-            saveSpaceRect.sizeDelta = new Vector2(100, 35); // Abstand zwischen dem letzten Element und dem Button
+            if (saveString == "RealEstate")
+            {
+                saveSpaceRect.sizeDelta = new Vector2(100, 75); // Abstand zwischen dem letzten Element und dem Button
+            }
+            else
+            {
+                saveSpaceRect.sizeDelta = new Vector2(100, 50); // Abstand zwischen dem letzten Element und dem Button
+            }
+
 
             LayoutElement spaceLayoutElement = saveSpaceObject.GetComponent<LayoutElement>();
             if (spaceLayoutElement == null)
@@ -1230,12 +1422,24 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform carWashPriceInputTransform = priceOptionsTransform.Find("Car Wash Horizontal Container/Car Wash Input");
             Transform postOfficePriceInputTransform = priceOptionsTransform.Find("Post Office Horizontal Container/Post Office Input");
 
+            Transform motelPriceInputTransform = priceOptionsTransform.Find("Motel Horizontal Container/Motel Input");
+            Transform sweatPriceInputTransform = priceOptionsTransform.Find("Sweatshop Horizontal Container/Sweatshop Input");
+            Transform bungalowPriceInputTransform = priceOptionsTransform.Find("Bungalow Horizontal Container/Bungalow Input");
+            Transform barnPriceInputTransform = priceOptionsTransform.Find("Barn Horizontal Container/Barn Input");
+            Transform docksPriceInputTransform = priceOptionsTransform.Find("Docks Warehouse Horizontal Container/Docks Warehouse Input");
+            Transform manorPriceInputTransform = priceOptionsTransform.Find("Manor Horizontal Container/Manor Input");
+
             float laundromatPrice = MRLCore.Instance.config.Laundromat_Price;
             float tacoTicklersPrice = MRLCore.Instance.config.Taco_Ticklers_Price;
             float carWashPrice = MRLCore.Instance.config.Car_Wash_Price;
             float postOfficePrice = MRLCore.Instance.config.Post_Office_Price;
 
-            //   MelonLogger.Msg($"Current Prices: {laundromatPrice}, {tacoTicklersPrice}, {carWashPrice}, {postOfficePrice}");
+            float motelPrice = MRLCore.Instance.config.Motel_Room_Price;
+            float sweatshopPrice = MRLCore.Instance.config.Sweatshop_Price;
+            float bungalowPrice = MRLCore.Instance.config.Bungalow_Price;
+            float barnPrice = MRLCore.Instance.config.Barn_Price;
+            float docksPrice = MRLCore.Instance.config.Docks_Warehouse_Price;
+            float manorPrice = MRLCore.Instance.config.Manor_Price;
 
             // Aktualisiere den Preis für Laundromat
             if (laundromatPriceInputTransform != null)
@@ -1277,6 +1481,61 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
             }
 
+            // Aktualisiere die Preise für die Immobilien
+            if (motelPriceInputTransform != null)
+            {
+                InputField motelPriceInputField = motelPriceInputTransform.GetComponent<InputField>();
+                if (motelPriceInputField != null && float.TryParse(motelPriceInputField.text, out float parsedMotelPrice))
+                {
+                    motelPrice = parsedMotelPrice;
+                }
+            }
+
+            if (sweatPriceInputTransform != null)
+            {
+                InputField sweatPriceInputField = sweatPriceInputTransform.GetComponent<InputField>();
+                if (sweatPriceInputField != null && float.TryParse(sweatPriceInputField.text, out float parsedSweatPrice))
+                {
+                    sweatshopPrice = parsedSweatPrice;
+                }
+            }
+
+            if (bungalowPriceInputTransform != null)
+            {
+                InputField bungalowPriceInputField = bungalowPriceInputTransform.GetComponent<InputField>();
+                if (bungalowPriceInputField != null && float.TryParse(bungalowPriceInputField.text, out float parsedBungalowPrice))
+                {
+                    bungalowPrice = parsedBungalowPrice;
+                }
+            }
+
+            if (barnPriceInputTransform != null)
+            {
+                InputField barnPriceInputField = barnPriceInputTransform.GetComponent<InputField>();
+                if (barnPriceInputField != null && float.TryParse(barnPriceInputField.text, out float parsedBarnPrice))
+                {
+                    barnPrice = parsedBarnPrice;
+                }
+            }
+
+            if (docksPriceInputTransform != null)
+            {
+                InputField docksPriceInputField = docksPriceInputTransform.GetComponent<InputField>();
+                if (docksPriceInputField != null && float.TryParse(docksPriceInputField.text, out float parsedDocksPrice))
+                {
+                    docksPrice = parsedDocksPrice;
+                }
+            }
+
+            if (manorPriceInputTransform != null)
+            {
+                InputField manorPriceInputField = manorPriceInputTransform.GetComponent<InputField>();
+                if (manorPriceInputField != null && float.TryParse(manorPriceInputField.text, out float parsedManorPrice))
+                {
+                    manorPrice = parsedManorPrice;
+                }
+            }
+
             //   MelonLogger.Msg($"Updated Prices: {laundromatPrice}, {tacoTicklersPrice}, {carWashPrice}, {postOfficePrice}");
 
             // Speichere die aktualisierten Preise in der Konfiguration
@@ -1284,13 +1543,19 @@ namespace MoreRealisticLaundering.PhoneApp
             MRLCore.Instance.config.Taco_Ticklers_Price = tacoTicklersPrice;
             MRLCore.Instance.config.Car_Wash_Price = carWashPrice;
             MRLCore.Instance.config.Post_Office_Price = postOfficePrice;
+            MRLCore.Instance.config.Motel_Room_Price = motelPrice;
+            MRLCore.Instance.config.Sweatshop_Price = sweatshopPrice;
+            MRLCore.Instance.config.Bungalow_Price = bungalowPrice;
+            MRLCore.Instance.config.Barn_Price = barnPrice;
+            MRLCore.Instance.config.Docks_Warehouse_Price = docksPrice;
+            MRLCore.Instance.config.Manor_Price = manorPrice;
 
             // Speichere die aktualisierte Konfiguration
             ConfigManager.Save(MRLCore.Instance.config);
 
             // Aktualisiere die Preise in den PropertyListings
             MRLCore.Instance.ApplyPricesToPropertyListings();
-            MRLCore.Instance.ApplyPricesToUnownedBusinesses();
+            MRLCore.Instance.ApplyPricesToProperties();
 
             // Zeige eine Benachrichtigung an
             if (MRLCore.Instance.notificationsManager != null)
@@ -1324,6 +1589,413 @@ namespace MoreRealisticLaundering.PhoneApp
             // MelonLogger.Msg("Real estate prices have been saved and applied successfully.");
         }
 
+        public void AddPriceOptionsForHomeProperties(Transform parentTransform)
+        {
+            if (parentTransform == null)
+            {
+                MelonLogger.Error("Parent transform is null! Cannot add Toggle Buttons.");
+                return;
+            }
+
+            GameObject toggleSpaceObject = new GameObject("ToggleSpace");
+            toggleSpaceObject.transform.SetParent(parentTransform, false);
+            RectTransform toggleSpaceRect = toggleSpaceObject.AddComponent<RectTransform>();
+            toggleSpaceRect.sizeDelta = new Vector2(0, 50); // Spacing above Toggle Buttons
+
+            GameObject toggleContainer = new GameObject("ToggleContainer");
+            toggleContainer.transform.SetParent(parentTransform, false);
+
+            // Füge ein LayoutElement hinzu, um die Integration in die VerticalLayoutGroup zu gewährleisten
+            LayoutElement layoutElementToggleContainer = toggleContainer.GetComponent<LayoutElement>();
+            if (layoutElementToggleContainer == null)
+            {
+                layoutElementToggleContainer = toggleContainer.AddComponent<LayoutElement>();
+                layoutElementToggleContainer.minHeight = 35; // Mindesthöhe des Buttons
+                layoutElementToggleContainer.preferredHeight = 35; // Bevorzugte Höhe des Buttons
+                layoutElementToggleContainer.minWidth = 180; // Mindestbreite des Buttons
+                layoutElementToggleContainer.preferredWidth = 180; // Bevorzugte Breite des Buttons
+            }
+
+            // Erstelle ein neues GameObject für den Button
+            GameObject toggleButtonObject = new GameObject("ToggleButton");
+            toggleButtonObject.transform.SetParent(toggleContainer.transform, false);
+            // toggleButtonObject.SetActive(false); // Deaktiviere den Button vorübergehend
+
+            // Füge ein RectTransform hinzu, falls es nicht existiert
+            RectTransform buttonRect = toggleButtonObject.GetComponent<RectTransform>();
+            if (buttonRect == null)
+            {
+                buttonRect = toggleButtonObject.AddComponent<RectTransform>();
+                buttonRect.sizeDelta = new Vector2(180, 35); // Standardgröße des Buttons
+            }
+
+            // Füge ein Button-Objekt hinzu
+            Button toggleButton = toggleButtonObject.GetComponent<Button>();
+            if (toggleButton == null)
+            {
+                toggleButton = toggleButtonObject.AddComponent<Button>();
+            }
+
+            // Füge ein Hintergrundbild hinzu
+            Image buttonImage = toggleButtonObject.GetComponent<Image>();
+            if (buttonImage == null)
+            {
+                buttonImage = toggleButtonObject.AddComponent<Image>();
+                if (toggleButtonSprite == null)
+                {
+                    string imagePath = Path.Combine(ConfigFolder, "ToggleButton.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    {
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            toggleButtonSprite = newSprite;
+                            buttonImage.sprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            buttonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
+                        }
+                    }
+                }
+                else
+                {
+                    buttonImage.sprite = toggleButtonSprite;
+                }
+            }
+
+            // Erstelle ein neues GameObject für den Text des Buttons
+            GameObject buttonTextObject = new GameObject("ToggleButton Text");
+            buttonTextObject.transform.SetParent(toggleButtonObject.transform, false);
+
+            // Füge eine Text-Komponente hinzu
+            Text buttonText = buttonTextObject.GetComponent<Text>();
+            if (buttonText == null)
+            {
+                buttonText = buttonTextObject.AddComponent<Text>();
+                buttonText.text = "Business";
+                buttonText.font = FontLoader.openSansSemiBold ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+                buttonText.fontSize = 18;
+                buttonText.color = Color.white;
+                buttonText.alignment = TextAnchor.MiddleCenter;
+            }
+
+            // Positioniere den Text innerhalb des Buttons
+            RectTransform textRect = buttonTextObject.GetComponent<RectTransform>();
+            if (textRect == null)
+            {
+                textRect = buttonTextObject.AddComponent<RectTransform>();
+            }
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.offsetMin = Vector2.zero;
+            textRect.offsetMax = Vector2.zero;
+
+            // Füge ein LayoutElement hinzu, um die Integration in die VerticalLayoutGroup zu gewährleisten
+            LayoutElement layoutElement = toggleButtonObject.GetComponent<LayoutElement>();
+            if (layoutElement == null)
+            {
+                layoutElement = toggleButtonObject.AddComponent<LayoutElement>();
+                layoutElement.minHeight = 35; // Mindesthöhe des Buttons
+                layoutElement.preferredHeight = 35; // Bevorzugte Höhe des Buttons
+                layoutElement.minWidth = 100; // Mindestbreite des Buttons
+                layoutElement.preferredWidth = 180; // Bevorzugte Breite des Buttons
+            }
+
+
+
+            //////////////////////
+
+            // Erstelle ein neues GameObject für den zweiten Button
+            GameObject secondToggleButtonObject = new GameObject("SecondToggleButton");
+            secondToggleButtonObject.transform.SetParent(toggleContainer.transform, false);
+            //secondToggleButtonObject.SetActive(false); // Deaktiviere den Button vorübergehend
+
+            // Füge ein RectTransform hinzu, falls es nicht existiert
+            RectTransform secondButtonRect = secondToggleButtonObject.GetComponent<RectTransform>();
+            if (secondButtonRect == null)
+            {
+                secondButtonRect = secondToggleButtonObject.AddComponent<RectTransform>();
+                secondButtonRect.sizeDelta = new Vector2(180, 35); // Standardgröße des Buttons
+            }
+
+            // Positioniere den zweiten Button rechts neben dem ersten
+            secondButtonRect.anchorMin = new Vector2(0.5f, 0.5f);
+            secondButtonRect.anchorMax = new Vector2(0.5f, 0.5f);
+            secondButtonRect.pivot = new Vector2(0, 0.5f);
+            secondButtonRect.anchoredPosition = new Vector2(90, 0); // Abstand von 100 Einheiten nach rechts
+
+            // Füge ein Button-Objekt hinzu
+            Button secondToggleButton = secondToggleButtonObject.GetComponent<Button>();
+            if (secondToggleButton == null)
+            {
+                secondToggleButton = secondToggleButtonObject.AddComponent<Button>();
+            }
+
+            // Füge ein Hintergrundbild hinzu
+            Image secondButtonImage = secondToggleButtonObject.GetComponent<Image>();
+            if (secondButtonImage == null)
+            {
+                secondButtonImage = secondToggleButtonObject.AddComponent<Image>();
+                secondButtonImage.sprite = buttonImage.sprite; // Verwende das gleiche Sprite wie der erste Button
+            }
+
+            // Erstelle ein neues GameObject für den Text des zweiten Buttons
+            GameObject secondButtonTextObject = new GameObject("SecondToggleButton Text");
+            secondButtonTextObject.transform.SetParent(secondToggleButtonObject.transform, false);
+
+            // Füge eine Text-Komponente hinzu
+            Text secondButtonText = secondButtonTextObject.GetComponent<Text>();
+            if (secondButtonText == null)
+            {
+                secondButtonText = secondButtonTextObject.AddComponent<Text>();
+                secondButtonText.text = "Private";
+                secondButtonText.font = FontLoader.openSansSemiBold ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+                secondButtonText.fontSize = 18;
+                secondButtonText.color = Color.white;
+                secondButtonText.alignment = TextAnchor.MiddleCenter;
+            }
+
+            // Positioniere den Text innerhalb des zweiten Buttons
+            RectTransform secondTextRect = secondButtonTextObject.GetComponent<RectTransform>();
+            if (secondTextRect == null)
+            {
+                secondTextRect = secondButtonTextObject.AddComponent<RectTransform>();
+            }
+            secondTextRect.anchorMin = Vector2.zero;
+            secondTextRect.anchorMax = Vector2.one;
+            secondTextRect.offsetMin = Vector2.zero;
+            secondTextRect.offsetMax = Vector2.zero;
+
+            // Füge ein LayoutElement hinzu, um die Integration in die VerticalLayoutGroup zu gewährleisten
+            LayoutElement secondLayoutElement = secondToggleButtonObject.GetComponent<LayoutElement>();
+            if (secondLayoutElement == null)
+            {
+                secondLayoutElement = secondToggleButtonObject.AddComponent<LayoutElement>();
+                secondLayoutElement.minHeight = 35; // Mindesthöhe des Buttons
+                secondLayoutElement.preferredHeight = 35; // Bevorzugte Höhe des Buttons
+                secondLayoutElement.minWidth = 100; // Mindestbreite des Buttons
+                secondLayoutElement.preferredWidth = 180; // Bevorzugte Breite des Buttons
+            }
+
+            void FuncThatCallsFunc() => ShowBusinessRealEstates(secondToggleButtonObject, toggleButtonObject);
+            toggleButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+
+            // Füge eine Aktion für den zweiten Button hinzu
+            void SecondButtonAction() => ShowHomeRealEstates(secondToggleButtonObject, toggleButtonObject);
+            secondToggleButton.onClick.AddListener((UnityAction)SecondButtonAction);
+        }
+
+        void ShowHomeRealEstates(GameObject homeButtonObject, GameObject businessButtonObject)
+        {
+
+            if (priceOptionsTransform == null)
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Cannot show home real estates.");
+                return;
+            }
+
+            // Change the Sprites of the buttons
+            if (homeButtonObject != null && homeButtonObject.GetComponent<Image>() != null)
+            {
+                Image homeButtonImage = homeButtonObject.GetComponent<Image>();
+                if (toggleButtonPressedSprite == null)
+                {
+                    string imagePath = Path.Combine(ConfigFolder, "ToggleButtonPressed.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    {
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            toggleButtonPressedSprite = newSprite;
+                            homeButtonImage.sprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            homeButtonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
+                        }
+                    }
+                }
+                else
+                {
+                    homeButtonImage.sprite = toggleButtonPressedSprite;
+                }
+            }
+
+            if (businessButtonObject != null && businessButtonObject.GetComponent<Image>() != null)
+            {
+                Image businessButtonImage = businessButtonObject.GetComponent<Image>();
+                if (toggleButtonSprite == null)
+                {
+                    string imagePath = Path.Combine(ConfigFolder, "ToggleButton.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    {
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            toggleButtonSprite = newSprite;
+                            businessButtonImage.sprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            businessButtonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
+                        }
+                    }
+                }
+                else
+                {
+                    businessButtonImage.sprite = toggleButtonSprite;
+                }
+            }
+
+            // Find the Save Button and activate it
+            Transform saveButton = priceOptionsTransform.Find("Save Button");
+            if (saveButton != null && saveButton.gameObject != null && !saveButton.gameObject.activeSelf)
+            {
+                saveButton.gameObject.SetActive(true);
+            }
+
+            // Find the first 4 containers
+            Transform laundromatContainer = priceOptionsTransform.Find("Laundromat Horizontal Container");
+            Transform postOfficeContainer = priceOptionsTransform.Find("Post Office Horizontal Container");
+            Transform carWashContainer = priceOptionsTransform.Find("Car Wash Horizontal Container");
+            Transform tacoTicklersContainer = priceOptionsTransform.Find("Taco Ticklers Horizontal Container");
+
+            // Find the other 5 containers
+            Transform motelContainer = priceOptionsTransform.Find("Motel Horizontal Container");
+            Transform sweatshopContainer = priceOptionsTransform.Find("Sweatshop Horizontal Container");
+            Transform bungalowContainer = priceOptionsTransform.Find("Bungalow Horizontal Container");
+            Transform barnContainer = priceOptionsTransform.Find("Barn Horizontal Container");
+            Transform docksContainer = priceOptionsTransform.Find("Docks Warehouse Horizontal Container");
+            Transform manorContainer = priceOptionsTransform.Find("Manor Horizontal Container");
+
+            // Deactivate the first 4 containers
+            if (laundromatContainer != null) laundromatContainer.gameObject.SetActive(false);
+            if (postOfficeContainer != null) postOfficeContainer.gameObject.SetActive(false);
+            if (carWashContainer != null) carWashContainer.gameObject.SetActive(false);
+            if (tacoTicklersContainer != null) tacoTicklersContainer.gameObject.SetActive(false);
+
+            // Activate the other 5 containers
+            if (motelContainer != null) motelContainer.gameObject.SetActive(true);
+            if (sweatshopContainer != null) sweatshopContainer.gameObject.SetActive(true);
+            if (bungalowContainer != null) bungalowContainer.gameObject.SetActive(true);
+            if (barnContainer != null) barnContainer.gameObject.SetActive(true);
+            if (docksContainer != null) docksContainer.gameObject.SetActive(true);
+            if (manorContainer != null) manorContainer.gameObject.SetActive(true);
+        }
+
+        void ShowBusinessRealEstates(GameObject homeButtonObject, GameObject businessButtonObject)
+        {
+            if (priceOptionsTransform == null)
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Cannot show home real estates.");
+                return;
+            }
+
+            // Change the Sprites of the buttons
+            if (homeButtonObject != null && homeButtonObject.GetComponent<Image>() != null)
+            {
+                Image homeButtonImage = homeButtonObject.GetComponent<Image>();
+                if (toggleButtonSprite == null)
+                {
+                    string imagePath = Path.Combine(ConfigFolder, "ToggleButton.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    {
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            toggleButtonSprite = newSprite;
+                            homeButtonImage.sprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            homeButtonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
+                        }
+                    }
+                }
+                else
+                {
+                    homeButtonImage.sprite = toggleButtonSprite;
+                }
+            }
+
+            if (businessButtonObject != null && businessButtonObject.GetComponent<Image>() != null)
+            {
+                Image businessButtonImage = businessButtonObject.GetComponent<Image>();
+                if (toggleButtonPressedSprite == null)
+                {
+                    string imagePath = Path.Combine(ConfigFolder, "ToggleButtonPressed.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    {
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            toggleButtonPressedSprite = newSprite;
+                            businessButtonImage.sprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            businessButtonImage.color = new Color(0.2f, 0.6f, 0.2f); // Grüne Farbe für den Button
+                        }
+                    }
+                }
+                else
+                {
+                    businessButtonImage.sprite = toggleButtonPressedSprite;
+                }
+            }
+
+            // Find the Save Button
+            Transform saveButton = priceOptionsTransform.Find("Save Button");
+            if (saveButton != null && saveButton.gameObject != null && !saveButton.gameObject.activeSelf)
+            {
+                saveButton.gameObject.SetActive(true);
+            }
+
+            // Find the first 4 containers
+            Transform laundromatContainer = priceOptionsTransform.Find("Laundromat Horizontal Container");
+            Transform postOfficeContainer = priceOptionsTransform.Find("Post Office Horizontal Container");
+            Transform carWashContainer = priceOptionsTransform.Find("Car Wash Horizontal Container");
+            Transform tacoTicklersContainer = priceOptionsTransform.Find("Taco Ticklers Horizontal Container");
+
+            // Find the other 5 containers
+            Transform motelContainer = priceOptionsTransform.Find("Motel Horizontal Container");
+            Transform sweatshopContainer = priceOptionsTransform.Find("Sweatshop Horizontal Container");
+            Transform bungalowContainer = priceOptionsTransform.Find("Bungalow Horizontal Container");
+            Transform barnContainer = priceOptionsTransform.Find("Barn Horizontal Container");
+            Transform docksContainer = priceOptionsTransform.Find("Docks Warehouse Horizontal Container");
+            Transform mannorContainer = priceOptionsTransform.Find("Manor Horizontal Container");
+
+            // Activte the first 4 containers
+            if (laundromatContainer != null) laundromatContainer.gameObject.SetActive(true);
+            if (postOfficeContainer != null) postOfficeContainer.gameObject.SetActive(true);
+            if (carWashContainer != null) carWashContainer.gameObject.SetActive(true);
+            if (tacoTicklersContainer != null) tacoTicklersContainer.gameObject.SetActive(true);
+
+            // Deactivate the other 5 containers
+            if (motelContainer != null) motelContainer.gameObject.SetActive(false);
+            if (sweatshopContainer != null) sweatshopContainer.gameObject.SetActive(false);
+            if (bungalowContainer != null) bungalowContainer.gameObject.SetActive(false);
+            if (barnContainer != null) barnContainer.gameObject.SetActive(false);
+            if (docksContainer != null) docksContainer.gameObject.SetActive(false);
+            if (mannorContainer != null) mannorContainer.gameObject.SetActive(false);
+        }
+
         public void AddPriceOptionsForRealEstate(Transform parentTransform)
         {
             priceOptionsTransform = parentTransform;
@@ -1344,17 +2016,22 @@ namespace MoreRealisticLaundering.PhoneApp
             optionVerticalLayout.childControlWidth = true;
             optionVerticalLayout.childForceExpandWidth = false;
             optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -20f; // Abstand zwischen den Optionen
+            optionVerticalLayout.spacing = -40f; // Abstand zwischen den Optionen
 
             // Füge die Label-Input-Paare für die vier Unternehmen hinzu
             AddLabelInputPair("Laundromat", priceOptionsTransform, "$");
             AddLabelInputPair("Post Office", priceOptionsTransform, "$");
             AddLabelInputPair("Car Wash", priceOptionsTransform, "$");
             AddLabelInputPair("Taco Ticklers", priceOptionsTransform, "$");
-            /* AddLabelInputPair("Motel", priceOptionsTransform, "$");
-             AddLabelInputPair("Bungalow", priceOptionsTransform, "$");
-             AddLabelInputPair("Barn", priceOptionsTransform, "$");
-             AddLabelInputPair("Docks Warehouse", priceOptionsTransform, "$"); */
+
+            AddLabelInputPair("Motel", priceOptionsTransform, "$");
+            AddLabelInputPair("Sweatshop", priceOptionsTransform, "$");
+            AddLabelInputPair("Bungalow", priceOptionsTransform, "$");
+            AddLabelInputPair("Barn", priceOptionsTransform, "$");
+            AddLabelInputPair("Docks Warehouse", priceOptionsTransform, "$");
+
+            //Not yet ingame
+            AddLabelInputPair("Manor", priceOptionsTransform, "$");
 
             // Füge einen Save-Button hinzu
             AddSaveButton(priceOptionsTransform, "RealEstate");
@@ -1374,6 +2051,9 @@ namespace MoreRealisticLaundering.PhoneApp
         public Transform priceOptionsTransform = null;
         Sprite inputBackgroundSprite = null;
         Sprite saveButtonSprite = null;
+
+        Sprite toggleButtonSprite = null;
+        Sprite toggleButtonPressedSprite = null;
         Sprite appIconSprite = null;
         private Business _selectedBusiness = null;
         private string _selectedBusinessName = null;

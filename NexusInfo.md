@@ -1,16 +1,14 @@
-[center][img]https://github.com/user-attachments/assets/5c807458-11ea-47bb-a13a-af9b8e534587[/img][/center]
 [size=6]MoreRealisticLaundering[/size]
+[center][img]https://github.com/user-attachments/assets/5c807458-11ea-47bb-a13a-af9b8e534587[/img][/center]
 
 [size=5]Known Incompatiblities / Issues[/size]
 - Not compatible with most translation mods
 - Not compatible with most mods that modify the Deliveries App (e.g. [url=https://www.nexusmods.com/schedule1/mods/521]DeliveryApp Improvements[/url])
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
-[size=5]What's new in Version 1.1.2?[/size]
-- Enhanced the [b]Legit Mode[/b] that you can only access via the configuration file [b]MoreRealisticLaundering.json[/b].
-- Legit Mode will allow you to use the config file only, without any ingame UI (Mobile App).
-- This aims for players that do not want the seduction of tweaking the settings like cheats in real time but want to use the general features for their playstyle.
-- To enable the Legit Mode, set the [b]Use_Legit_Version[/b] variable to [b]true[/b] (default is false, which will create the "Tax & Wash" app as usual).
+[size=5]What's new in Version 1.2.0?[/size]
+- Enhancement for Ray's Real Estate: Now also supports private properties
+- Missing fields in the MoreRealisticLaundering.json will now be added instead of simply using the default values.
 
 [size=5]Installation[/size]
 [list=1]
@@ -20,11 +18,18 @@
 [/list]
 [size=5]Configuration[/size]
 - The mod generates a configuration file ([b]MoreRealisticLaundering.json[/b]) in the [b]UserData[/b] folder.
-- You can edit this file to customize the default settings for each business; however, this is optional.
+- You can edit this file to customize the default settings for each / property; however this is optional as long as you're not using the legit mode.
 - Use the custom app in-game to modify everything dynamically.
 
 [size=5]Features[/size]
 -Please check the Changelog or the New Features and Changes section down below
+
+[size=3]Legit Mode:[/size]
+- Use the [b]MoreRealisticLaundering.json[/b] to enable the [b]Use_Legit_Version[/b] and set it to [b]true[/b].
+- All settings will be loaded on startup, using the JSONs configuration.
+- This might help with compatibility issues with some other mods (try it out).
+- No Custom App will be loaded ingame. To stop the seduction to cheat.
+- Default value is [b]false[/b] for this mode.
 
 [size=3]Dynamic App Integration:[/size]
 - Adds a custom app to the in-game phone, enabling players to manage their businesses directly from the app.

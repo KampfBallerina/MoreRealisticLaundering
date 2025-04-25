@@ -24,7 +24,7 @@ namespace MoreRealisticLaundering.Util
                 {
                     font = textComponent.font;
                     openSansBoldIsInitialized = true;
-                    MelonLogger.Msg("Initialized openSansBold Font");
+                    //   MelonLogger.Msg("Initialized openSansBold Font");
                 }
                 return font;
             }
@@ -37,7 +37,7 @@ namespace MoreRealisticLaundering.Util
                     font = textComponent.font;
                     openSansSemiBoldIsInitialized = true;
 
-                    MelonLogger.Msg("Initialized openSansSemiBold Font");
+                    //   MelonLogger.Msg("Initialized openSansSemiBold Font");
                 }
                 return font;
             }

@@ -64,6 +64,14 @@ namespace MoreRealisticLaundering.Config
                     EnsureFieldExists("Post_Office_Tax_Percentage", configState.Post_Office_Tax_Percentage);
                     EnsureFieldExists("Post_Office_Price", configState.Post_Office_Price);
 
+                    EnsureFieldExists("Motel_Room_Price", configState.Motel_Room_Price);
+                    EnsureFieldExists("Sweatshop_Price", configState.Sweatshop_Price);
+                    EnsureFieldExists("Bungalow_Price", configState.Bungalow_Price);
+                    EnsureFieldExists("Barn_Price", configState.Barn_Price);
+                    EnsureFieldExists("Docks_Warehouse_Price", configState.Docks_Warehouse_Price);
+                    EnsureFieldExists("Manor_Price", configState.Manor_Price);
+
+
                     if (isConfigUpdated)
                     {
                         File.WriteAllText(ConfigManager.FilePath, jsonObject.ToString(Formatting.Indented));
@@ -73,7 +81,7 @@ namespace MoreRealisticLaundering.Config
                     ConfigState loadedConfigState = jsonObject.ToObject<ConfigState>();
 
                     // Check if Use Legit Version is a boolean
-                    if (loadedConfigState.Use_Legit_Version != true || loadedConfigState.Use_Legit_Version != false)
+                    if (loadedConfigState.Use_Legit_Version != true && loadedConfigState.Use_Legit_Version != false)
                     {
                         MelonLogger.Warning("Invalid Use_Legit_Version in config. Adding default value (false).");
                         loadedConfigState.Use_Legit_Version = configState.Use_Legit_Version;
@@ -99,7 +107,7 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Laundromat_Tax_Percentage = configState.Laundromat_Tax_Percentage;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Laundromat_Price <= 0f)
+                    if (loadedConfigState.Laundromat_Price < 1000f)
                     {
                         MelonLogger.Warning("Invalid Laundromat_Price in config. Reverting to default (10000).");
                         loadedConfigState.Laundromat_Price = configState.Laundromat_Price;
@@ -125,7 +133,7 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Taco_Ticklers_Tax_Percentage = configState.Taco_Ticklers_Tax_Percentage;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Taco_Ticklers_Price <= 0f)
+                    if (loadedConfigState.Taco_Ticklers_Price < 1000f)
                     {
                         MelonLogger.Warning("Invalid Taco_Ticklers_Price in config. Reverting to default (100000).");
                         loadedConfigState.Taco_Ticklers_Price = configState.Taco_Ticklers_Price;
@@ -150,7 +158,7 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Car_Wash_Tax_Percentage = configState.Car_Wash_Tax_Percentage;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Car_Wash_Price <= 0f)
+                    if (loadedConfigState.Car_Wash_Price < 1000f)
                     {
                         MelonLogger.Warning("Invalid Car_Wash_Price in config. Reverting to default (30000).");
                         loadedConfigState.Car_Wash_Price = configState.Car_Wash_Price;
@@ -176,10 +184,48 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Post_Office_Tax_Percentage = configState.Post_Office_Tax_Percentage;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Post_Office_Price <= 0f)
+                    if (loadedConfigState.Post_Office_Price < 1000f)
                     {
                         MelonLogger.Warning("Invalid Post_Office_Price in config. Reverting to default (20000).");
                         loadedConfigState.Post_Office_Price = configState.Post_Office_Price;
+                        isConfigUpdated = true;
+                    }
+
+                    //Überprüfe und aktualisiere die Werte für Home Properties
+                    if (loadedConfigState.Motel_Room_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Motel_Room_Price in config. Reverting to default (750).");
+                        loadedConfigState.Motel_Room_Price = configState.Motel_Room_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Sweatshop_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Sweatshop_Price in config. Reverting to default (2500).");
+                        loadedConfigState.Sweatshop_Price = configState.Sweatshop_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Bungalow_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Bungalow_Price in config. Reverting to default (10000).");
+                        loadedConfigState.Bungalow_Price = configState.Bungalow_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Barn_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Barn_Price in config. Reverting to default (38000).");
+                        loadedConfigState.Barn_Price = configState.Barn_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Docks_Warehouse_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Docks_Warehouse_Price in config. Reverting to default (80000).");
+                        loadedConfigState.Docks_Warehouse_Price = configState.Docks_Warehouse_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Manor_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Manor_Price in config. Reverting to default (250000).");
+                        loadedConfigState.Manor_Price = configState.Manor_Price;
                         isConfigUpdated = true;
                     }
 
@@ -269,6 +315,58 @@ namespace MoreRealisticLaundering.Config
                 default:
                     MelonLogger.Warning($"Business '{businessName}' not found. Returning default value (24).");
                     return 19f; // Standardwert, falls das Unternehmen nicht gefunden wird
+            }
+        }
+
+        public static float GetPropertyPrice(ConfigState config, string propertyName)
+        {
+            switch (propertyName.ToLower())
+            {
+                case "laundromat":
+                    return config.Laundromat_Price;
+
+                case "taco_ticklers":
+                case "tacoticklers":
+                case "taco ticklers":
+                    return config.Taco_Ticklers_Price;
+
+                case "car_wash":
+                case "carwash":
+                case "car wash":
+                    return config.Car_Wash_Price;
+
+                case "post_office":
+                case "postoffice":
+                case "post office":
+                    return config.Post_Office_Price;
+
+                case "donna":
+                case "motel_room":
+                case "motelroom":
+                case "motel room":
+                    return config.Motel_Room_Price;
+
+                case "ming":
+                case "sweatshop":
+                    return config.Sweatshop_Price;
+
+                case "bungalow":
+                    return config.Bungalow_Price;
+
+                case "barn":
+                    return config.Barn_Price;
+
+                case "docks_warehouse":
+                case "dockswarehouse":
+                case "docks warehouse":
+                    return config.Docks_Warehouse_Price;
+
+                case "manor":
+                    return config.Manor_Price;
+
+                default:
+                    MelonLogger.Warning($"Property/Business '{propertyName}' not found. Returning default value (1000).");
+                    return 1000f; // Standardwert, falls das Property/Business nicht gefunden wird
             }
         }
 

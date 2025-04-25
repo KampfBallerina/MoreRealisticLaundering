@@ -6,7 +6,7 @@ namespace MoreRealisticLaundering.Config
 	public class ConfigState
 	{
 		public bool Use_Legit_Version = false;
-		
+
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Laundromat_Cap = 1000f;
 		public int Laundromat_Laundering_time_hours = 24;
@@ -30,5 +30,13 @@ namespace MoreRealisticLaundering.Config
 		public int Post_Office_Laundering_time_hours = 24;
 		public float Post_Office_Tax_Percentage = 19f;
 		public float Post_Office_Price = 20000f;
+
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Motel_Room_Price = 750f;
+		public float Sweatshop_Price = 2500f;
+		public float Bungalow_Price = 10000f;
+		public float Barn_Price = 38000f;
+		public float Docks_Warehouse_Price = 80000f;
+		public float Manor_Price = 250000f;
 	}
 }

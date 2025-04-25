@@ -11,8 +11,10 @@ using UnityEngine.UI;
 using MoreRealisticLaundering.Util;
 using MoreRealisticLaundering.PhoneApp;
 using Il2CppTMPro;
+using Il2CppScheduleOne.Dialogue;
+using MoreRealisticLaundering.Config;
 
-[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.1.2", "KampfBallerina", null)]
+[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.2.0", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MoreRealisticLaundering
@@ -75,7 +77,16 @@ namespace MoreRealisticLaundering
                 { "Taco Ticklers", "Taco Ticklers" },
                 { "Car Wash", "Car Wash" },
                 { "Post Office", "Post Office" },
-                { "PostOffice", "Post Office" }
+                { "PostOffice", "Post Office" },
+                { "Motel", "Motel"},
+                { "MotelRoom", "Motel"},
+                { "Motel Room", "Motel"},
+                { "Sweatshop", "Sweatshop"},
+                { "Bungalow", "Bungalow"},
+                { "Barn", "Barn"},
+                { "Docks Warehouse", "Docks Warehouse"},
+                { "DocksWarehouse", "Docks Warehouse"},
+                { "Manor", "Manor"},
             };
         }
 
@@ -452,7 +463,7 @@ namespace MoreRealisticLaundering
                     string imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
                     MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
                 }
-                ApplyPricesToUnownedBusinesses();
+                ApplyPricesToProperties();
                 ApplyPricesToPropertyListings();
                 yield break;
             }
@@ -773,7 +784,7 @@ namespace MoreRealisticLaundering
             return null;
         }
 
-        public void ApplyPricesToUnownedBusinesses()
+        public void ApplyPricesToProperties()
         {
             if (Business.UnownedBusinesses != null)
             {
@@ -794,7 +805,7 @@ namespace MoreRealisticLaundering
                             "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
                             "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
                             "Post Office" => MRLCore.Instance.config.Post_Office_Price,
-                            _ => 999999f // Standardwert, falls das Business nicht gefunden wird
+                            _ => 1000f // Standardwert, falls das Business nicht gefunden wird
                         };
 
                         business.Price = price;
@@ -810,7 +821,106 @@ namespace MoreRealisticLaundering
             {
                 MelonLogger.Warning("UnownedBusinesses is null. Cannot apply prices.");
             }
+
+            ApplyPricesForHomeProperties();
         }
+
+        public void ApplyPricesForHomeProperties()
+        {
+            if (Property.UnownedProperties != null)
+            {
+                foreach (Property property in Property.UnownedProperties)
+                {
+
+                    if (property == null)
+                    {
+                        MelonLogger.Warning("Encountered a null property in UnownedProperties. Skipping...");
+                        continue;
+                    }
+
+                    if (MRLCore.Instance.aliasMap.TryGetValue(property.name, out string key))
+                    {
+                        float price = key switch
+                        {
+                            "Motel Room" => MRLCore.Instance.config.Motel_Room_Price,
+                            "Motel" => MRLCore.Instance.config.Motel_Room_Price,
+                            "MotelRoom" => MRLCore.Instance.config.Motel_Room_Price,
+                            "Sweatshop" => MRLCore.Instance.config.Sweatshop_Price,
+                            "Bungalow" => MRLCore.Instance.config.Bungalow_Price,
+                            "Barn" => MRLCore.Instance.config.Barn_Price,
+                            "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
+                            "Manor" => MRLCore.Instance.config.Manor_Price,
+                            _ => 1000f // Standardwert, falls das Business nicht gefunden wird
+                        };
+
+                        property.Price = price;
+                    }
+                    else
+                    {
+                        MelonLogger.Warning($"Property '{property.name}' / '{property.propertyName}' not found in aliasMap. Skipping price assignment.");
+                    }
+                }
+
+                if (Property.OwnedProperties != null)
+                {
+                    foreach (Property property in Property.OwnedProperties)
+                    {
+
+                        if (property == null)
+                        {
+                            MelonLogger.Warning("Encountered a null property in OwnedProperties. Skipping...");
+                            continue;
+                        }
+
+                        if (MRLCore.Instance.aliasMap.TryGetValue(property.name, out string key))
+                        {
+                            float price = key switch
+                            {
+                                "Motel Room" => MRLCore.Instance.config.Motel_Room_Price,
+                                "Motel" => MRLCore.Instance.config.Motel_Room_Price,
+                                "MotelRoom" => MRLCore.Instance.config.Motel_Room_Price,
+                                "Sweatshop" => MRLCore.Instance.config.Sweatshop_Price,
+                                "Bungalow" => MRLCore.Instance.config.Bungalow_Price,
+                                "Barn" => MRLCore.Instance.config.Barn_Price,
+                                "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
+                                "Manor" => MRLCore.Instance.config.Manor_Price,
+                                _ => 1000f // Standardwert, falls die Property nicht gefunden wird
+                            };
+
+                            property.Price = price;
+                        }
+                        else
+                        {
+                            if (property.name == "RV")
+                            {
+                                // Don't do shit with the RV for other mods
+                            }
+                            else
+                            {
+                                MelonLogger.Warning($"Property '{property.name}' not found in aliasMap. Skipping price assignment.");
+                            }
+                        }
+                    }
+                }
+
+                //Find Dialogs for Donna and Ming
+                DialogueController_Ming[] dialogueControllers = UnityEngine.Object.FindObjectsOfType<DialogueController_Ming>();
+                foreach (DialogueController_Ming item in dialogueControllers)
+                {
+                    string sNPCName = item.gameObject.transform.parent?.name;
+                    if (sNPCName != null)
+                    {
+                        item.Price = ConfigManager.GetPropertyPrice(MRLCore.Instance.config, sNPCName);
+                        //  MelonLogger.Msg($"Adjusting {sNPCName}'s Dialogue to {item.Price}.");
+                    }
+                }
+            }
+            else
+            {
+                MelonLogger.Warning("UnownedProperties is null. Cannot apply prices.");
+            }
+        }
+
 
         public void ApplyPricesToPropertyListings()
         {
@@ -852,7 +962,7 @@ namespace MoreRealisticLaundering
                         "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
                         "Post Office" => MRLCore.Instance.config.Post_Office_Price,
                         "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
-                        _ => 999999f // Standardwert, falls das Business nicht gefunden wird
+                        _ => 1000f // Standardwert, falls das Business nicht gefunden wird
                     };
 
                     // Suche nach dem "Price"-Objekt und aktualisiere den Text
@@ -878,6 +988,73 @@ namespace MoreRealisticLaundering
                     MelonLogger.Warning($"Business '{listingName}' not found in aliasMap. Skipping price assignment.");
                 }
             }
+
+            GameObject reOfficeWhiteboardHomes = GameObject.Find("Map/Container/RE Office/Interior/Whiteboard");
+            if (reOfficeWhiteboardHomes == null)
+            {
+                MelonLogger.Warning("RE Office not found. Cannot apply prices to PropertyListings.");
+                return;
+            }
+
+            // Suche nach allen PropertyListing-Objekten unter "RE Office"
+            Transform[] homePropertyListings = new Transform[]
+            {
+                reOfficeWhiteboardHomes.transform.Find("PropertyListing Motel Room"),
+                reOfficeWhiteboardHomes.transform.Find("PropertyListing Sweatshop"),
+                reOfficeWhiteboardHomes.transform.Find("PropertyListing Bungalow"),
+                reOfficeWhiteboardHomes.transform.Find("PropertyListing Barn"),
+                reOfficeWhiteboardHomes.transform.Find("PropertyListing Docks Warehouse"),
+                reOfficeWhiteboardHomes.transform.Find("PropertyListing Manor")
+            };
+
+            foreach (Transform homePropertyListing in homePropertyListings)
+            {
+                if (homePropertyListing == null)
+                {
+                    //MelonLogger.Warning("A PropertyListing was not found. Skipping...");
+                    continue;
+                }
+
+                // Hole den Namen des PropertyListings
+                string listingName = homePropertyListing.name.Replace("PropertyListing ", "").Trim();
+
+                // Hole den Preis aus der Konfiguration
+                if (MRLCore.Instance.aliasMap.TryGetValue(listingName, out string key))
+                {
+                    float price = key switch
+                    {
+                        "Motel Room" => MRLCore.Instance.config.Motel_Room_Price,
+                        "Sweatshop" => MRLCore.Instance.config.Sweatshop_Price,
+                        "Bungalow" => MRLCore.Instance.config.Bungalow_Price,
+                        "Barn" => MRLCore.Instance.config.Barn_Price,
+                        "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
+                        "Manor" => MRLCore.Instance.config.Manor_Price,
+                        _ => 1000f // Standardwert, falls das Business nicht gefunden wird
+                    };
+
+                    // Suche nach dem "Price"-Objekt und aktualisiere den Text
+                    Transform priceTransform = homePropertyListing.Find("Price");
+                    if (priceTransform != null)
+                    {
+                        TextMeshPro priceText = priceTransform.GetComponent<TextMeshPro>();
+                        if (priceText != null)
+                        {
+                            priceText.text = $"${price}";
+                            //   MelonLogger.Msg($"Set price for {listingName} to {price:C}.");
+                        }
+                        else
+                        {
+                            MelonLogger.Warning($"Price TextMeshPro component not found for {listingName}.");
+                        }
+                    }
+                    else
+                        MelonLogger.Warning($"Price object not found for {listingName}.");
+                }
+                else
+                {
+                    MelonLogger.Warning($"Property '{listingName}' not found in aliasMap. Skipping price assignment.");
+                }
+            }
             UpdateSellSignPrices();
         }
 
@@ -889,23 +1066,38 @@ namespace MoreRealisticLaundering
             GameObject sellSignLaundromat = GameObject.Find("@Businesses/Laundromat/ForSaleSign_Blue (1)");
             GameObject sellSignTacoTicklers = GameObject.Find("@Businesses/Taco Ticklers/ForSaleSign_Blue (1)");
 
+            GameObject sellSignMotelRoom = GameObject.Find("@Properties/MotelRoom/ForSaleSign");
+            GameObject sellSignSweatshop = GameObject.Find("@Properties/Sweatshop/ForSaleSign");
+            GameObject sellSignBungalow = GameObject.Find("@Properties/Bungalow/ForSaleSign");
+            GameObject sellSignBarn = GameObject.Find("@Properties/Barn/ForSaleSign");
+            GameObject sellSignDocksWarehouse = GameObject.Find("@Properties/DocksWarehouse/ForSaleSign");
+            GameObject sellSignManor = GameObject.Find("@Properties/Manor/ForSaleSign (1)");
+
             // Aktualisiere die Preise für jedes Schild
             UpdateSignPrice(sellSignPostOffice, "Post Office");
             UpdateSignPrice(sellSignCarWash, "Car Wash");
             UpdateSignPrice(sellSignLaundromat, "Laundromat");
             UpdateSignPrice(sellSignTacoTicklers, "Taco Ticklers");
+
+            UpdateSignPrice(sellSignMotelRoom, "Motel Room");
+            UpdateSignPrice(sellSignSweatshop, "Sweatshop");
+            UpdateSignPrice(sellSignBungalow, "Bungalow");
+            UpdateSignPrice(sellSignBarn, "Barn");
+            UpdateSignPrice(sellSignDocksWarehouse, "Docks Warehouse");
+            UpdateSignPrice(sellSignManor, "Manor");
+            // MelonLogger.Msg("Updated all sell sign prices.");
         }
 
-        private void UpdateSignPrice(GameObject sellSign, string businessName)
+        private void UpdateSignPrice(GameObject sellSign, string propertyName)
         {
             if (sellSign == null)
             {
-                MelonLogger.Warning($"Sell sign for {businessName} not found. Skipping...");
+                MelonLogger.Warning($"Sell sign for {propertyName} not found. Skipping...");
                 return;
             }
 
             // Hole den Preis aus der Konfiguration
-            if (MRLCore.Instance.aliasMap.TryGetValue(businessName, out string key))
+            if (MRLCore.Instance.aliasMap.TryGetValue(propertyName, out string key))
             {
                 float price = key switch
                 {
@@ -914,7 +1106,15 @@ namespace MoreRealisticLaundering
                     "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
                     "Post Office" => MRLCore.Instance.config.Post_Office_Price,
                     "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
-                    _ => 999999f // Standardwert, falls das Business nicht gefunden wird
+                    "Motel" => MRLCore.Instance.config.Motel_Room_Price,
+                    "MotelRoom" => MRLCore.Instance.config.Motel_Room_Price,
+                    "Motel Room" => MRLCore.Instance.config.Motel_Room_Price,
+                    "Sweatshop" => MRLCore.Instance.config.Sweatshop_Price,
+                    "Bungalow" => MRLCore.Instance.config.Bungalow_Price,
+                    "Barn" => MRLCore.Instance.config.Barn_Price,
+                    "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
+                    "Manor" => MRLCore.Instance.config.Manor_Price,
+                    _ => 1000f // Standardwert, falls das Business nicht gefunden wird
                 };
 
                 // Suche nach dem "Price"-Objekt und aktualisiere den Text
@@ -929,17 +1129,17 @@ namespace MoreRealisticLaundering
                     }
                     else
                     {
-                        MelonLogger.Warning($"Price TextMeshPro component not found for sell sign of {businessName}.");
+                        MelonLogger.Warning($"Price TextMeshPro component not found for sell sign of {propertyName}.");
                     }
                 }
                 else
                 {
-                    MelonLogger.Warning($"Price object not found for sell sign of {businessName}.");
+                    MelonLogger.Warning($"Price object not found for sell sign of {propertyName}.");
                 }
             }
             else
             {
-                MelonLogger.Warning($"Business '{businessName}' not found in aliasMap. Skipping sell sign price assignment.");
+                MelonLogger.Warning($"Property '{propertyName}' not found in aliasMap. Skipping sell sign price assignment.");
             }
         }
 
