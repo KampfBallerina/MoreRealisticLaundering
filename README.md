@@ -12,7 +12,10 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 
 ## What's new in Version 1.2.0?
 - Enhancement for Ray's Real Estate: Now also supports private properties
+- Dialogue Adaptions for Donna (Motel Owner) and Ming (Sweatshop Owner)
 - Missing fields in the MoreRealisticLaundering.json will now be added instead of simply using the default values.
+
+![Rays Real Estate](https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49)
 
 
 ## Installation
@@ -73,7 +76,7 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices.
 - Allows players to view and adjust the prices of unowned (and owned) properties directly from the app.
   
-  ![Rays Real Estate](https://github.com/user-attachments/assets/869aa50b-d60a-49f2-99cf-2936fd200075)
+![Rays Real Estate](https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49)
 
 ### Property Listings Price Updates:
 - Automatically updates the prices displayed on the property listings in "Ray's Real Estate Office" based on the player's configuration.
@@ -94,6 +97,7 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Dynamically applies updated prices to all relevant in-game objects, including property listings, sell signs and dialogues ensuring consistency across the game world.
 
 ![Correct Dialogs](https://github.com/user-attachments/assets/6308dc12-2db2-480c-948c-03127f846d8b)
+![DialogueAdaptions](https://github.com/user-attachments/assets/15372eb1-7fb8-45c0-8c26-41dc02ae4954)
 
 ---
 
