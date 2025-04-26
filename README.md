@@ -2,7 +2,7 @@
 ![LaunderingIcon](https://github.com/user-attachments/assets/5c807458-11ea-47bb-a13a-af9b8e534587)
 ## Summary
 
-MoreRealisticLaundering enhances the in-game money laundering mechanics by introducing more detailed customization and management options for business and private properties.
+MoreRealisticLaundering enhances the in-game money laundering mechanics by introducing more detailed customization and management options for business and private properties. Additionally, you're now able to manage the prices of your future vehicles.
 
 ## Known Incompatiblities / Issues
 - Not compatible with most translation mods

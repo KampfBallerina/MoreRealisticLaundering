@@ -13,7 +13,7 @@
 - Fixed that Ray's Real Estate was not appearing, when all 4 businesses where already bought (will now always appear)
 - Preparations for Skateboard Shop support (outlook)
 
-[center][img]https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49[/img][/center]
+[center][img]https://github.com/user-attachments/assets/53770a7e-7b9d-4bac-9ebe-1990dfe3468a[/img][/center]
 
 [size=5]Installation[/size]
 [list=1]
@@ -49,6 +49,8 @@
 [size=3]Enhanced Hyland Auto Management:[/size]
 - Introduces a dedicated "Hyland Auto" section in the app for managing vehicle prices.
 - Allows players to view and adjust the prices of vehicles dynamically from the app.
+
+[center][img]https://github.com/user-attachments/assets/53770a7e-7b9d-4bac-9ebe-1990dfe3468a[/img][/center]
 
 [size=3]Customizable Business Settings:[/size]
 - Allows players to adjust the maximum laundering capacity, laundering time, and taxation percentage for each business (e.g., Laundromat, Taco Ticklers, Car Wash, Post Office).
