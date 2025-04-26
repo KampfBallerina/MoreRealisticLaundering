@@ -15,8 +15,8 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Vehicle Price Support for Legit Mode
 - Adaption of all Vehicle Price Signs dynamically
 - Fixed that Ray's Real Estate was not appearing, when all 4 businesses where already bought (will now always appear)
-
-![Rays Real Estate](https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49)
+  
+![Hyland Auto](https://github.com/user-attachments/assets/53770a7e-7b9d-4bac-9ebe-1990dfe3468a)
 
 
 ## Installation
@@ -55,6 +55,8 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 ### Enhanced Hyland Auto Management:
 - Introduces a dedicated "Hyland Auto" section in the app for managing vehicle prices.
 - Allows players to view and adjust the prices of vehicles dynamically from the app.
+
+![Hyland Auto](https://github.com/user-attachments/assets/53770a7e-7b9d-4bac-9ebe-1990dfe3468a)
 
 ### Customizable Business Settings:
 - Allows players to adjust the maximum laundering capacity, laundering time, and taxation percentage for each business (e.g. Laundromat, Taco Ticklers, Car Wash, Post Office).
