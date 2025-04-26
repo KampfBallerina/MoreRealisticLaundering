@@ -6,10 +6,12 @@
 - Not compatible with most mods that modify the Deliveries App (e.g. [url=https://www.nexusmods.com/schedule1/mods/521]DeliveryApp Improvements[/url])
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
-[size=5]What's new in Version 1.2.0?[/size]
-- Enhancement for Ray's Real Estate: Now also supports private properties
-- Dialogue Adaptions for Donna (Motel Owner) and Ming (Sweatshop Owner)
-- Missing fields in the MoreRealisticLaundering.json will now be added instead of simply using the default values.
+[size=5]What's new in Version 1.2.1?[/size]
+- Introducing `Hyland Auto` where you can now adjust the prices for all Vehicles that you can buy
+- Vehicle Price Support for Legit Mode
+- Adaption of all Vehicle Price Signs dynamically
+- Fixed that Ray's Real Estate was not appearing, when all 4 businesses where already bought (will now always appear)
+- Preparations for Skateboard Shop support (outlook)
 
 [center][img]https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49[/img][/center]
 
@@ -25,7 +27,7 @@
 - Use the custom app in-game to modify everything dynamically without any restarts.
 
 [size=5]Features[/size]
--Please check the Changelog or the New Features and Changes section down below
+- Please check the Changelog or the Features section down below
 
 [size=3]Legit Mode:[/size]
 - Use the [b]MoreRealisticLaundering.json[/b] to enable the [b]Use_Legit_Version[/b] and set it to [b]true[/b].
@@ -43,6 +45,10 @@
 [size=3]Automatic Business Detection:[/size]
 - Automatically detects newly owned businesses and adds them to the app for management.
 - Ensures that all businesses are processed and updated dynamically.
+
+[size=3]Enhanced Hyland Auto Management:[/size]
+- Introduces a dedicated "Hyland Auto" section in the app for managing vehicle prices.
+- Allows players to view and adjust the prices of vehicles dynamically from the app.
 
 [size=3]Customizable Business Settings:[/size]
 - Allows players to adjust the maximum laundering capacity, laundering time, and taxation percentage for each business (e.g., Laundromat, Taco Ticklers, Car Wash, Post Office).
@@ -72,13 +78,14 @@
 [center][img]https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49[/img][/center]
 
 [size=3]Property Listings Price Updates:[/size]
-- Automatically updates the prices displayed on the property listings in "Ray's Real Estate Office" based on the player's configuration.
+- Automatically updates the prices displayed on the whiteboards in "Ray's Real Estate Office" based on the player's configuration.
 - Ensures that the displayed prices are always accurate and reflect the latest settings.
 
 [center][img]https://github.com/user-attachments/assets/96145491-afef-4aa5-abb4-a9b506e21d9c[/img][/center]
 
 [size=3]Sell Sign Price Updates:[/size]
-- Updates the prices displayed on the "For Sale" signs for each business (e.g., Laundromat, Taco Ticklers, Car Wash, Post Office).
+- Updates the prices displayed on the "For Sale" signs for each property.
+- Updated the prices displayed for all Vehicles
 - Ensures that the prices on the signs match the configured values.
 
 [center][img]https://github.com/user-attachments/assets/a9bda137-ad6e-4bdb-81d0-18631dd660f9[/img][/center]

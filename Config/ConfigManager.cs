@@ -239,37 +239,37 @@ namespace MoreRealisticLaundering.Config
                     // Überprüfe und aktualisiere die Werte für Autos //TODO: Change Default Values
                     if (loadedConfigState.Shitbox_Price <= 1000f)
                     {
-                        MelonLogger.Warning("Invalid Shitbox_Price in config. Reverting to default (5111).");
+                        MelonLogger.Warning("Invalid Shitbox_Price in config. Reverting to default (12800).");
                         loadedConfigState.Shitbox_Price = configState.Shitbox_Price;
                         isConfigUpdated = true;
                     }
                     if (loadedConfigState.Veeper_Price <= 1000f)
                     {
-                        MelonLogger.Warning("Invalid Veeper_Price in config. Reverting to default (9111).");
+                        MelonLogger.Warning("Invalid Veeper_Price in config. Reverting to default (46999).");
                         loadedConfigState.Veeper_Price = configState.Veeper_Price;
                         isConfigUpdated = true;
                     }
                     if (loadedConfigState.Bruiser_Price <= 1000f)
                     {
-                        MelonLogger.Warning("Invalid Bruiser_Price in config. Reverting to default (12111).");
+                        MelonLogger.Warning("Invalid Bruiser_Price in config. Reverting to default (25000).");
                         loadedConfigState.Bruiser_Price = configState.Bruiser_Price;
                         isConfigUpdated = true;
                     }
                     if (loadedConfigState.Dinkler_Price <= 1000f)
                     {
-                        MelonLogger.Warning("Invalid Dinkler_Price in config. Reverting to default (15111).");
+                        MelonLogger.Warning("Invalid Dinkler_Price in config. Reverting to default (38000).");
                         loadedConfigState.Dinkler_Price = configState.Dinkler_Price;
                         isConfigUpdated = true;
                     }
                     if (loadedConfigState.Hounddog_Price <= 1000f)
                     {
-                        MelonLogger.Warning("Invalid Hounddog_Price in config. Reverting to default (25111).");
+                        MelonLogger.Warning("Invalid Hounddog_Price in config. Reverting to default (42000).");
                         loadedConfigState.Hounddog_Price = configState.Hounddog_Price;
                         isConfigUpdated = true;
                     }
                     if (loadedConfigState.Cheetah_Price <= 1000f)
                     {
-                        MelonLogger.Warning("Invalid Cheetah_Price in config. Reverting to default (40111).");
+                        MelonLogger.Warning("Invalid Cheetah_Price in config. Reverting to default (120000).");
                         loadedConfigState.Cheetah_Price = configState.Cheetah_Price;
                         isConfigUpdated = true;
                     }

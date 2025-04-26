@@ -594,6 +594,12 @@ namespace MoreRealisticLaundering.PhoneApp
                 tacoTicklersContainer.gameObject.SetActive(true);
             }
 
+            Transform saveButton = priceOptionsTransform.Find("Save Button");
+            if (saveButton != null && saveButton.gameObject != null && !saveButton.gameObject.activeSelf)
+            {
+                saveButton.gameObject.SetActive(true);
+            }
+
             // Deaktiviere die vier Container in priceOptionsTransform, falls sie deaktiviert sind
             Transform motelContainer = priceOptionsTransform.Find("Motel Horizontal Container");
             Transform SweatshopContainer = priceOptionsTransform.Find("Sweatshop Horizontal Container");
@@ -1721,7 +1727,7 @@ namespace MoreRealisticLaundering.PhoneApp
                         }
                     }
                 }
-                MRLCore.Instance.notificationsManager.SendNotification("Property Prices updated", subTitleString, appIconSprite, 5, true);
+                MRLCore.Instance.notificationsManager.SendNotification("Property Prices", subTitleString, appIconSprite, 5, true);
             }
 
             buttonText.text = "Save & Apply";
@@ -1847,7 +1853,7 @@ namespace MoreRealisticLaundering.PhoneApp
                         }
                     }
                 }
-                MRLCore.Instance.notificationsManager.SendNotification("Vehicle Prices Updated", subTitleString, appIconSprite, 5, true);
+                MRLCore.Instance.notificationsManager.SendNotification("Vehicle Prices", subTitleString, appIconSprite, 5, true);
             }
 
             buttonText.text = "Save & Apply";

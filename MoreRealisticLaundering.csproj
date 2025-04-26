@@ -477,7 +477,9 @@
 	<ItemGroup>
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<Target Name="PostBuild" AfterTargets="Build">
 		<Exec Command="COPY &quot;$(TargetPath)&quot; &quot;f:\Steam Spiele\steamapps\common\Schedule I\Mods&quot;" />
+		<Exec Command="COPY &quot;$(TargetPath)&quot; &quot;s:\DOWNLOAD\Schedule I Modding\MRL\MoreRealisticLaundering_BUILD\Mods&quot;" />
 	</Target>
+	
 </Project>

@@ -40,11 +40,11 @@ namespace MoreRealisticLaundering.Config
 		public float Manor_Price = 250000f;
 
 		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Shitbox_Price = 5111f;
-		public float Veeper_Price = 9111f;
-		public float Bruiser_Price = 12111f;
-		public float Dinkler_Price = 15111f;
-		public float Hounddog_Price = 25111f;
-		public float Cheetah_Price = 40111f;
+		public float Shitbox_Price = 12800f;
+		public float Veeper_Price = 46999f;
+		public float Bruiser_Price = 25000f;
+		public float Dinkler_Price = 38000f;
+		public float Hounddog_Price = 42000f;
+		public float Cheetah_Price = 120000f;
 	}
 }

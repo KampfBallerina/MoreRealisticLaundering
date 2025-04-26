@@ -10,10 +10,11 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
 
-## What's new in Version 1.2.0?
-- Enhancement for Ray's Real Estate: Now also supports private properties
-- Dialogue Adaptions for Donna (Motel Owner) and Ming (Sweatshop Owner)
-- Missing fields in the MoreRealisticLaundering.json will now be added instead of simply using the default values.
+## What's new in Version 1.2.1?
+- Introducing `Hyland Auto` where you can now adjust the prices for all Vehicles that you can buy
+- Vehicle Price Support for Legit Mode
+- Adaption of all Vehicle Price Signs dynamically
+- Fixed that Ray's Real Estate was not appearing, when all 4 businesses where already bought (will now always appear)
 
 ![Rays Real Estate](https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49)
 
@@ -51,6 +52,10 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Automatically detects newly owned businesses and adds them to the app for management.
 - Ensures that all businesses are processed and updated dynamically.
 
+### Enhanced Hyland Auto Management:
+- Introduces a dedicated "Hyland Auto" section in the app for managing vehicle prices.
+- Allows players to view and adjust the prices of vehicles dynamically from the app.
+
 ### Customizable Business Settings:
 - Allows players to adjust the maximum laundering capacity, laundering time, and taxation percentage for each business (e.g. Laundromat, Taco Ticklers, Car Wash, Post Office).
 - These settings can be saved and applied dynamically through an intuitive interface.
@@ -86,6 +91,7 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 
 ### Sell Sign Price Updates:
 - Updates the prices displayed on the "For Sale" signs for each property.
+- Updated the prices displayed for all Vehicles
 - Ensures that the prices on the signs match the configured values.
   
 ![Property Signs](https://github.com/user-attachments/assets/a9bda137-ad6e-4bdb-81d0-18631dd660f9)
