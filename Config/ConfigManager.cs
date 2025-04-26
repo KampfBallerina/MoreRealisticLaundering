@@ -236,7 +236,7 @@ namespace MoreRealisticLaundering.Config
                         isConfigUpdated = true;
                     }
 
-                    // Überprüfe und aktualisiere die Werte für Autos //TODO: Change Default Values
+                    // Überprüfe und aktualisiere die Werte für Autos
                     if (loadedConfigState.Shitbox_Price <= 1000f)
                     {
                         MelonLogger.Warning("Invalid Shitbox_Price in config. Reverting to default (12800).");
