@@ -71,6 +71,13 @@ namespace MoreRealisticLaundering.Config
                     EnsureFieldExists("Docks_Warehouse_Price", configState.Docks_Warehouse_Price);
                     EnsureFieldExists("Manor_Price", configState.Manor_Price);
 
+                    EnsureFieldExists("Shitbox_Price", configState.Shitbox_Price);
+                    EnsureFieldExists("Veeper_Price", configState.Veeper_Price);
+                    EnsureFieldExists("Bruiser_Price", configState.Bruiser_Price);
+                    EnsureFieldExists("Dinkler_Price", configState.Dinkler_Price);
+                    EnsureFieldExists("Hounddog_Price", configState.Hounddog_Price);
+                    EnsureFieldExists("Cheetah_Price", configState.Cheetah_Price);
+
 
                     if (isConfigUpdated)
                     {
@@ -229,6 +236,44 @@ namespace MoreRealisticLaundering.Config
                         isConfigUpdated = true;
                     }
 
+                    // Überprüfe und aktualisiere die Werte für Autos //TODO: Change Default Values
+                    if (loadedConfigState.Shitbox_Price <= 1000f)
+                    {
+                        MelonLogger.Warning("Invalid Shitbox_Price in config. Reverting to default (5111).");
+                        loadedConfigState.Shitbox_Price = configState.Shitbox_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Veeper_Price <= 1000f)
+                    {
+                        MelonLogger.Warning("Invalid Veeper_Price in config. Reverting to default (9111).");
+                        loadedConfigState.Veeper_Price = configState.Veeper_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Bruiser_Price <= 1000f)
+                    {
+                        MelonLogger.Warning("Invalid Bruiser_Price in config. Reverting to default (12111).");
+                        loadedConfigState.Bruiser_Price = configState.Bruiser_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Dinkler_Price <= 1000f)
+                    {
+                        MelonLogger.Warning("Invalid Dinkler_Price in config. Reverting to default (15111).");
+                        loadedConfigState.Dinkler_Price = configState.Dinkler_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Hounddog_Price <= 1000f)
+                    {
+                        MelonLogger.Warning("Invalid Hounddog_Price in config. Reverting to default (25111).");
+                        loadedConfigState.Hounddog_Price = configState.Hounddog_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Cheetah_Price <= 1000f)
+                    {
+                        MelonLogger.Warning("Invalid Cheetah_Price in config. Reverting to default (40111).");
+                        loadedConfigState.Cheetah_Price = configState.Cheetah_Price;
+                        isConfigUpdated = true;
+                    }
+
                     // Speichere die aktualisierte Konfiguration, falls Änderungen vorgenommen wurden
                     if (isConfigUpdated)
                     {
@@ -367,6 +412,31 @@ namespace MoreRealisticLaundering.Config
                 default:
                     MelonLogger.Warning($"Property/Business '{propertyName}' not found. Returning default value (1000).");
                     return 1000f; // Standardwert, falls das Property/Business nicht gefunden wird
+            }
+        }
+
+        public static float GetVehiclePrice(ConfigState config, string vehicleName)
+        {
+            switch (vehicleName.ToLower())
+            {
+                case "shitbox":
+                    return config.Shitbox_Price;
+
+                case "bruiser":
+                    return config.Bruiser_Price;
+
+                case "dinkler":
+                    return config.Dinkler_Price;
+
+                case "hounddog":
+                    return config.Hounddog_Price;
+
+                case "cheetah":
+                    return config.Cheetah_Price;
+
+                default:
+                    MelonLogger.Warning($"Vehicle '{vehicleName}' not found. Returning default value (1000).");
+                    return 1000f; // Standardwert, falls das Fahrzeug nicht gefunden wird
             }
         }
 

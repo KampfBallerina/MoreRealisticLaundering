@@ -1,5 +1,7 @@
 using System.Collections;
+using Il2CppFluffyUnderware.DevTools.Extensions;
 using Il2CppScheduleOne.Property;
+using Il2CppScheduleOne.Vehicles;
 using Il2CppSystem;
 using MelonLoader;
 using MelonLoader.Utils;
@@ -106,7 +108,8 @@ namespace MoreRealisticLaundering.PhoneApp
                     }
                 }
 
-                Transform detailsTransform = containerTransform.Find("Deliveries");
+                Transform detailsTransformOrig = containerTransform.Find("Deliveries");
+                Transform detailsTransform = UnityEngine.Object.Instantiate(detailsTransformOrig, detailsTransformOrig.parent);
                 if (detailsTransform != null)
                 {
                     // Ändere den Namen des Details-Objekts
@@ -145,7 +148,7 @@ namespace MoreRealisticLaundering.PhoneApp
                         if (priceOptionsTransform != null)
                         {
                             priceOptionsTransform.name = "PriceOptions";
-                            priceOptionsTransform.gameObject.SetActive(false); // Deaktiviere das Preis-Options-Objekt
+                            priceOptionsTransform.gameObject.SetActive(false);
 
                             Transform noneEntryPriceTransform = priceOptionsTransform.Find("None");
                             if (noneEntryPriceTransform != null)
@@ -156,8 +159,27 @@ namespace MoreRealisticLaundering.PhoneApp
                                     noneEntryText.text = "Adjusting the prices of properties";
                                 }
                             }
-
                         }
+
+                        // Erstelle eine Kopie von Entries
+                        vehicleOptionsTransform = UnityEngine.Object.Instantiate(detailEntriesTransform, detailEntriesTransform.parent);
+                        if (vehicleOptionsTransform != null)
+                        {
+                            vehicleOptionsTransform.name = "VehicleOptions";
+                            vehicleOptionsTransform.gameObject.SetActive(false);
+
+                            Transform noneEntryPriceTransform = vehicleOptionsTransform.Find("None");
+                            if (noneEntryPriceTransform != null)
+                            {
+                                Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
+                                if (noneEntryText != null)
+                                {
+                                    noneEntryText.text = "Adjusting the prices of vehicles";
+                                }
+                            }
+                        }
+                        // Destroy the original detailsTransform
+                        detailsTransformOrig.gameObject.Destroy();
                     }
                 }
 
@@ -246,6 +268,8 @@ namespace MoreRealisticLaundering.PhoneApp
                         AddPriceOptionsForHomeProperties(priceOptionsTransform);
                         AddOptionsForBusiness(detailEntriesTransform);
                         AddPriceOptionsForRealEstate(priceOptionsTransform);
+                        AddVehicleOptions(vehicleOptionsTransform);
+
                     }
                 }
 
@@ -404,6 +428,18 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
             }
 
+            if (newObjectName == "Hyland Auto")
+            {
+                Button headerButton = headerTransform.GetComponent<Button>();
+                if (headerButton != null)
+                {
+                    headerButton.name = newObjectName + " Button";
+                    headerButton.onClick.RemoveAllListeners(); // Remove existing listeners to avoid old functionality after copying
+                    void FuncThatCallsFunc() => HylandAutoButtonClicked();
+                    headerButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+                }
+            }
+
             // Set the new entry as the first child if isFirstEntry is true
             if (isFirstEntry)
             {
@@ -412,6 +448,94 @@ namespace MoreRealisticLaundering.PhoneApp
             newEntry.SetActive(true);
             //  MelonLogger.Msg($"Added new entry: {newObjectName} with text: {newTitle}");
             AddSpaceFromTemplate(viewportContentTransform); // Add space after the new entry
+        }
+
+        void HylandAutoButtonClicked()
+        {
+            if (optionsTransform == null)
+            {
+                MelonLogger.Error("optionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            if (priceOptionsTransform == null)
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            if (vehicleOptionsTransform == null)
+            {
+                MelonLogger.Error("vehicleOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            // Deaktiviere priceOptionsTransform
+            if (priceOptionsTransform.gameObject.activeSelf)
+            {
+                priceOptionsTransform.gameObject.SetActive(false);
+            }
+
+            // Deaktiviere optionsTransform
+            if (optionsTransform.gameObject.activeSelf)
+            {
+                optionsTransform.gameObject.SetActive(false);
+            }
+            // Aktiviere vehicleOptionsTransform
+            if (!vehicleOptionsTransform.gameObject.activeSelf)
+            {
+                vehicleOptionsTransform.gameObject.SetActive(true);
+            }
+
+            Transform saveButtonTransform = vehicleOptionsTransform.Find("Save Button");
+            if (saveButtonTransform != null && !saveButtonTransform.gameObject.activeSelf)
+            {
+                saveButtonTransform.gameObject.SetActive(true);
+            }
+
+            Transform shitboxContainer = vehicleOptionsTransform.Find("Shitbox Horizontal Container");
+            Transform veeperContainer = vehicleOptionsTransform.Find("Veeper Horizontal Container");
+            Transform bruiserContainer = vehicleOptionsTransform.Find("Bruiser Horizontal Container");
+            Transform dinklerContainer = vehicleOptionsTransform.Find("Dinkler Horizontal Container");
+            Transform hounddogContainer = vehicleOptionsTransform.Find("Hounddog Horizontal Container");
+            Transform cheetahContainer = vehicleOptionsTransform.Find("Cheetah Horizontal Container");
+
+            if (shitboxContainer != null && !shitboxContainer.gameObject.activeSelf)
+            {
+                shitboxContainer.gameObject.SetActive(true);
+            }
+            if (veeperContainer != null && !veeperContainer.gameObject.activeSelf)
+            {
+                veeperContainer.gameObject.SetActive(true);
+            }
+            if (bruiserContainer != null && !bruiserContainer.gameObject.activeSelf)
+            {
+                bruiserContainer.gameObject.SetActive(true);
+            }
+            if (dinklerContainer != null && !dinklerContainer.gameObject.activeSelf)
+            {
+                dinklerContainer.gameObject.SetActive(true);
+            }
+            if (hounddogContainer != null && !hounddogContainer.gameObject.activeSelf)
+            {
+                hounddogContainer.gameObject.SetActive(true);
+            }
+            if (cheetahContainer != null && !cheetahContainer.gameObject.activeSelf)
+            {
+                cheetahContainer.gameObject.SetActive(true);
+            }
+
+            foreach (LandVehicle vehicle in MRLCore.Instance.vehicleManager.VehiclePrefabs)
+            {
+                if (vehicle == null) continue;
+                string displayName = MRLCore.Instance.vehicleAliasMap.ContainsKey(vehicle.name)
+                    ? MRLCore.Instance.vehicleAliasMap[vehicle.name]
+                    : vehicle.name;
+                float price = vehicle.vehiclePrice;
+                SetInputFieldValue(vehicleOptionsTransform, displayName, price);
+            }
+
+
         }
 
 
@@ -439,6 +563,12 @@ namespace MoreRealisticLaundering.PhoneApp
             if (optionsTransform.gameObject.activeSelf)
             {
                 optionsTransform.gameObject.SetActive(false);
+            }
+
+            // Deaktiviere optionsTransform
+            if (vehicleOptionsTransform.gameObject.activeSelf)
+            {
+                vehicleOptionsTransform.gameObject.SetActive(false);
             }
 
             // Aktiviere die vier Container in priceOptionsTransform, falls sie deaktiviert sind
@@ -697,10 +827,15 @@ namespace MoreRealisticLaundering.PhoneApp
                     priceOptionsTransform.gameObject.SetActive(false);
                 }
             }
-            else
+
+            if (vehicleOptionsTransform != null)
             {
-                MelonLogger.Error("priceOptionsTransform is null! Ensure it is initialized before calling BusinessButtonClicked.");
+                if (vehicleOptionsTransform.gameObject.activeSelf)
+                {
+                    vehicleOptionsTransform.gameObject.SetActive(false);
+                }
             }
+
 
             _selectedBusiness = business;
             _selectedBusinessName = business.name;
@@ -1138,7 +1273,7 @@ namespace MoreRealisticLaundering.PhoneApp
             GameObject saveSpaceObject = new GameObject("SaveSpace");
             saveSpaceObject.transform.SetParent(parentTransform, false);
             RectTransform saveSpaceRect = saveSpaceObject.AddComponent<RectTransform>();
-            if (saveString == "RealEstate")
+            if (saveString == "RealEstate" || saveString == "Vehicles")
             {
                 saveSpaceRect.sizeDelta = new Vector2(100, 75); // Abstand zwischen dem letzten Element und dem Button
             }
@@ -1257,6 +1392,12 @@ namespace MoreRealisticLaundering.PhoneApp
             if (saveString == "RealEstate")
             {
                 void FuncThatCallsFunc() => SaveRealEstate(buttonText);
+                saveButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+            }
+
+            if (saveString == "Vehicles")
+            {
+                void FuncThatCallsFunc() => SaveVehicleOptions(buttonText);
                 saveButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
             }
 
@@ -1560,7 +1701,7 @@ namespace MoreRealisticLaundering.PhoneApp
             // Zeige eine Benachrichtigung an
             if (MRLCore.Instance.notificationsManager != null)
             {
-                string subTitleString = "Prices updated.";
+                string subTitleString = "Config saved";
 
                 if (appIconSprite == null)
                 {
@@ -1580,13 +1721,137 @@ namespace MoreRealisticLaundering.PhoneApp
                         }
                     }
                 }
-                MRLCore.Instance.notificationsManager.SendNotification("Prices Saved", subTitleString, appIconSprite, 5, true);
+                MRLCore.Instance.notificationsManager.SendNotification("Property Prices updated", subTitleString, appIconSprite, 5, true);
             }
 
             buttonText.text = "Save & Apply";
             isSaveStillRunning = false;
 
             // MelonLogger.Msg("Real estate prices have been saved and applied successfully.");
+        }
+
+        void SaveVehicleOptions(Text buttonText)
+        {
+            isSaveStillRunning = true;
+            buttonText.text = "Saving...";
+
+            if (vehicleOptionsTransform == null)
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Cannot save vehicle prices.");
+                buttonText.text = "Save & Apply";
+                isSaveStillRunning = false;
+                return;
+            }
+
+            // Greife auf die Eingabefelder zu und speichere die Werte
+            Transform shitboxInputTransform = vehicleOptionsTransform.Find("Shitbox Horizontal Container/Shitbox Input");
+            Transform veeperPriceInputTransform = vehicleOptionsTransform.Find("Veeper Horizontal Container/Veeper Input");
+            Transform bruiserPriceInputTransform = vehicleOptionsTransform.Find("Bruiser Horizontal Container/Bruiser Input");
+            Transform dinklerPriceInputTransform = vehicleOptionsTransform.Find("Dinkler Horizontal Container/Dinkler Input");
+            Transform hounddogPriceInputTransform = vehicleOptionsTransform.Find("Hounddog Horizontal Container/Hounddog Input");
+            Transform cheetahPriceInputTransform = vehicleOptionsTransform.Find("Cheetah Horizontal Container/Cheetah Input");
+
+            float shitboxPrice = MRLCore.Instance.config.Shitbox_Price;
+            float veeperPrice = MRLCore.Instance.config.Veeper_Price;
+            float bruiserPrice = MRLCore.Instance.config.Bruiser_Price;
+            float dinklerPrice = MRLCore.Instance.config.Dinkler_Price;
+            float hounddogPrice = MRLCore.Instance.config.Hounddog_Price;
+            float cheetahPrice = MRLCore.Instance.config.Cheetah_Price;
+
+            // Aktualisiere den Preis für Shitbox
+            if (shitboxInputTransform != null)
+            {
+                InputField shitboxPriceInputField = shitboxInputTransform.GetComponent<InputField>();
+                if (shitboxPriceInputField != null && float.TryParse(shitboxPriceInputField.text, out float parsedShitboxPrice))
+                {
+                    shitboxPrice = parsedShitboxPrice;
+                }
+            }
+            // Aktualisiere den Preis für Veeper
+            if (veeperPriceInputTransform != null)
+            {
+                InputField veeperPriceInputField = veeperPriceInputTransform.GetComponent<InputField>();
+                if (veeperPriceInputField != null && float.TryParse(veeperPriceInputField.text, out float parsedVeeperPrice))
+                {
+                    veeperPrice = parsedVeeperPrice;
+                }
+            }
+            // Aktualisiere den Preis für Bruiser
+            if (bruiserPriceInputTransform != null)
+            {
+                InputField bruiserPriceInputField = bruiserPriceInputTransform.GetComponent<InputField>();
+                if (bruiserPriceInputField != null && float.TryParse(bruiserPriceInputField.text, out float parsedBruiserPrice))
+                {
+                    bruiserPrice = parsedBruiserPrice;
+                }
+            }
+            // Aktualisiere den Preis für Dinkler
+            if (dinklerPriceInputTransform != null)
+            {
+                InputField dinklerPriceInputField = dinklerPriceInputTransform.GetComponent<InputField>();
+                if (dinklerPriceInputField != null && float.TryParse(dinklerPriceInputField.text, out float parsedDinklerPrice))
+                {
+                    dinklerPrice = parsedDinklerPrice;
+                }
+            }
+            // Aktualisiere den Preis für Hounddog
+            if (hounddogPriceInputTransform != null)
+            {
+                InputField hounddogPriceInputField = hounddogPriceInputTransform.GetComponent<InputField>();
+                if (hounddogPriceInputField != null && float.TryParse(hounddogPriceInputField.text, out float parsedHounddogPrice))
+                {
+                    hounddogPrice = parsedHounddogPrice;
+                }
+            }
+            // Aktualisiere den Preis für Cheetah
+            if (cheetahPriceInputTransform != null)
+            {
+                InputField cheetahPriceInputField = cheetahPriceInputTransform.GetComponent<InputField>();
+                if (cheetahPriceInputField != null && float.TryParse(cheetahPriceInputField.text, out float parsedCheetahPrice))
+                {
+                    cheetahPrice = parsedCheetahPrice;
+                }
+            }
+
+            // Speichere die aktualisierten Preise in der Konfiguration
+            MRLCore.Instance.config.Shitbox_Price = shitboxPrice;
+            MRLCore.Instance.config.Veeper_Price = veeperPrice;
+            MRLCore.Instance.config.Bruiser_Price = bruiserPrice;
+            MRLCore.Instance.config.Dinkler_Price = dinklerPrice;
+            MRLCore.Instance.config.Hounddog_Price = hounddogPrice;
+            MRLCore.Instance.config.Cheetah_Price = cheetahPrice;
+            // Speichere die aktualisierte Konfiguration
+            ConfigManager.Save(MRLCore.Instance.config);
+            // Aktualisiere die Preise in den VehicleListings
+            MRLCore.Instance.ApplyPricesToVehicles();
+
+            if (MRLCore.Instance.notificationsManager != null)
+            {
+                string subTitleString = "Config saved";
+
+                if (appIconSprite == null)
+                {
+                    string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    {
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            appIconSprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                        }
+                    }
+                }
+                MRLCore.Instance.notificationsManager.SendNotification("Vehicle Prices Updated", subTitleString, appIconSprite, 5, true);
+            }
+
+            buttonText.text = "Save & Apply";
+            isSaveStillRunning = false;
         }
 
         public void AddPriceOptionsForHomeProperties(Transform parentTransform)
@@ -2039,6 +2304,39 @@ namespace MoreRealisticLaundering.PhoneApp
             // MelonLogger.Msg("Added price options for real estate to priceOptionsTransform.");
         }
 
+        public void AddVehicleOptions(Transform parentTransform)
+        {
+            if (parentTransform == null)
+            {
+                MelonLogger.Error("detailEntriesTransform is null! Cannot add price options.");
+                return;
+            }
+
+            // Füge ein VerticalLayoutGroup hinzu, falls es nicht existiert
+            VerticalLayoutGroup optionVerticalLayout = parentTransform.GetComponent<VerticalLayoutGroup>();
+            if (optionVerticalLayout == null)
+            {
+                optionVerticalLayout = parentTransform.gameObject.AddComponent<VerticalLayoutGroup>();
+            }
+
+            // Konfiguriere das Layout
+            optionVerticalLayout.childControlWidth = true;
+            optionVerticalLayout.childForceExpandWidth = false;
+            optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
+            optionVerticalLayout.spacing = -35f; // Abstand zwischen den Optionen
+
+            // Füge die Label-Input-Paare für die vier Unternehmen hinzu
+            AddLabelInputPair("Shitbox", parentTransform, "$");
+            AddLabelInputPair("Veeper", parentTransform, "$");
+            AddLabelInputPair("Bruiser", parentTransform, "$");
+            AddLabelInputPair("Dinkler", parentTransform, "$");
+            AddLabelInputPair("Hounddog", parentTransform, "$");
+            AddLabelInputPair("Cheetah", parentTransform, "$");
+
+            // Füge einen Save-Button hinzu
+            AddSaveButton(parentTransform, "Vehicles");
+        }
+
         public GameObject dansHardwareTemplate;
         public GameObject gasMartWestTemplate;
         public GameObject viewPortContentSpaceTemplate;
@@ -2049,6 +2347,8 @@ namespace MoreRealisticLaundering.PhoneApp
         public bool _isLaunderingAppLoaded = false;
         public Transform optionsTransform = null;
         public Transform priceOptionsTransform = null;
+
+        public Transform vehicleOptionsTransform = null;
         Sprite inputBackgroundSprite = null;
         Sprite saveButtonSprite = null;
 

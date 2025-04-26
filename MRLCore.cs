@@ -6,13 +6,13 @@ using Il2CppScheduleOne.Money;
 using Il2CppScheduleOne.UI;
 using MelonLoader.Utils;
 using Il2CppInterop.Runtime;
-
 using UnityEngine.UI;
 using MoreRealisticLaundering.Util;
-using MoreRealisticLaundering.PhoneApp;
 using Il2CppTMPro;
 using Il2CppScheduleOne.Dialogue;
 using MoreRealisticLaundering.Config;
+using Il2CppScheduleOne.Vehicles;
+using Il2CppScheduleOne.Tools;
 
 [assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.2.0", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
@@ -86,7 +86,30 @@ namespace MoreRealisticLaundering
                 { "Barn", "Barn"},
                 { "Docks Warehouse", "Docks Warehouse"},
                 { "DocksWarehouse", "Docks Warehouse"},
-                { "Manor", "Manor"},
+                { "Manor", "Manor"}
+            };
+            MRLCore.Instance.vehicleAliasMap = new System.Collections.Generic.Dictionary<string, string>
+            {
+                { "Shitbox", "Shitbox" },
+                { "Shitbox_Police", "Shitbox" },
+
+                { "Veeper", "Veeper"},
+                { "Van", "Veeper"},
+
+                { "SUV", "Bruiser"},
+                { "SUV_Police", "Bruiser"},
+                { "Bruiser", "Bruiser" },
+
+                { "Pickup", "Dinkler"},
+                { "Pickup_Police", "Dinkler"},
+                { "Dinkler", "Dinkler" },
+
+
+                { "Hounddog", "Hounddog" },
+                { "Sedan", "Hounddog" },
+
+                { "Cheetah", "Cheetah" },
+                { "Coupe", "Cheetah"}
             };
         }
 
@@ -349,6 +372,7 @@ namespace MoreRealisticLaundering
                 MRLCore.Instance.InitializeListeners();
                 MRLCore.Instance.moneyManager = UnityEngine.Object.FindObjectOfType<MoneyManager>();
                 MRLCore.Instance.notificationsManager = UnityEngine.Object.FindObjectOfType<NotificationsManager>();
+                MRLCore.Instance.vehicleManager = UnityEngine.Object.FindObjectOfType<VehicleManager>();
                 MelonCoroutines.Start(StartCoroutinesAfterDelay());
                 isFirstStart = false;
             }
@@ -375,7 +399,7 @@ namespace MoreRealisticLaundering
                 MelonCoroutines.Start(InitHomescreen());
                 MelonCoroutines.Start(MRLCore.launderingApp.InitializeLaunderApp());
             }
-            MelonCoroutines.Start(MRLCore.Instance.CheckForUnownedBusinesses());
+            MelonCoroutines.Start(MRLCore.Instance.ApplyPropertyConfig());
 
         }
 
@@ -448,30 +472,24 @@ namespace MoreRealisticLaundering
                 MelonLogger.Error("Failed to register laundering listeners: " + ex.Message);
             }
         }
-        public IEnumerator CheckForUnownedBusinesses()
+        public IEnumerator ApplyPropertyConfig()
         {
-            MelonLogger.Msg("Checking for unowned businesses...");
-            if (Business.UnownedBusinesses != null && Business.UnownedBusinesses.Count > 0)
+            MelonLogger.Msg("Found unowned businesses. Processing...");
+            if (!isLegitVersion)
             {
-                MelonLogger.Msg("Found unowned businesses. Processing...");
-                if (!isLegitVersion)
+                while (!MRLCore.launderingApp._isLaunderingAppLoaded)
                 {
-                    while (!MRLCore.launderingApp._isLaunderingAppLoaded)
-                    {
-                        yield return new WaitForSeconds(2f); // Warte 2 Sekunde
-                    }
-                    string imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
-                    MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
+                    yield return new WaitForSeconds(1f);
                 }
-                ApplyPricesToProperties();
-                ApplyPricesToPropertyListings();
-                yield break;
+                string imagePath = Path.Combine(ConfigFolder, "HylandAuto.png");
+                MRLCore.launderingApp.AddEntryFromTemplate("Hyland Auto", "Hyland Auto", "We make you drive crazy.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Dark Green"), imagePath, null, true);
+                imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
+                MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
             }
-            else
-            {
-                MelonLogger.Msg("No unowned businesses found.");
-                yield break;
-            }
+            ApplyPricesToProperties();
+            ApplyPricesToPropertyListings();
+            ApplyPricesToVehicles();
+            yield break;
         }
 
         public void FillCapDictionary()
@@ -1088,18 +1106,106 @@ namespace MoreRealisticLaundering
             // MelonLogger.Msg("Updated all sell sign prices.");
         }
 
-        private void UpdateSignPrice(GameObject sellSign, string propertyName)
+        public void ApplyPricesToVehicles()
+        {
+
+            if (vehicleManager == null)
+            {
+                MelonLogger.Warning("VehicleManager not found. Cannot apply prices to vehicles.");
+                return;
+            }
+
+            // Setze die Preise für die Fahrzeuge
+            foreach (LandVehicle vehicle in vehicleManager.VehiclePrefabs)
+            {
+                if (vehicle == null)
+                {
+                    MelonLogger.Warning("Encountered a null vehicle. Skipping...");
+                    continue;
+                }
+                // MelonLogger.Msg($"{vehicle.name}: {vehicle.vehiclePrice}, {vehicle.vehicleCode}");
+                if (MRLCore.Instance.vehicleAliasMap.TryGetValue(vehicle.name, out string key))
+                {
+                    float price = key switch
+                    {
+                        "Shitbox" => MRLCore.Instance.config.Shitbox_Price,
+                        "Veeper" => MRLCore.Instance.config.Veeper_Price,
+                        "Bruiser" => MRLCore.Instance.config.Bruiser_Price,
+                        "Dinkler" => MRLCore.Instance.config.Dinkler_Price,
+                        "Hounddog" => MRLCore.Instance.config.Hounddog_Price,
+                        "Cheetah" => MRLCore.Instance.config.Cheetah_Price,
+                        _ => 1000f // Standardwert, falls das Fahrzeug nicht gefunden wird
+                    };
+                    vehicle.vehiclePrice = price;
+                    // MelonLogger.Msg($"Changed to - {vehicle.name}: {vehicle.vehiclePrice}, {vehicle.vehicleCode}");
+                }
+                else
+                {
+                    MelonLogger.Warning($"Vehicle '{vehicle.name}' not found in vehicleAliasMap. Skipping price assignment.");
+
+                }
+            }
+
+            UpdateVehicleSignPrices();
+        }
+
+        private void UpdateVehicleSignPrices()
+        {
+            VehicleSaleSign vehicleSaleSign = GameObject.FindObjectOfType<VehicleSaleSign>();
+            if (vehicleSaleSign != null)
+            {
+                VehicleSaleSign[] allVehicleSaleSigns = GameObject.FindObjectsOfType<VehicleSaleSign>();
+                foreach (VehicleSaleSign sign in allVehicleSaleSigns)
+                {
+                    TextMeshPro nameLabel = sign.NameLabel;
+                    TextMeshPro priceLabel = sign.PriceLabel;
+
+                    if (nameLabel != null && priceLabel != null)
+                    {
+                        if (MRLCore.Instance.vehicleAliasMap.TryGetValue(nameLabel.text, out string key))
+                        {
+                            float price = key switch
+                            {
+                                "Shitbox" => MRLCore.Instance.config.Shitbox_Price,
+                                "Veeper" => MRLCore.Instance.config.Veeper_Price,
+                                "Bruiser" => MRLCore.Instance.config.Bruiser_Price,
+                                "Dinkler" => MRLCore.Instance.config.Dinkler_Price,
+                                "Hounddog" => MRLCore.Instance.config.Hounddog_Price,
+                                "Cheetah" => MRLCore.Instance.config.Cheetah_Price,
+                                _ => 1000f // Default fallback price
+                            };
+                            priceLabel.text = $"${price}";
+                        }
+                        else
+                        {
+                            MelonLogger.Warning($"Vehicle '{nameLabel.text}' not found in vehicleAliasMap. Skipping price update.");
+                        }
+                    }
+                    else
+                    {
+                        MelonLogger.Warning("NameLabel or PriceLabel not found for a VehicleSaleSign.");
+                    }
+                }
+            }
+            else
+            {
+                MelonLogger.Warning("No VehicleSaleSign objects found in the scene.");
+            }
+        }
+
+        private void UpdateSignPrice(GameObject sellSign, string objectName)
         {
             if (sellSign == null)
             {
-                MelonLogger.Warning($"Sell sign for {propertyName} not found. Skipping...");
+                MelonLogger.Warning($"Sell sign for {objectName} not found. Skipping...");
                 return;
             }
 
             // Hole den Preis aus der Konfiguration
-            if (MRLCore.Instance.aliasMap.TryGetValue(propertyName, out string key))
+            float price;
+            if (MRLCore.Instance.aliasMap.TryGetValue(objectName, out string key))
             {
-                float price = key switch
+                price = key switch
                 {
                     "Laundromat" => MRLCore.Instance.config.Laundromat_Price,
                     "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
@@ -1114,32 +1220,46 @@ namespace MoreRealisticLaundering
                     "Barn" => MRLCore.Instance.config.Barn_Price,
                     "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
                     "Manor" => MRLCore.Instance.config.Manor_Price,
-                    _ => 1000f // Standardwert, falls das Business nicht gefunden wird
+                    _ => 1000f
                 };
-
-                // Suche nach dem "Price"-Objekt und aktualisiere den Text
-                Transform priceTransform = sellSign.transform.Find("Price");
-                if (priceTransform != null)
+            }
+            else if (MRLCore.Instance.vehicleAliasMap.TryGetValue(objectName, out string vehicleKey))
+            {
+                price = vehicleKey switch
                 {
-                    TextMeshPro priceText = priceTransform.GetComponent<TextMeshPro>();
-                    if (priceText != null)
-                    {
-                        priceText.text = $"${price}";
-                        //    MelonLogger.Msg($"Updated sell sign price for {businessName} to ${price}.");
-                    }
-                    else
-                    {
-                        MelonLogger.Warning($"Price TextMeshPro component not found for sell sign of {propertyName}.");
-                    }
+                    "Shitbox" => MRLCore.Instance.config.Shitbox_Price,
+                    "Veeper" => MRLCore.Instance.config.Veeper_Price,
+                    "Bruiser" => MRLCore.Instance.config.Bruiser_Price,
+                    "Dinkler" => MRLCore.Instance.config.Dinkler_Price,
+                    "Hounddog" => MRLCore.Instance.config.Hounddog_Price,
+                    "Cheetah" => MRLCore.Instance.config.Cheetah_Price,
+                    _ => 1000f
+                };
+            }
+            else
+            {
+                MelonLogger.Warning($"Property/Vehicle '{objectName}' not found in aliasMap or vehicleAliasMap. Skipping sell sign price assignment.");
+                return;
+            }
+
+            // Suche nach dem "Price"-Objekt und aktualisiere den Text
+            Transform priceTransform = sellSign.transform.Find("Price");
+            if (priceTransform != null)
+            {
+                TextMeshPro priceText = priceTransform.GetComponent<TextMeshPro>();
+                if (priceText != null)
+                {
+                    priceText.text = $"${price}";
+                    // MelonLogger.Msg($"Updated sell sign price for {objectName} to ${price}.");
                 }
                 else
                 {
-                    MelonLogger.Warning($"Price object not found for sell sign of {propertyName}.");
+                    MelonLogger.Warning($"Price TextMeshPro component not found for sell sign of {objectName}.");
                 }
             }
             else
             {
-                MelonLogger.Warning($"Property '{propertyName}' not found in aliasMap. Skipping sell sign price assignment.");
+                MelonLogger.Warning($"Price object not found for sell sign of {objectName}.");
             }
         }
 
@@ -1148,6 +1268,7 @@ namespace MoreRealisticLaundering
         public static PhoneApp.LaunderingApp launderingApp = new PhoneApp.LaunderingApp();
         public System.Collections.Generic.Dictionary<string, float> maxiumumLaunderValues;
         public System.Collections.Generic.Dictionary<string, string> aliasMap;
+        public System.Collections.Generic.Dictionary<string, string> vehicleAliasMap;
         private readonly System.Collections.Generic.HashSet<string> createdAppEntries = new System.Collections.Generic.HashSet<string>();
         public bool isWaitAndApplyCapsRunning = false;
         private static readonly string ConfigFolder = Path.Combine(MelonEnvironment.UserDataDirectory, "MoreRealisticLaundering");
@@ -1155,5 +1276,6 @@ namespace MoreRealisticLaundering
 
         public MoneyManager moneyManager;
         public NotificationsManager notificationsManager;
+        public VehicleManager vehicleManager;
     }
 }
