@@ -15,7 +15,7 @@ namespace MoreRealisticLaundering.Util
         }
         public static Font FindFontFromOtherApp(string fontName)
         {
-            Font font = null;
+            Font font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             if (fontName == "openSansBold")
             {
                 GameObject canvas = Utils.GetAppCanvasByName("ProductManagerApp/Container/Topbar");
@@ -25,6 +25,10 @@ namespace MoreRealisticLaundering.Util
                     font = textComponent.font;
                     openSansBoldIsInitialized = true;
                     //   MelonLogger.Msg("Initialized openSansBold Font");
+                }
+                else
+                {
+                    MelonLogger.Msg("openSansBold Font not found");
                 }
                 return font;
             }
@@ -38,6 +42,10 @@ namespace MoreRealisticLaundering.Util
                     openSansSemiBoldIsInitialized = true;
 
                     //   MelonLogger.Msg("Initialized openSansSemiBold Font");
+                }
+                else
+                {
+                    MelonLogger.Msg("openSansSemiBold Font not found");
                 }
                 return font;
             }

@@ -17,7 +17,7 @@ namespace MoreRealisticLaundering.Patches
 				bool flag2 = MRLCore.Instance.aliasMap.TryGetValue(op.business.name, out text);
 				if (flag2)
 				{
-					MRLCore.Instance.MaybeBoost(op);
+					MRLCore.Instance.AdjustLaunderingTime(op);
 				}
 			}
 		}
