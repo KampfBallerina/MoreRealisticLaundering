@@ -254,11 +254,11 @@ namespace MoreRealisticLaundering
         public void FillCapDictionary()
         {
             MRLCore.Instance.maxiumumLaunderValues.Clear();
-            MRLCore.Instance.maxiumumLaunderValues["Laundromat"] = MRLCore.Instance.config.Laundromat_Cap;
-            MRLCore.Instance.maxiumumLaunderValues["Taco Ticklers"] = MRLCore.Instance.config.Taco_Ticklers_Cap;
-            MRLCore.Instance.maxiumumLaunderValues["Car Wash"] = MRLCore.Instance.config.Car_Wash_Cap;
-            MRLCore.Instance.maxiumumLaunderValues["PostOffice"] = MRLCore.Instance.config.Post_Office_Cap;
-            MRLCore.Instance.maxiumumLaunderValues["Post Office"] = MRLCore.Instance.config.Post_Office_Cap;
+            MRLCore.Instance.maxiumumLaunderValues["Laundromat"] = MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Cap;
+            MRLCore.Instance.maxiumumLaunderValues["Taco Ticklers"] = MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Cap;
+            MRLCore.Instance.maxiumumLaunderValues["Car Wash"] = MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Cap;
+            MRLCore.Instance.maxiumumLaunderValues["PostOffice"] = MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Cap;
+            MRLCore.Instance.maxiumumLaunderValues["Post Office"] = MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Cap;
         }
 
         public readonly System.Collections.Generic.HashSet<string> processedBusinesses = new System.Collections.Generic.HashSet<string>();
@@ -433,12 +433,12 @@ namespace MoreRealisticLaundering
             {
                 int launderingTime = key switch
                 {
-                    "Laundromat" => MRLCore.Instance.config.Laundromat_Laundering_time_hours,
-                    "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Laundering_time_hours,
-                    "Car Wash" => MRLCore.Instance.config.Car_Wash_Laundering_time_hours,
-                    "PostOffice" => MRLCore.Instance.config.Post_Office_Laundering_time_hours,
-                    "Post Office" => MRLCore.Instance.config.Post_Office_Laundering_time_hours,
-                    _ => 24 // Default fallback
+                    "Laundromat" => MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Laundering_time_hours,
+                    "Taco Ticklers" => MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours,
+                    "Car Wash" => MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Laundering_time_hours,
+                    "PostOffice" => MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Laundering_time_hours,
+                    "Post Office" => MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Laundering_time_hours,
+                    _ => 24 // Standardwert
                 };
 
                 operation.completionTime_Minutes = launderingTime * 60;
@@ -517,12 +517,12 @@ namespace MoreRealisticLaundering
             {
                 float taxRate = key switch
                 {
-                    "Laundromat" => MRLCore.Instance.config.Laundromat_Tax_Percentage / 100,
-                    "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Tax_Percentage / 100,
-                    "Car Wash" => MRLCore.Instance.config.Car_Wash_Tax_Percentage / 100,
-                    "PostOffice" => MRLCore.Instance.config.Post_Office_Tax_Percentage / 100,
-                    "Post Office" => MRLCore.Instance.config.Post_Office_Tax_Percentage / 100,
-                    _ => 0.19f // Default fallback
+                    "Laundromat" => MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Tax_Percentage / 100,
+                    "Taco Ticklers" => MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage / 100,
+                    "Car Wash" => MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Tax_Percentage / 100,
+                    "PostOffice" => MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Tax_Percentage / 100,
+                    "Post Office" => MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Tax_Percentage / 100,
+                    _ => 0.19f // Standardwert
                 };
 
                 float launderedAmount = operation.amount;
@@ -573,12 +573,12 @@ namespace MoreRealisticLaundering
                     {
                         float price = key switch
                         {
-                            "Laundromat" => MRLCore.Instance.config.Laundromat_Price,
-                            "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
-                            "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
-                            "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
-                            "Post Office" => MRLCore.Instance.config.Post_Office_Price,
-                            _ => 1000f // Standardwert, falls das Business nicht gefunden wird
+                            "Laundromat" => MRLCore.Instance.config.Properties.BusinessProperties.Laundromat_Price,
+                            "Taco Ticklers" => MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price,
+                            "Car Wash" => MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price,
+                            "PostOffice" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
+                            "Post Office" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
+                            _ => 1000f // Standardwert
                         };
 
                         business.Price = price;
@@ -614,14 +614,14 @@ namespace MoreRealisticLaundering
                     {
                         float price = key switch
                         {
-                            "Motel Room" => MRLCore.Instance.config.Motel_Room_Price,
-                            "Motel" => MRLCore.Instance.config.Motel_Room_Price,
-                            "MotelRoom" => MRLCore.Instance.config.Motel_Room_Price,
-                            "Sweatshop" => MRLCore.Instance.config.Sweatshop_Price,
-                            "Bungalow" => MRLCore.Instance.config.Bungalow_Price,
-                            "Barn" => MRLCore.Instance.config.Barn_Price,
-                            "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
-                            "Manor" => MRLCore.Instance.config.Manor_Price,
+                            "Motel Room" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                            "Motel" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                            "MotelRoom" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                            "Sweatshop" => MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price,
+                            "Bungalow" => MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price,
+                            "Barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
+                            "Docks Warehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
+                            "Manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
                             _ => 1000f // Standardwert, falls das Business nicht gefunden wird
                         };
 
@@ -648,14 +648,14 @@ namespace MoreRealisticLaundering
                         {
                             float price = key switch
                             {
-                                "Motel Room" => MRLCore.Instance.config.Motel_Room_Price,
-                                "Motel" => MRLCore.Instance.config.Motel_Room_Price,
-                                "MotelRoom" => MRLCore.Instance.config.Motel_Room_Price,
-                                "Sweatshop" => MRLCore.Instance.config.Sweatshop_Price,
-                                "Bungalow" => MRLCore.Instance.config.Bungalow_Price,
-                                "Barn" => MRLCore.Instance.config.Barn_Price,
-                                "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
-                                "Manor" => MRLCore.Instance.config.Manor_Price,
+                                "Motel Room" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                                "Motel" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                                "MotelRoom" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                                "Sweatshop" => MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price,
+                                "Bungalow" => MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price,
+                                "Barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
+                                "Docks Warehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
+                                "Manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
                                 _ => 1000f // Standardwert, falls die Property nicht gefunden wird
                             };
 
@@ -729,11 +729,11 @@ namespace MoreRealisticLaundering
                 {
                     float price = key switch
                     {
-                        "Laundromat" => MRLCore.Instance.config.Laundromat_Price,
-                        "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
-                        "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
-                        "Post Office" => MRLCore.Instance.config.Post_Office_Price,
-                        "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
+                        "Laundromat" => MRLCore.Instance.config.Properties.BusinessProperties.Laundromat_Price,
+                        "Taco Ticklers" => MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price,
+                        "Car Wash" => MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price,
+                        "Post Office" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
+                        "PostOffice" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
                         _ => 1000f // Standardwert, falls das Business nicht gefunden wird
                     };
 
@@ -795,12 +795,12 @@ namespace MoreRealisticLaundering
                 {
                     float price = key switch
                     {
-                        "Motel Room" => MRLCore.Instance.config.Motel_Room_Price,
-                        "Sweatshop" => MRLCore.Instance.config.Sweatshop_Price,
-                        "Bungalow" => MRLCore.Instance.config.Bungalow_Price,
-                        "Barn" => MRLCore.Instance.config.Barn_Price,
-                        "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
-                        "Manor" => MRLCore.Instance.config.Manor_Price,
+                        "Motel Room" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                        "Sweatshop" => MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price,
+                        "Bungalow" => MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price,
+                        "Barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
+                        "Docks Warehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
+                        "Manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
                         _ => 1000f // Standardwert, falls das Business nicht gefunden wird
                     };
 
@@ -882,12 +882,12 @@ namespace MoreRealisticLaundering
                 {
                     float price = key switch
                     {
-                        "Shitbox" => MRLCore.Instance.config.Shitbox_Price,
-                        "Veeper" => MRLCore.Instance.config.Veeper_Price,
-                        "Bruiser" => MRLCore.Instance.config.Bruiser_Price,
-                        "Dinkler" => MRLCore.Instance.config.Dinkler_Price,
-                        "Hounddog" => MRLCore.Instance.config.Hounddog_Price,
-                        "Cheetah" => MRLCore.Instance.config.Cheetah_Price,
+                        "Shitbox" => MRLCore.Instance.config.Vehicles.Shitbox_Price,
+                        "Veeper" => MRLCore.Instance.config.Vehicles.Veeper_Price,
+                        "Bruiser" => MRLCore.Instance.config.Vehicles.Bruiser_Price,
+                        "Dinkler" => MRLCore.Instance.config.Vehicles.Dinkler_Price,
+                        "Hounddog" => MRLCore.Instance.config.Vehicles.Hounddog_Price,
+                        "Cheetah" => MRLCore.Instance.config.Vehicles.Cheetah_Price,
                         _ => 1000f // Standardwert, falls das Fahrzeug nicht gefunden wird
                     };
                     vehicle.vehiclePrice = price;
@@ -919,12 +919,12 @@ namespace MoreRealisticLaundering
                         {
                             float price = key switch
                             {
-                                "Shitbox" => MRLCore.Instance.config.Shitbox_Price,
-                                "Veeper" => MRLCore.Instance.config.Veeper_Price,
-                                "Bruiser" => MRLCore.Instance.config.Bruiser_Price,
-                                "Dinkler" => MRLCore.Instance.config.Dinkler_Price,
-                                "Hounddog" => MRLCore.Instance.config.Hounddog_Price,
-                                "Cheetah" => MRLCore.Instance.config.Cheetah_Price,
+                                "Shitbox" => MRLCore.Instance.config.Vehicles.Shitbox_Price,
+                                "Veeper" => MRLCore.Instance.config.Vehicles.Veeper_Price,
+                                "Bruiser" => MRLCore.Instance.config.Vehicles.Bruiser_Price,
+                                "Dinkler" => MRLCore.Instance.config.Vehicles.Dinkler_Price,
+                                "Hounddog" => MRLCore.Instance.config.Vehicles.Hounddog_Price,
+                                "Cheetah" => MRLCore.Instance.config.Vehicles.Cheetah_Price,
                                 _ => 1000f // Default fallback price
                             };
                             priceLabel.text = $"${price}";
@@ -965,11 +965,11 @@ namespace MoreRealisticLaundering
                             {
                                 float price = key switch
                                 {
-                                    "Cheap Skateboard" => MRLCore.Instance.config.Cheap_Skateboard_Price,
-                                    "Skateboard" => MRLCore.Instance.config.Skateboard_Price,
-                                    "Cruiser" => MRLCore.Instance.config.Cruiser_Price,
-                                    "Lightweight Board" => MRLCore.Instance.config.Lightweight_Board_Price,
-                                    "Golden Skateboard" => MRLCore.Instance.config.Golden_Skateboard_Price,
+                                    "Cheap Skateboard" => MRLCore.Instance.config.Skateboards.Cheap_Skateboard_Price,
+                                    "Skateboard" => MRLCore.Instance.config.Skateboards.Skateboard_Price,
+                                    "Cruiser" => MRLCore.Instance.config.Skateboards.Cruiser_Price,
+                                    "Lightweight Board" => MRLCore.Instance.config.Skateboards.Lightweight_Board_Price,
+                                    "Golden Skateboard" => MRLCore.Instance.config.Skateboards.Golden_Skateboard_Price,
                                     _ => 1000f // Standardwert, falls das Skateboard nicht gefunden wird
                                 };
                                 option.Price = price;
@@ -1016,19 +1016,19 @@ namespace MoreRealisticLaundering
             {
                 price = key switch
                 {
-                    "Laundromat" => MRLCore.Instance.config.Laundromat_Price,
-                    "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Price,
-                    "Car Wash" => MRLCore.Instance.config.Car_Wash_Price,
-                    "Post Office" => MRLCore.Instance.config.Post_Office_Price,
-                    "PostOffice" => MRLCore.Instance.config.Post_Office_Price,
-                    "Motel" => MRLCore.Instance.config.Motel_Room_Price,
-                    "MotelRoom" => MRLCore.Instance.config.Motel_Room_Price,
-                    "Motel Room" => MRLCore.Instance.config.Motel_Room_Price,
-                    "Sweatshop" => MRLCore.Instance.config.Sweatshop_Price,
-                    "Bungalow" => MRLCore.Instance.config.Bungalow_Price,
-                    "Barn" => MRLCore.Instance.config.Barn_Price,
-                    "Docks Warehouse" => MRLCore.Instance.config.Docks_Warehouse_Price,
-                    "Manor" => MRLCore.Instance.config.Manor_Price,
+                    "Laundromat" => MRLCore.Instance.config.Properties.BusinessProperties.Laundromat_Price,
+                    "Taco Ticklers" => MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price,
+                    "Car Wash" => MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price,
+                    "Post Office" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
+                    "PostOffice" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
+                    "Motel" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                    "MotelRoom" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                    "Motel Room" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                    "Sweatshop" => MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price,
+                    "Bungalow" => MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price,
+                    "Barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
+                    "Docks Warehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
+                    "Manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
                     _ => 1000f
                 };
             }
@@ -1036,12 +1036,12 @@ namespace MoreRealisticLaundering
             {
                 price = vehicleKey switch
                 {
-                    "Shitbox" => MRLCore.Instance.config.Shitbox_Price,
-                    "Veeper" => MRLCore.Instance.config.Veeper_Price,
-                    "Bruiser" => MRLCore.Instance.config.Bruiser_Price,
-                    "Dinkler" => MRLCore.Instance.config.Dinkler_Price,
-                    "Hounddog" => MRLCore.Instance.config.Hounddog_Price,
-                    "Cheetah" => MRLCore.Instance.config.Cheetah_Price,
+                    "Shitbox" => MRLCore.Instance.config.Vehicles.Shitbox_Price,
+                    "Veeper" => MRLCore.Instance.config.Vehicles.Veeper_Price,
+                    "Bruiser" => MRLCore.Instance.config.Vehicles.Bruiser_Price,
+                    "Dinkler" => MRLCore.Instance.config.Vehicles.Dinkler_Price,
+                    "Hounddog" => MRLCore.Instance.config.Vehicles.Hounddog_Price,
+                    "Cheetah" => MRLCore.Instance.config.Vehicles.Cheetah_Price,
                     _ => 1000f
                 };
             }
@@ -1049,11 +1049,11 @@ namespace MoreRealisticLaundering
             {
                 price = skateboardKey switch
                 {
-                    "Cheap Skateboard" => MRLCore.Instance.config.Cheap_Skateboard_Price,
-                    "Skateboard" => MRLCore.Instance.config.Skateboard_Price,
-                    "Cruiser" => MRLCore.Instance.config.Cruiser_Price,
-                    "Lightweight Board" => MRLCore.Instance.config.Lightweight_Board_Price,
-                    "Golden Skateboard" => MRLCore.Instance.config.Golden_Skateboard_Price,
+                    "Cheap Skateboard" => MRLCore.Instance.config.Skateboards.Cheap_Skateboard_Price,
+                    "Skateboard" => MRLCore.Instance.config.Skateboards.Skateboard_Price,
+                    "Cruiser" => MRLCore.Instance.config.Skateboards.Cruiser_Price,
+                    "Lightweight Board" => MRLCore.Instance.config.Skateboards.Lightweight_Board_Price,
+                    "Golden Skateboard" => MRLCore.Instance.config.Skateboards.Golden_Skateboard_Price,
                     _ => 1000f
                 };
             }

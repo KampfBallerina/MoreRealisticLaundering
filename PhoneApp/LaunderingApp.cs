@@ -1592,8 +1592,8 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform taxationInputTransform = optionsTransform.Find("Taxation Horizontal Container/Taxation Input");
 
             float maxLaunderValue = _selectedBusiness.LaunderCapacity;
-            int launderTimeValue = MRLCore.Instance.config.Laundromat_Laundering_time_hours; // Standardwert
-            float taxationValue = MRLCore.Instance.config.Laundromat_Tax_Percentage; // Standardwert
+            int launderTimeValue = MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Laundering_time_hours; // Standardwert
+            float taxationValue = MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Tax_Percentage; // Standardwert
 
             if (maxLaunderInputTransform != null)
             {
@@ -1629,30 +1629,30 @@ namespace MoreRealisticLaundering.PhoneApp
             switch (_selectedBusiness.name.ToLower())
             {
                 case "laundromat":
-                    MRLCore.Instance.config.Laundromat_Cap = maxLaunderValue;
-                    MRLCore.Instance.config.Laundromat_Laundering_time_hours = launderTimeValue;
-                    MRLCore.Instance.config.Laundromat_Tax_Percentage = taxationValue;
+                    MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Cap = maxLaunderValue;
+                    MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Laundering_time_hours = launderTimeValue;
+                    MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Tax_Percentage = taxationValue;
                     break;
 
                 case "taco ticklers":
                 case "tacoticklers":
-                    MRLCore.Instance.config.Taco_Ticklers_Cap = maxLaunderValue;
-                    MRLCore.Instance.config.Taco_Ticklers_Laundering_time_hours = launderTimeValue;
-                    MRLCore.Instance.config.Taco_Ticklers_Tax_Percentage = taxationValue;
+                    MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Cap = maxLaunderValue;
+                    MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours = launderTimeValue;
+                    MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage = taxationValue;
                     break;
 
                 case "car wash":
                 case "carwash":
-                    MRLCore.Instance.config.Car_Wash_Cap = maxLaunderValue;
-                    MRLCore.Instance.config.Car_Wash_Laundering_time_hours = launderTimeValue;
-                    MRLCore.Instance.config.Car_Wash_Tax_Percentage = taxationValue;
+                    MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Cap = maxLaunderValue;
+                    MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Laundering_time_hours = launderTimeValue;
+                    MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Tax_Percentage = taxationValue;
                     break;
 
                 case "post office":
                 case "postoffice":
-                    MRLCore.Instance.config.Post_Office_Cap = maxLaunderValue;
-                    MRLCore.Instance.config.Post_Office_Laundering_time_hours = launderTimeValue;
-                    MRLCore.Instance.config.Post_Office_Tax_Percentage = taxationValue;
+                    MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Cap = maxLaunderValue;
+                    MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Laundering_time_hours = launderTimeValue;
+                    MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Tax_Percentage = taxationValue;
                     break;
 
                 default:
@@ -1766,17 +1766,17 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform docksPriceInputTransform = priceOptionsTransform.Find("Docks Warehouse Horizontal Container/Docks Warehouse Input");
             Transform manorPriceInputTransform = priceOptionsTransform.Find("Manor Horizontal Container/Manor Input");
 
-            float laundromatPrice = MRLCore.Instance.config.Laundromat_Price;
-            float tacoTicklersPrice = MRLCore.Instance.config.Taco_Ticklers_Price;
-            float carWashPrice = MRLCore.Instance.config.Car_Wash_Price;
-            float postOfficePrice = MRLCore.Instance.config.Post_Office_Price;
+            float laundromatPrice = MRLCore.Instance.config.Properties.BusinessProperties.Laundromat_Price;
+            float tacoTicklersPrice = MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price;
+            float carWashPrice = MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price;
+            float postOfficePrice = MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price;
 
-            float motelPrice = MRLCore.Instance.config.Motel_Room_Price;
-            float sweatshopPrice = MRLCore.Instance.config.Sweatshop_Price;
-            float bungalowPrice = MRLCore.Instance.config.Bungalow_Price;
-            float barnPrice = MRLCore.Instance.config.Barn_Price;
-            float docksPrice = MRLCore.Instance.config.Docks_Warehouse_Price;
-            float manorPrice = MRLCore.Instance.config.Manor_Price;
+            float motelPrice = MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price;
+            float sweatshopPrice = MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price;
+            float bungalowPrice = MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price;
+            float barnPrice = MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price;
+            float docksPrice = MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price;
+            float manorPrice = MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price;
 
             // Aktualisiere den Preis für Laundromat
             if (laundromatPriceInputTransform != null)
@@ -1876,16 +1876,16 @@ namespace MoreRealisticLaundering.PhoneApp
             //   MelonLogger.Msg($"Updated Prices: {laundromatPrice}, {tacoTicklersPrice}, {carWashPrice}, {postOfficePrice}");
 
             // Speichere die aktualisierten Preise in der Konfiguration
-            MRLCore.Instance.config.Laundromat_Price = laundromatPrice;
-            MRLCore.Instance.config.Taco_Ticklers_Price = tacoTicklersPrice;
-            MRLCore.Instance.config.Car_Wash_Price = carWashPrice;
-            MRLCore.Instance.config.Post_Office_Price = postOfficePrice;
-            MRLCore.Instance.config.Motel_Room_Price = motelPrice;
-            MRLCore.Instance.config.Sweatshop_Price = sweatshopPrice;
-            MRLCore.Instance.config.Bungalow_Price = bungalowPrice;
-            MRLCore.Instance.config.Barn_Price = barnPrice;
-            MRLCore.Instance.config.Docks_Warehouse_Price = docksPrice;
-            MRLCore.Instance.config.Manor_Price = manorPrice;
+            MRLCore.Instance.config.Properties.BusinessProperties.Laundromat_Price = laundromatPrice;
+            MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price = tacoTicklersPrice;
+            MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price = carWashPrice;
+            MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price = postOfficePrice;
+            MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price = motelPrice;
+            MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price = sweatshopPrice;
+            MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price = bungalowPrice;
+            MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price = barnPrice;
+            MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price = docksPrice;
+            MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price = manorPrice;
 
             // Speichere die aktualisierte Konfiguration
             ConfigManager.Save(MRLCore.Instance.config);
@@ -1957,11 +1957,11 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform lightweightBoardPriceInputTransform = skateboardOptionsTransform.Find("Lightweight Board Horizontal Container/Lightweight Board Input");
             Transform goldenSkateboardPriceInputTransform = skateboardOptionsTransform.Find("Golden Skateboard Horizontal Container/Golden Skateboard Input");
 
-            float cheapSkateboardPrice = MRLCore.Instance.config.Cheap_Skateboard_Price;
-            float skateboardPrice = MRLCore.Instance.config.Skateboard_Price;
-            float cruiserPrice = MRLCore.Instance.config.Cruiser_Price;
-            float lightweightBoardPrice = MRLCore.Instance.config.Lightweight_Board_Price;
-            float goldenSkateboardPrice = MRLCore.Instance.config.Golden_Skateboard_Price;
+            float cheapSkateboardPrice = MRLCore.Instance.config.Skateboards.Cheap_Skateboard_Price;
+            float skateboardPrice = MRLCore.Instance.config.Skateboards.Skateboard_Price;
+            float cruiserPrice = MRLCore.Instance.config.Skateboards.Cruiser_Price;
+            float lightweightBoardPrice = MRLCore.Instance.config.Skateboards.Lightweight_Board_Price;
+            float goldenSkateboardPrice = MRLCore.Instance.config.Skateboards.Golden_Skateboard_Price;
 
             // Aktualisiere den Preis für Cheap Skateboard
             if (cheapSkateboardPriceInputTransform != null)
@@ -2009,11 +2009,11 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
             }
             // Speichere die aktualisierten Preise in der Konfiguration
-            MRLCore.Instance.config.Cheap_Skateboard_Price = cheapSkateboardPrice;
-            MRLCore.Instance.config.Skateboard_Price = skateboardPrice;
-            MRLCore.Instance.config.Cruiser_Price = cruiserPrice;
-            MRLCore.Instance.config.Lightweight_Board_Price = lightweightBoardPrice;
-            MRLCore.Instance.config.Golden_Skateboard_Price = goldenSkateboardPrice;
+            MRLCore.Instance.config.Skateboards.Cheap_Skateboard_Price = cheapSkateboardPrice;
+            MRLCore.Instance.config.Skateboards.Skateboard_Price = skateboardPrice;
+            MRLCore.Instance.config.Skateboards.Cruiser_Price = cruiserPrice;
+            MRLCore.Instance.config.Skateboards.Lightweight_Board_Price = lightweightBoardPrice;
+            MRLCore.Instance.config.Skateboards.Golden_Skateboard_Price = goldenSkateboardPrice;
 
             // Speichere die aktualisierte Konfiguration
             ConfigManager.Save(MRLCore.Instance.config);
@@ -2081,12 +2081,12 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform hounddogPriceInputTransform = vehicleOptionsTransform.Find("Hounddog Horizontal Container/Hounddog Input");
             Transform cheetahPriceInputTransform = vehicleOptionsTransform.Find("Cheetah Horizontal Container/Cheetah Input");
 
-            float shitboxPrice = MRLCore.Instance.config.Shitbox_Price;
-            float veeperPrice = MRLCore.Instance.config.Veeper_Price;
-            float bruiserPrice = MRLCore.Instance.config.Bruiser_Price;
-            float dinklerPrice = MRLCore.Instance.config.Dinkler_Price;
-            float hounddogPrice = MRLCore.Instance.config.Hounddog_Price;
-            float cheetahPrice = MRLCore.Instance.config.Cheetah_Price;
+            float shitboxPrice = MRLCore.Instance.config.Vehicles.Shitbox_Price;
+            float veeperPrice = MRLCore.Instance.config.Vehicles.Veeper_Price;
+            float bruiserPrice = MRLCore.Instance.config.Vehicles.Bruiser_Price;
+            float dinklerPrice = MRLCore.Instance.config.Vehicles.Dinkler_Price;
+            float hounddogPrice = MRLCore.Instance.config.Vehicles.Hounddog_Price;
+            float cheetahPrice = MRLCore.Instance.config.Vehicles.Cheetah_Price;
 
             // Aktualisiere den Preis für Shitbox
             if (shitboxInputTransform != null)
@@ -2144,12 +2144,12 @@ namespace MoreRealisticLaundering.PhoneApp
             }
 
             // Speichere die aktualisierten Preise in der Konfiguration
-            MRLCore.Instance.config.Shitbox_Price = shitboxPrice;
-            MRLCore.Instance.config.Veeper_Price = veeperPrice;
-            MRLCore.Instance.config.Bruiser_Price = bruiserPrice;
-            MRLCore.Instance.config.Dinkler_Price = dinklerPrice;
-            MRLCore.Instance.config.Hounddog_Price = hounddogPrice;
-            MRLCore.Instance.config.Cheetah_Price = cheetahPrice;
+            MRLCore.Instance.config.Vehicles.Shitbox_Price = shitboxPrice;
+            MRLCore.Instance.config.Vehicles.Veeper_Price = veeperPrice;
+            MRLCore.Instance.config.Vehicles.Bruiser_Price = bruiserPrice;
+            MRLCore.Instance.config.Vehicles.Dinkler_Price = dinklerPrice;
+            MRLCore.Instance.config.Vehicles.Hounddog_Price = hounddogPrice;
+            MRLCore.Instance.config.Vehicles.Cheetah_Price = cheetahPrice;
             // Speichere die aktualisierte Konfiguration
             ConfigManager.Save(MRLCore.Instance.config);
             // Aktualisiere die Preise in den VehicleListings
@@ -2623,7 +2623,7 @@ namespace MoreRealisticLaundering.PhoneApp
             optionVerticalLayout.childControlWidth = true;
             optionVerticalLayout.childForceExpandWidth = false;
             optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -35f; // Abstand zwischen den Optionen
+            optionVerticalLayout.spacing = -40f; // Abstand zwischen den Optionen
 
             // Füge die Label-Input-Paare für die vier Unternehmen hinzu
             AddLabelInputPair("Laundromat", priceOptionsTransform, "$");

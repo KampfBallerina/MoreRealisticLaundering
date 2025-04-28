@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 
 namespace MoreRealisticLaundering.Config
@@ -7,45 +6,28 @@ namespace MoreRealisticLaundering.Config
 	{
 		public bool Use_Legit_Version = false;
 
+		public BusinessSettings Businesses { get; set; } = new BusinessSettings();
+		public PropertiesSettings Properties { get; set; } = new PropertiesSettings();
+		public VehicleSettings Vehicles { get; set; } = new VehicleSettings();
+		public SkateboardSettings Skateboards { get; set; } = new SkateboardSettings();
+	}
 
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Laundromat_Cap = 1000f;
-		public int Laundromat_Laundering_time_hours = 24;
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Laundromat_Tax_Percentage = 19f;
+	public class BusinessSettings
+	{
+		public LaundromatSettings Laundromat { get; set; } = new LaundromatSettings();
+		public PostOfficeSettings PostOffice { get; set; } = new PostOfficeSettings();
+		public CarWashSettings CarWash { get; set; } = new CarWashSettings();
+		public TacoTicklersSettings TacoTicklers { get; set; } = new TacoTicklersSettings();
+	}
 
+	public class PropertiesSettings
+	{
+		public PrivatePropertySettings PrivateProperties { get; set; } = new PrivatePropertySettings();
+		public BusinessPropertySettings BusinessProperties { get; set; } = new BusinessPropertySettings();
+	}
 
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Post_Office_Cap = 2000f;
-		public int Post_Office_Laundering_time_hours = 24;
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Post_Office_Tax_Percentage = 19f;
-
-
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Car_Wash_Cap = 5000f;
-		public int Car_Wash_Laundering_time_hours = 24;
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Car_Wash_Tax_Percentage = 19f;
-
-
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Taco_Ticklers_Cap = 10000f;
-		public int Taco_Ticklers_Laundering_time_hours = 24;
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Taco_Ticklers_Tax_Percentage = 19f;
-
-
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Laundromat_Price = 10000f;
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Post_Office_Price = 20000f;
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Car_Wash_Price = 30000f;
-		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Taco_Ticklers_Price = 100000f;
-
-
+	public class PrivatePropertySettings
+	{
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Motel_Room_Price = 750f;
 		[JsonConverter(typeof(CleanFloatConverter))]
@@ -58,8 +40,58 @@ namespace MoreRealisticLaundering.Config
 		public float Docks_Warehouse_Price = 80000f;
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Manor_Price = 250000f;
+	}
 
+	public class BusinessPropertySettings
+	{
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Laundromat_Price = 10000f;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Post_Office_Price = 20000f;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Car_Wash_Price = 30000f;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Taco_Ticklers_Price = 100000f;
+	}
 
+	public class LaundromatSettings
+	{
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Laundromat_Cap = 1000f;
+		public int Laundromat_Laundering_time_hours = 24;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Laundromat_Tax_Percentage = 19f;
+	}
+
+	public class PostOfficeSettings
+	{
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Post_Office_Cap = 2000f;
+		public int Post_Office_Laundering_time_hours = 24;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Post_Office_Tax_Percentage = 19f;
+	}
+
+	public class CarWashSettings
+	{
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Car_Wash_Cap = 5000f;
+		public int Car_Wash_Laundering_time_hours = 24;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Car_Wash_Tax_Percentage = 19f;
+	}
+
+	public class TacoTicklersSettings
+	{
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Taco_Ticklers_Cap = 10000f;
+		public int Taco_Ticklers_Laundering_time_hours = 24;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Taco_Ticklers_Tax_Percentage = 19f;
+	}
+
+	public class VehicleSettings
+	{
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Shitbox_Price = 12800f;
 		[JsonConverter(typeof(CleanFloatConverter))]
@@ -72,8 +104,10 @@ namespace MoreRealisticLaundering.Config
 		public float Hounddog_Price = 42000f;
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Cheetah_Price = 120000f;
+	}
 
-
+	public class SkateboardSettings
+	{
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Cheap_Skateboard_Price = 800f;
 		[JsonConverter(typeof(CleanFloatConverter))]
