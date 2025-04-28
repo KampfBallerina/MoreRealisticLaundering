@@ -550,10 +550,8 @@ namespace MoreRealisticLaundering.PhoneApp
             foreach (DialogueController_SkateboardSeller.Option option in MRLCore.Instance.shackShopDialogueController.Options)
             {
                 if (option == null) continue;
-                string displayName = MRLCore.Instance.skateboardAliasMap.ContainsKey(option.Name)
-                    ? MRLCore.Instance.skateboardAliasMap[option.Name]
-                    : skateboard.name;
-                float price = skateboard.price;
+                string displayName = MRLCore.Instance.skateboardAliasMap.ContainsKey(option.Name) ? MRLCore.Instance.skateboardAliasMap[option.Name] : option.Name;
+                float price = option.Price;
                 SetInputFieldValue(skateboardOptionsTransform, displayName, price);
             }
         }
@@ -649,9 +647,7 @@ namespace MoreRealisticLaundering.PhoneApp
             foreach (LandVehicle vehicle in MRLCore.Instance.vehicleManager.VehiclePrefabs)
             {
                 if (vehicle == null) continue;
-                string displayName = MRLCore.Instance.vehicleAliasMap.ContainsKey(vehicle.name)
-                    ? MRLCore.Instance.vehicleAliasMap[vehicle.name]
-                    : vehicle.name;
+                string displayName = MRLCore.Instance.vehicleAliasMap.ContainsKey(vehicle.name) ? MRLCore.Instance.vehicleAliasMap[vehicle.name] : vehicle.name;
                 float price = vehicle.vehiclePrice;
                 SetInputFieldValue(vehicleOptionsTransform, displayName, price);
             }
@@ -1414,7 +1410,7 @@ namespace MoreRealisticLaundering.PhoneApp
             GameObject saveSpaceObject = new GameObject("SaveSpace");
             saveSpaceObject.transform.SetParent(parentTransform, false);
             RectTransform saveSpaceRect = saveSpaceObject.AddComponent<RectTransform>();
-            if (saveString == "RealEstate" || saveString == "Vehicles") //TODO Skateboard
+            if (saveString == "RealEstate" || saveString == "Vehicles")
             {
                 saveSpaceRect.sizeDelta = new Vector2(100, 75); // Abstand zwischen dem letzten Element und dem Button
             }
@@ -1544,7 +1540,7 @@ namespace MoreRealisticLaundering.PhoneApp
 
             if (saveString == "Skateboards")
             {
-                void FuncThatCallsFunc() => SaveSkateboardOptions(buttonText); //TODO
+                void FuncThatCallsFunc() => SaveSkateboardOptions(buttonText);
                 saveButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
             }
 
@@ -1893,13 +1889,13 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform cheapSkateboardPriceInputTransform = skateboardOptionsTransform.Find("Cheap Skateboard Horizontal Container/Cheap Skateboard Input");
             Transform skateboardPriceInputTransform = skateboardOptionsTransform.Find("Skateboard Horizontal Container/Skateboard Input");
             Transform cruiserPriceInputTransform = skateboardOptionsTransform.Find("Cruiser Horizontal Container/Cruiser Input");
-            Transform lightweightSkateboardPriceInputTransform = skateboardOptionsTransform.Find("Lightweight Skateboard Horizontal Container/Lightweight Skateboard Input");
+            Transform lightweightBoardPriceInputTransform = skateboardOptionsTransform.Find("Lightweight Board Horizontal Container/Lightweight Board Input");
             Transform goldenSkateboardPriceInputTransform = skateboardOptionsTransform.Find("Golden Skateboard Horizontal Container/Golden Skateboard Input");
 
             float cheapSkateboardPrice = MRLCore.Instance.config.Cheap_Skateboard_Price;
             float skateboardPrice = MRLCore.Instance.config.Skateboard_Price;
             float cruiserPrice = MRLCore.Instance.config.Cruiser_Price;
-            float lightweightSkateboardPrice = MRLCore.Instance.config.Lightweight_Skateboard_Price;
+            float lightweightBoardPrice = MRLCore.Instance.config.Lightweight_Board_Price;
             float goldenSkateboardPrice = MRLCore.Instance.config.Golden_Skateboard_Price;
 
             // Aktualisiere den Preis für Cheap Skateboard
@@ -1930,12 +1926,12 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
             }
             // Aktualisiere den Preis für Lightweight Skateboard
-            if (lightweightSkateboardPriceInputTransform != null)
+            if (lightweightBoardPriceInputTransform != null)
             {
-                InputField lightweightSkateboardPriceInputField = lightweightSkateboardPriceInputTransform.GetComponent<InputField>();
-                if (lightweightSkateboardPriceInputField != null && float.TryParse(lightweightSkateboardPriceInputField.text, out float parsedLightweightSkateboardPrice))
+                InputField lightweightBoardPriceInputField = lightweightBoardPriceInputTransform.GetComponent<InputField>();
+                if (lightweightBoardPriceInputField != null && float.TryParse(lightweightBoardPriceInputField.text, out float parsedLightweightBoardPrice))
                 {
-                    lightweightSkateboardPrice = parsedLightweightSkateboardPrice;
+                    lightweightBoardPrice = parsedLightweightBoardPrice;
                 }
             }
             // Aktualisiere den Preis für Golden Skateboard
@@ -1951,7 +1947,7 @@ namespace MoreRealisticLaundering.PhoneApp
             MRLCore.Instance.config.Cheap_Skateboard_Price = cheapSkateboardPrice;
             MRLCore.Instance.config.Skateboard_Price = skateboardPrice;
             MRLCore.Instance.config.Cruiser_Price = cruiserPrice;
-            MRLCore.Instance.config.Lightweight_Skateboard_Price = lightweightSkateboardPrice;
+            MRLCore.Instance.config.Lightweight_Board_Price = lightweightBoardPrice;
             MRLCore.Instance.config.Golden_Skateboard_Price = goldenSkateboardPrice;
 
             // Speichere die aktualisierte Konfiguration

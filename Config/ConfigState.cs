@@ -51,7 +51,7 @@ namespace MoreRealisticLaundering.Config
 		public float Cheap_Skateboard_Price = 800f;
 		public float Skateboard_Price = 1250f;
 		public float Cruiser_Price = 2850f;
-		public float Lightweight_Skateboard_Price = 2850f;
+		public float Lightweight_Board_Price = 2850f;
 		public float Golden_Skateboard_Price = 5000f;
 	}
 }

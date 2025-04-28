@@ -81,7 +81,7 @@ namespace MoreRealisticLaundering.Config
                     EnsureFieldExists("Cheap_Skateboard_Price", configState.Cheap_Skateboard_Price);
                     EnsureFieldExists("Skateboard_Price", configState.Skateboard_Price);
                     EnsureFieldExists("Cruiser_Price", configState.Cruiser_Price);
-                    EnsureFieldExists("Lightweight_Skateboard_Price", configState.Lightweight_Skateboard_Price);
+                    EnsureFieldExists("Lightweight_Board_Price", configState.Lightweight_Board_Price);
                     EnsureFieldExists("Golden_Skateboard_Price", configState.Golden_Skateboard_Price);
 
                     if (isConfigUpdated)
@@ -298,10 +298,10 @@ namespace MoreRealisticLaundering.Config
                         loadedConfigState.Cruiser_Price = configState.Cruiser_Price;
                         isConfigUpdated = true;
                     }
-                    if (loadedConfigState.Lightweight_Skateboard_Price <= 100f)
+                    if (loadedConfigState.Lightweight_Board_Price <= 100f)
                     {
                         MelonLogger.Warning("Invalid Lightweight_Skateboard_Price in config. Reverting to default (2850).");
-                        loadedConfigState.Lightweight_Skateboard_Price = configState.Lightweight_Skateboard_Price;
+                        loadedConfigState.Lightweight_Board_Price = configState.Lightweight_Board_Price;
                         isConfigUpdated = true;
                     }
                     if (loadedConfigState.Golden_Skateboard_Price <= 100f)
@@ -493,7 +493,10 @@ namespace MoreRealisticLaundering.Config
 
                 case "lightweight_skateboard":
                 case "lightweight skateboard":
-                    return config.Lightweight_Skateboard_Price;
+                case "lightweight board":
+                case "lightweightboard":
+                case "lightweight_board":
+                    return config.Lightweight_Board_Price;
 
                 case "golden_skateboard":
                 case "golden skateboard":

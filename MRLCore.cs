@@ -70,6 +70,25 @@ namespace MoreRealisticLaundering
                 { "Cheetah", "Cheetah" },
                 { "Coupe", "Cheetah"}
             };
+            MRLCore.Instance.skateboardAliasMap = new System.Collections.Generic.Dictionary<string, string>
+            {
+                { "Cheap Skateboard", "Cheap Skateboard" },
+                { "CheapSkateboard", "Cheap Skateboard" },
+
+                { "Skateboard", "Skateboard" },
+                { "SkateBoard", "Skateboard" },
+
+                { "Cruiser", "Cruiser" },
+                { "Cruiser_Skateboard", "Cruiser" },
+
+                { "Lightweight Board", "Lightweight Board" },
+                { "LightweightBoard", "Lightweight Board" },
+                { "Lightweight Skateboard", "Lightweight Board" },
+                { "LightweightSkateboard", "Lightweight Board" },
+
+                { "Golden Skateboard", "Golden Skateboard" },
+                { "GoldenSkateboard", "Golden Skateboard" }
+            };
         }
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
@@ -131,7 +150,7 @@ namespace MoreRealisticLaundering
             {
                 MelonCoroutines.Start(MRLCore.launderingApp.InitializeLaunderApp());
             }
-            MelonCoroutines.Start(MRLCore.Instance.ApplyConfig());
+            MelonCoroutines.Start(MRLCore.Instance.ApplyPropertyConfig());
 
         }
 
@@ -941,15 +960,15 @@ namespace MoreRealisticLaundering
                         shackShopDialogueController = dialogController;
                         foreach (DialogueController_SkateboardSeller.Option option in dialogController.Options)
                         {
-                            MelonLogger.Msg($"Option: {option.Name} - Price: {option.Price}");
-                            if (MRLCore.Instance.skateBoardAliasMap.TryGetValue(option.Name, out string key))
+                            // MelonLogger.Msg($"Option: {option.Name} - Price: {option.Price}");
+                            if (MRLCore.Instance.skateboardAliasMap.TryGetValue(option.Name, out string key))
                             {
                                 float price = key switch
                                 {
                                     "Cheap Skateboard" => MRLCore.Instance.config.Cheap_Skateboard_Price,
                                     "Skateboard" => MRLCore.Instance.config.Skateboard_Price,
                                     "Cruiser" => MRLCore.Instance.config.Cruiser_Price,
-                                    "Lightweight Skateboard" => MRLCore.Instance.config.Lightweight_Skateboard_Price,
+                                    "Lightweight Board" => MRLCore.Instance.config.Lightweight_Board_Price,
                                     "Golden Skateboard" => MRLCore.Instance.config.Golden_Skateboard_Price,
                                     _ => 1000f // Standardwert, falls das Skateboard nicht gefunden wird
                                 };
@@ -960,11 +979,27 @@ namespace MoreRealisticLaundering
                                 MelonLogger.Warning($"Skateboard '{option.Name}' not found in skateBoardAliasMap. Skipping price assignment.");
                             }
                         }
-
-                        // TODO  UpdateSkateboardSign();
+                        UpdateSkateboardSign();
                     }
                 }
             }
+        }
+
+        private void UpdateSkateboardSign()
+        {
+            GameObject sellSignCheapSkateboard = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (1)/Text (TMP)");
+            GameObject sellSignSkateboard = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (2)/Text (TMP)");
+            GameObject sellSignCruiser = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (3)/Text (TMP)");
+            GameObject sellSignLightweightBoard = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (4)/Text (TMP)");
+            GameObject sellSignGoldenSkateboard = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (5)/Text (TMP)");
+
+            // Aktualisiere die Preise für jedes Schild
+            UpdateSignPrice(sellSignCheapSkateboard, "Cheap Skateboard");
+            UpdateSignPrice(sellSignSkateboard, "Skateboard");
+            UpdateSignPrice(sellSignCruiser, "Cruiser_Skateboard");
+            UpdateSignPrice(sellSignLightweightBoard, "Lightweight Board");
+            UpdateSignPrice(sellSignGoldenSkateboard, "Golden Skateboard");
+            // MelonLogger.Msg("Updated all skateboard sign prices.");
         }
 
         private void UpdateSignPrice(GameObject sellSign, string objectName)
@@ -1010,21 +1045,34 @@ namespace MoreRealisticLaundering
                     _ => 1000f
                 };
             }
+            else if (MRLCore.Instance.skateboardAliasMap.TryGetValue(objectName, out string skateboardKey))
+            {
+                price = skateboardKey switch
+                {
+                    "Cheap Skateboard" => MRLCore.Instance.config.Cheap_Skateboard_Price,
+                    "Skateboard" => MRLCore.Instance.config.Skateboard_Price,
+                    "Cruiser" => MRLCore.Instance.config.Cruiser_Price,
+                    "Lightweight Board" => MRLCore.Instance.config.Lightweight_Board_Price,
+                    "Golden Skateboard" => MRLCore.Instance.config.Golden_Skateboard_Price,
+                    _ => 1000f
+                };
+            }
             else
             {
-                MelonLogger.Warning($"Property/Vehicle '{objectName}' not found in aliasMap or vehicleAliasMap. Skipping sell sign price assignment.");
+                MelonLogger.Warning($"Property/Vehicle '{objectName}' not found in aliasMap, vehicleAliasMap or skateboardAliasMap. Skipping sell sign price assignment.");
                 return;
             }
 
-            // Suche nach dem "Price"-Objekt und aktualisiere den Text
-            Transform priceTransform = sellSign.transform.Find("Price");
-            if (priceTransform != null)
+            // Is it a Skateboard?
+            if (objectName.ToLower().Contains("board"))
             {
-                TextMeshPro priceText = priceTransform.GetComponent<TextMeshPro>();
+                TextMeshPro priceText = sellSign.GetComponent<TextMeshPro>();
                 if (priceText != null)
                 {
-                    priceText.text = $"${price}";
-                    // MelonLogger.Msg($"Updated sell sign price for {objectName} to ${price}.");
+                    // Keeping the first line of the text and adding the price to the second line with green color
+                    string[] lines = priceText.text.Split('\n');
+                    priceText.text = lines[0];
+                    priceText.text += $"\n<color=#55C61E>${price}</color>";
                 }
                 else
                 {
@@ -1033,7 +1081,25 @@ namespace MoreRealisticLaundering
             }
             else
             {
-                MelonLogger.Warning($"Price object not found for sell sign of {objectName}.");
+                // Suche nach dem "Price"-Objekt und aktualisiere den Text
+                Transform priceTransform = sellSign.transform.Find("Price");
+                if (priceTransform != null)
+                {
+                    TextMeshPro priceText = priceTransform.GetComponent<TextMeshPro>();
+                    if (priceText != null)
+                    {
+                        priceText.text = $"${price}";
+                        // MelonLogger.Msg($"Updated sell sign price for {objectName} to ${price}.");
+                    }
+                    else
+                    {
+                        MelonLogger.Warning($"Price TextMeshPro component not found for sell sign of {objectName}.");
+                    }
+                }
+                else
+                {
+                    MelonLogger.Warning($"Price object not found for sell sign of {objectName}.");
+                }
             }
         }
 
@@ -1043,11 +1109,11 @@ namespace MoreRealisticLaundering
         public System.Collections.Generic.Dictionary<string, float> maxiumumLaunderValues;
         public System.Collections.Generic.Dictionary<string, string> aliasMap;
         public System.Collections.Generic.Dictionary<string, string> vehicleAliasMap;
-        public System.Collections.Generic.Dictionary<string, string> skateBoardAliasMap;
+        public System.Collections.Generic.Dictionary<string, string> skateboardAliasMap;
         private readonly System.Collections.Generic.HashSet<string> createdAppEntries = new System.Collections.Generic.HashSet<string>();
         public bool isWaitAndApplyCapsRunning = false;
         private static readonly string ConfigFolder = Path.Combine(MelonEnvironment.UserDataDirectory, "MoreRealisticLaundering");
-        private readonly System.Collections.Generic.HashSet<LaunderingOperation> boostedOps = new System.Collections.Generic.HashSet<LaunderingOperation>();
+        private readonly System.Collections.Generic.HashSet<LaunderingOperation> boostedOperations = new System.Collections.Generic.HashSet<LaunderingOperation>();
         public DialogueController_SkateboardSeller shackShopDialogueController;
         public MoneyManager moneyManager;
         public NotificationsManager notificationsManager;
