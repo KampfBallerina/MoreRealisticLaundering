@@ -6,14 +6,18 @@
 - Not compatible with most mods that modify the Deliveries App (e.g. [url=https://www.nexusmods.com/schedule1/mods/521]DeliveryApp Improvements[/url])
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
-[size=5]What's new in Version 1.2.1?[/size]
-- Introducing `Hyland Auto` where you can now adjust the prices for all Vehicles that you can buy
-- Vehicle Price Support for Legit Mode
-- Adaption of all Vehicle Price Signs dynamically
-- Fixed that Ray's Real Estate was not appearing, when all 4 businesses where already bought (will now always appear)
-- Preparations for Skateboard Shop support (outlook)
+[size=5]What's new in Version 1.2.2?[/size]
+- Restructured the MoreRealisticLaundering.json for better readability
+- [b]PLEASE SAVE YOUR CURRENT CONFIG BEFORE UPDATING - YOUR OLD CONFIG WILL BE OVERWRITTEN![/b]
+- Introducing `Jeff's Shred Shack` where you can now adjust the prices for all `Skateboards`
+- Skateboard Price Support for Legit Mode
+- Adaption of all Skateboard Price Signs dynamically
+- Restructured the Homescreen to default behavior for better compatibility (e.g. Modern Phone Mod)
+- Restructered whole App Construction to fix bugs with Deliveries (might resolve some compatibility issues with oder Mods)
 
-[center][img]https://github.com/user-attachments/assets/53770a7e-7b9d-4bac-9ebe-1990dfe3468a[/img][/center]
+[center][img]https://github.com/user-attachments/assets/4699d890-c6ab-42dc-a673-d42f40580e6d[/img][/center]
+
+[center][img]https://github.com/user-attachments/assets/556f6d2c-008c-4b6d-a1bc-df69152cd9a4[/img][/center]
 
 [size=5]Installation[/size]
 [list=1]
@@ -45,6 +49,15 @@
 [size=3]Automatic Business Detection:[/size]
 - Automatically detects newly owned businesses and adds them to the app for management.
 - Ensures that all businesses are processed and updated dynamically.
+
+[size=3]Enhanced Jeff's Shred Shack:[/size]
+- Introduces a dedicated "Shred Shack" section in the app for managing Skateboard prices.
+- Allows players to view and adjust the prices of Skateboards dynamically from the app.
+- Adapts the related price signs automatically
+
+[center][img]https://github.com/user-attachments/assets/4699d890-c6ab-42dc-a673-d42f40580e6d[/img][/center]
+
+[center][img]https://github.com/user-attachments/assets/556f6d2c-008c-4b6d-a1bc-df69152cd9a4[/img][/center]
 
 [size=3]Enhanced Hyland Auto Management:[/size]
 - Introduces a dedicated "Hyland Auto" section in the app for managing vehicle prices.
