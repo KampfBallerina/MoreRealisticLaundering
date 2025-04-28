@@ -12,7 +12,7 @@ namespace MoreRealisticLaundering.Util
         public static GameObject GetAppIconByName(string Name, int? Index)
         {
             int valueOrDefault = Index.GetValueOrDefault();
-            return (from t in (IEnumerable<Transform>)GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/Viewport/Content/").GetComponentsInChildren<Transform>(includeInactive: true)
+            return (from t in (IEnumerable<Transform>)GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons/").GetComponentsInChildren<Transform>(includeInactive: true)
                     let labelTransform = t.gameObject.transform.Find("Label")
                     let textComponent = (labelTransform != null) ? labelTransform.GetComponent<Text>() : null
                     where textComponent != null && textComponent.text != null && textComponent.text.StartsWith(Name)
@@ -75,7 +75,7 @@ namespace MoreRealisticLaundering.Util
             if (!File.Exists(path2))
             {
                 result = null;
-                Debug.LogError("[CUNNY] Specified path does not exist.");
+                Debug.LogError("Specified path does not exist.");
             }
             else
             {

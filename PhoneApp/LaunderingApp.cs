@@ -3,7 +3,6 @@ using Il2CppFluffyUnderware.DevTools.Extensions;
 using Il2CppScheduleOne.Dialogue;
 using Il2CppScheduleOne.Property;
 using Il2CppScheduleOne.Vehicles;
-using Il2CppSystem;
 using MelonLoader;
 using MelonLoader.Utils;
 using MoreRealisticLaundering.Config;
@@ -18,37 +17,21 @@ namespace MoreRealisticLaundering.PhoneApp
     {
         public IEnumerator InitializeLaunderApp()
         {
-            yield return MelonCoroutines.Start(WaitForHomescreenInstance());
-            var MRLInstance = MRLCore.Instance;
-
-            while (!MRLInstance.IsHomescreenLoaded)
-            {
-                MelonLogger.Msg("Waiting for Homescreen to be loaded..");
-                yield return new WaitForSeconds(2f);
-            }
-            MelonCoroutines.Start(FontLoader.InitializeFonts());
-            while (!Util.FontLoader.openSansBoldIsInitialized || !Util.FontLoader.openSansSemiBoldIsInitialized)
-            {
-                MelonLogger.Msg("Waiting for Fonts to be loaded...");
-                yield return new WaitForSeconds(1f);
-            }
-            yield return MelonCoroutines.Start(CreateApp("TaxNWash", "Tax & Wash", true, FilePath));
-            yield break;
-        }
-
-
-        private IEnumerator WaitForHomescreenInstance()
-        {
             while (MRLCore.Instance == null)
             {
                 MelonLogger.Msg("Waiting for Instance to be initialized...");
                 yield return new WaitForSeconds(1f);
             }
 
-            // MelonLogger.Msg("Instance is now available!");
+            MelonCoroutines.Start(FontLoader.InitializeFonts());
+            while (!Util.FontLoader.openSansBoldIsInitialized || !Util.FontLoader.openSansSemiBoldIsInitialized)
+            {
+                MelonLogger.Msg("Waiting for Fonts to be loaded...");
+                yield return new WaitForSeconds(2f);
+            }
+            yield return MelonCoroutines.Start(CreateApp("TaxNWash", "Tax & Wash", true, FilePath));
+            yield break;
         }
-
-
         public IEnumerator CreateApp(string IDName, string Title, bool IsRotated = true, string IconPath = null)
         {
             GameObject cloningCandidate = null;
@@ -57,7 +40,7 @@ namespace MoreRealisticLaundering.PhoneApp
 
             // Warte auf das AppIcons-Objekt
             yield return MelonCoroutines.Start(Utils.WaitForObject(
-                "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/Viewport/Content/AppIcons/",
+                "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons/",
                 delegate (GameObject obj) { icons = obj; }
             ));
 
@@ -997,7 +980,6 @@ namespace MoreRealisticLaundering.PhoneApp
 
 
             _selectedBusiness = business;
-            _selectedBusinessName = business.name;
 
             // Aktiviere die drei Container in optionsTransform, falls sie deaktiviert sind
             Transform maxLaunderContainer = optionsTransform.Find("Maximum Launder Horizontal Container");
@@ -2663,7 +2645,6 @@ namespace MoreRealisticLaundering.PhoneApp
         Sprite toggleButtonPressedSprite = null;
         Sprite appIconSprite = null;
         private Business _selectedBusiness = null;
-        private string _selectedBusinessName = null;
         public bool isSaveStillRunning = false;
     }
 }

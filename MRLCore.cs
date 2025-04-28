@@ -5,7 +5,6 @@ using UnityEngine;
 using Il2CppScheduleOne.Money;
 using Il2CppScheduleOne.UI;
 using MelonLoader.Utils;
-using Il2CppInterop.Runtime;
 using UnityEngine.UI;
 using MoreRealisticLaundering.Util;
 using Il2CppTMPro;
@@ -25,49 +24,7 @@ namespace MoreRealisticLaundering
     {
         public static MRLCore Instance { get; private set; }
         private bool isFirstStart = true;
-
         private bool isLegitVersion = false;
-
-        private ScrollRect HomeScreenScrollRect;
-
-        private GameObject IconsPageTemplate;
-
-        private GameObject CompatabilityIconsPage;
-
-        private GameObject HomeScreenScrollRectContent;
-
-        private HorizontalLayoutGroup HomeScreenHorizontalLayoutGroup;
-
-        public List<GameObject> UIAppPages = new List<GameObject>();
-
-        public List<List<GameObject>> AllApps = new List<List<GameObject>>();
-
-        private int currentAppPage;
-
-        private float snapOffset = -30f;
-
-        private float snapDuration = 0.15f;
-
-        private float snapVelocity;
-
-        private float snapVelocityThreshold = 200f;
-
-        private bool isInitialSnapDone = false;
-
-        private RectTransform contentRect;
-
-        private bool isDraggingBlocked;
-
-        private float mouseDownTime;
-
-        private Vector2 mouseDownPosition;
-
-        private float minHoldDuration = 0.15f;
-
-        private float dragThreshold = 15f;
-
-        public bool IsHomescreenLoaded = false;
-
         public override void OnInitializeMelon()
         {
             LoggerInstance.Msg("Initialized.");
@@ -113,211 +70,107 @@ namespace MoreRealisticLaundering
                 { "Cheetah", "Cheetah" },
                 { "Coupe", "Cheetah"}
             };
-            MRLCore.Instance.skateBoardAliasMap = new System.Collections.Generic.Dictionary<string, string>
-            {
-                { "Cheap Skateboard", "Cheap Skateboard" },
-                { "Skateboard", "Skateboard" },
-                { "Cruiser", "Cruiser" },
-                { "Lightweight Skateboard", "Lightweight Skateboard" },
-                { "Golden Skateboard", "Golden Skateboard" }
-            };
         }
 
-        public override void OnUpdate()
+        public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
-            if (isLegitVersion)
+            if (sceneName == "Main")
             {
-                return;
-            }
-            if (!IsHomescreenLoaded)
-            {
-                return;
-            }
-            if (contentRect == null)
-            {
-                if (HomeScreenScrollRectContent == null)
+                MRLCore.Instance.config = Config.ConfigManager.Load();
+                if (MRLCore.Instance.config.Use_Legit_Version)
                 {
-                    return;
+                    LoggerInstance.Msg("Use_Legit_Version is enabled. Adjusting behavior accordingly.");
+                    isLegitVersion = true;
                 }
                 else
                 {
-                    contentRect = HomeScreenScrollRectContent.GetComponent<RectTransform>();
+                    LoggerInstance.Msg("Use_Legit_Version is disabled. Proceeding with default behavior.");
                 }
-                if (contentRect == null)
-                {
-                    return;
-                }
+                MRLCore.Instance.FillCapDictionary();
+                MRLCore.Instance.InitializeListeners();
+                MRLCore.Instance.moneyManager = UnityEngine.Object.FindObjectOfType<MoneyManager>();
+                MRLCore.Instance.notificationsManager = UnityEngine.Object.FindObjectOfType<NotificationsManager>();
+                MRLCore.Instance.vehicleManager = UnityEngine.Object.FindObjectOfType<VehicleManager>();
+                MelonCoroutines.Start(StartCoroutinesAfterDelay());
+                isFirstStart = false;
             }
-            if (UIAppPages == null || UIAppPages.Count <= 0)
+            else if (sceneName.Equals("Menu", StringComparison.OrdinalIgnoreCase) && !isFirstStart)
             {
-                return;
-            }
-            HomeScreenScrollRect.enabled = UIAppPages.Count > 1;
-            if (!HomeScreenScrollRect.enabled)
-            {
-                if (!isInitialSnapDone)
-                {
-                    SnapImmediately(0);
-                    isInitialSnapDone = true;
-                }
-                return;
-            }
-            if (Input.GetMouseButtonDown(0))
-            {
-                mouseDownTime = Time.time;
-                mouseDownPosition = Input.mousePosition;
-                isDraggingBlocked = true;
-            }
-            if (Input.GetMouseButton(0) && isDraggingBlocked)
-            {
-                float num = Vector2.Distance(Input.mousePosition, mouseDownPosition);
-                if (Time.time - mouseDownTime >= minHoldDuration || num >= dragThreshold)
-                {
-                    isDraggingBlocked = false;
-                }
-            }
-            if (isDraggingBlocked && HomeScreenScrollRect.m_Dragging)
-            {
-                HomeScreenScrollRect.velocity = Vector2.zero;
-                SnapImmediately(currentAppPage);
-                HomeScreenScrollRect.StopMovement();
-            }
-            if (!isInitialSnapDone)
-            {
-                SnapImmediately(0);
-                isInitialSnapDone = true;
-                return;
-            }
-            int count = UIAppPages.Count;
-            if (count == 0)
-            {
-                return;
-            }
-            float num2 = UIAppPages[0].GetComponent<RectTransform>().rect.width + HomeScreenHorizontalLayoutGroup.spacing;
-            float x = contentRect.anchoredPosition.x;
-            currentAppPage = Mathf.Clamp(Mathf.RoundToInt((0f - x - snapOffset) / num2), 0, count - 1);
-            float num3 = (float)(-currentAppPage) * num2 - snapOffset;
-            float num4 = 0f - ((float)(count - 1) * num2 + snapOffset);
-            float num5 = 0f - snapOffset;
-            if (x < num4 || x > num5 || (!HomeScreenScrollRect.m_Dragging && Mathf.Abs(x - num3) < 1f))
-            {
-                SnapImmediately(currentAppPage);
-                return;
-            }
-            if (!HomeScreenScrollRect.m_Dragging && !isDraggingBlocked)
-            {
-                contentRect.anchoredPosition = new Vector2(Mathf.SmoothDamp(x, num3, ref snapVelocity, snapDuration), contentRect.anchoredPosition.y);
-            }
-            if ((HomeScreenScrollRect.m_Dragging || HomeScreenScrollRect.velocity.magnitude > snapVelocityThreshold) && !isDraggingBlocked)
-            {
-                HomeScreenScrollRect.velocity = Vector2.zero;
-                snapVelocity = 0f;
+                ResetAllVariables();
+                isFirstStart = false;
             }
         }
 
-        private void SnapImmediately(int page)
+        private void InitializeListeners()
         {
-            if (UIAppPages.Count != 0)
+            try
             {
-                float num = UIAppPages[0].GetComponent<RectTransform>().rect.width + HomeScreenHorizontalLayoutGroup.spacing;
-                float x = Mathf.Clamp((float)(-page) * num - snapOffset, 0f - ((float)(UIAppPages.Count - 1) * num + snapOffset), 0f - snapOffset);
-                contentRect.anchoredPosition = new Vector2(x, contentRect.anchoredPosition.y);
-                snapVelocity = 0f;
+                Business.onOperationStarted = new Action<LaunderingOperation>(this.OnLaunderingStarted);
+                //LoggerInstance.Msg("Registered 'Laundering Started' Listener.");
+                Business.onOperationFinished = new Action<LaunderingOperation>(this.OnLaunderingFinished);
+                //LoggerInstance.Msg("Registered 'Laundering Finished' Listener.");
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Error("Failed to register laundering listeners: " + ex.Message);
             }
         }
 
-        public override void OnLateUpdate()
+        public IEnumerator StartCoroutinesAfterDelay()
         {
-            if (isLegitVersion)
+            bool delayedInit = false;
+            while (!delayedInit && !isLegitVersion)
             {
-                return;
+                //  MelonLogger.Msg("Waiting 5 Seconds for other mods to load their apps..");
+                delayedInit = true;
+                yield return new WaitForSeconds(5f);
             }
-            bool toggle = false;
-            if (IsHomescreenLoaded && CompatabilityIconsPage != null && CompatabilityIconsPage.transform.childCount > 0)
+
+            MelonCoroutines.Start(MRLCore.Instance.WaitAndApplyCaps());
+            if (!isLegitVersion)
             {
-                if (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Length > 1)
-                {
-                    ((MelonBase)this).LoggerInstance.Msg("Missing app found, attempting to patch. Count: " + (CompatabilityIconsPage.GetComponentsInChildren<Transform>().Length - 1));
-                    GameObject[] array = (from t in (IEnumerable<Transform>)CompatabilityIconsPage.GetComponentsInChildren<Transform>(includeInactive: true)
-                                          select t.gameObject into obj
-                                          where obj.transform != CompatabilityIconsPage.transform
-                                          select obj).ToArray();
-                    foreach (GameObject child2 in array)
-                    {
-                        MelonCoroutines.Start(Patcher(child2));
-                    }
-                }
+                MelonCoroutines.Start(MRLCore.launderingApp.InitializeLaunderApp());
             }
-            IEnumerator Patcher(GameObject child)
-            {
-                while (!toggle)
-                {
-                    toggle = true;
-                    yield return new WaitForSeconds(5f);
-                }
-                RegisterApp(child);
-                toggle = false;
-            }
+            MelonCoroutines.Start(MRLCore.Instance.ApplyConfig());
+
         }
 
-        private IEnumerator InitHomescreen()
+        private void ResetAllVariables()
         {
-            GameObject Icons = null;
-            yield return MelonCoroutines.Start(Utils.WaitForObjectByFrame("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons/", delegate (GameObject obj)
+            LoggerInstance.Msg("Resetting all variables to default values..");
+            // Setze die Konfiguration zurück
+            MRLCore.Instance.config = null;
+            isLegitVersion = false;
+
+            // Leere die Dictionaries
+            MRLCore.Instance.maxiumumLaunderValues.Clear();
+            MRLCore.Instance.createdAppEntries.Clear();
+
+            // Leere die HashSets
+            MRLCore.Instance.processedBusinesses.Clear();
+            MRLCore.Instance.createdBusinessesEntries.Clear();
+            MRLCore.Instance.boostedOperations.Clear();
+
+            // Reset Money and Notifications Managers
+            MRLCore.Instance.moneyManager = null;
+            MRLCore.Instance.notificationsManager = null;
+
+            // Setze die Laundering App zurück
+            if (launderingApp != null)
             {
-                Icons = obj;
-            }));
-            ((MelonBase)this).LoggerInstance.Msg("Editing Homescreen");
-            GameObject gameObject = GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen");
-            ScrollRect scrollRect = gameObject.AddComponent<ScrollRect>();
-            scrollRect.horizontal = true;
-            scrollRect.vertical = false;
-            HomeScreenScrollRect = scrollRect;
-            GameObject gameObject2 = new GameObject("Viewport", Il2CppType.Of<RectTransform>(), Il2CppType.Of<Image>(), Il2CppType.Of<Mask>());
-            RectTransform component = gameObject2.GetComponent<RectTransform>();
-            gameObject2.transform.SetParent(gameObject.transform, worldPositionStays: false);
-            component.anchorMin = Vector2.zero;
-            component.anchorMax = Vector2.one;
-            component.offsetMin = Vector2.zero;
-            component.offsetMax = Vector2.zero;
-            gameObject2.GetComponent<Mask>().showMaskGraphic = false;
-            GameObject gameObject3 = (HomeScreenScrollRectContent = new GameObject("Content", Il2CppType.Of<RectTransform>()));
-            RectTransform component2 = gameObject3.GetComponent<RectTransform>();
-            gameObject3.transform.SetParent(gameObject2.transform, worldPositionStays: false);
-            component2.anchorMin = new Vector2(0f, 0.5f);
-            component2.anchorMax = new Vector2(0f, 0.5f);
-            component2.pivot = new Vector2(0f, 0.5f);
-            component2.anchoredPosition = Vector2.zero;
-            component2.sizeDelta = new Vector2(1000f, 200f);
-            component2.localPosition = new Vector3(component2.localPosition.x, 300f, component2.localPosition.z);
-            gameObject3.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            scrollRect.viewport = component;
-            scrollRect.content = component2;
-            scrollRect.m_Dragging = true;
-            scrollRect.m_ScrollSensitivity = 0f;
-            HorizontalLayoutGroup horizontalLayoutGroup = gameObject3.AddComponent<HorizontalLayoutGroup>();
-            horizontalLayoutGroup.childForceExpandHeight = false;
-            horizontalLayoutGroup.childForceExpandWidth = false;
-            horizontalLayoutGroup.spacing = 100f;
-            HomeScreenHorizontalLayoutGroup = horizontalLayoutGroup;
-            Icons.transform.SetParent(gameObject3.transform, worldPositionStays: true);
-            UIAppPages.Add(Icons);
-            AllApps.Add(new List<GameObject>());
-            GameObject[] array = (from t in (IEnumerable<Transform>)Icons.GetComponentsInChildren<Transform>(includeInactive: true)
-                                  select t.gameObject into g
-                                  where g.name.StartsWith("AppIcon(Clone)")
-                                  select g).ToArray();
-            for (int i = 0; i < array.Length; i++)
-            {
-                AllApps[0].Add(array[i]);
+                launderingApp._isLaunderingAppLoaded = false;
+                launderingApp.launderingAppViewportContentTransform = null;
+                launderingApp.dansHardwareTemplate = null;
+                launderingApp.gasMartWestTemplate = null;
+                launderingApp.viewPortContentSpaceTemplate = null;
             }
-        ((MelonBase)this).LoggerInstance.Msg("App & Page List Established");
-            IconsPageTemplate = UnityEngine.Object.Instantiate(Icons, null);
-            Utils.ClearChildren(IconsPageTemplate.transform);
-            CompatabilityIconsPage = new GameObject("AppIcons", Il2CppType.Of<RectTransform>());
-            CompatabilityIconsPage.transform.SetParent(gameObject.transform, worldPositionStays: true);
-            ((MelonBase)this).LoggerInstance.Msg("[INIT COMPLETE] Cloned & Cleaned AppUI");
-            IsHomescreenLoaded = true;
+
+            // Setze die CreditCardIcon zurück
+            MRLCore.Instance.CreditCardIcon = null;
+
+            // Entferne alle Listener
+            Business.onOperationStarted = null;
+            Business.onOperationFinished = null;
         }
 
         public void ChangeAppIconImage(GameObject appIcon, string ImagePath)
@@ -351,138 +204,12 @@ namespace MoreRealisticLaundering
 
         public void RegisterApp(GameObject App, string Title = "Unknown App")
         {
-            if (AllApps[AllApps.Count - 1].Count >= 12)
-            {
-                ((MelonBase)this).LoggerInstance.Msg("Exceeded Space For Page: " + (AllApps.Count - 1) + " Creating New Page");
-                AllApps.Add(new List<GameObject>());
-                UIAppPages.Add(UnityEngine.Object.Instantiate(IconsPageTemplate, HomeScreenScrollRectContent.transform));
-                UIAppPages[UIAppPages.Count - 1].GetComponent<GridLayoutGroup>().enabled = true;
-                UIAppPages[UIAppPages.Count - 1].name = "AppIcons" + UIAppPages.Count;
-            }
-            AllApps[AllApps.Count - 1].Add(App);
-            App.transform.SetParent(UIAppPages[UIAppPages.Count - 1].transform, worldPositionStays: false);
-            ((MelonBase)this).LoggerInstance.Msg("Added " + Title + " to Page: " + AllApps.Count);
+            GameObject appIcons = GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons");
+            App.transform.SetParent(appIcons.transform, worldPositionStays: false);
+            ((MelonBase)this).LoggerInstance.Msg("Added " + Title + " to Homescreen.");
         }
 
-        public override void OnSceneWasInitialized(int buildIndex, string sceneName)
-        {
-            if (sceneName == "Main")
-            {
-                MRLCore.Instance.config = Config.ConfigManager.Load();
-                if (MRLCore.Instance.config.Use_Legit_Version)
-                {
-                    LoggerInstance.Msg("Use_Legit_Version is enabled. Adjusting behavior accordingly.");
-                    isLegitVersion = true;
-                }
-                else
-                {
-                    LoggerInstance.Msg("Use_Legit_Version is disabled. Proceeding with default behavior.");
-                }
-                MRLCore.Instance.FillCapDictionary();
-                MRLCore.Instance.InitializeListeners();
-                MRLCore.Instance.moneyManager = UnityEngine.Object.FindObjectOfType<MoneyManager>();
-                MRLCore.Instance.notificationsManager = UnityEngine.Object.FindObjectOfType<NotificationsManager>();
-                MRLCore.Instance.vehicleManager = UnityEngine.Object.FindObjectOfType<VehicleManager>();
-                MelonCoroutines.Start(StartCoroutinesAfterDelay());
-                isFirstStart = false;
-            }
-            else if (sceneName.Equals("Menu", StringComparison.OrdinalIgnoreCase) && !isFirstStart)
-            {
-                ResetAllVariables();
-                isFirstStart = false;
-            }
-        }
-        public IEnumerator StartCoroutinesAfterDelay()
-        {
-            // Wait for other Mods that create Apps to load
-            bool delayedInit = false;
-            while (!delayedInit && !isLegitVersion)
-            {
-                MelonLogger.Msg("Waiting 8 Seconds for other mods to load their apps..");
-                delayedInit = true;
-                yield return new WaitForSeconds(8f);
-            }
-
-            MelonCoroutines.Start(MRLCore.Instance.WaitAndApplyCaps());
-            if (!isLegitVersion)
-            {
-                MelonCoroutines.Start(InitHomescreen());
-                MelonCoroutines.Start(MRLCore.launderingApp.InitializeLaunderApp());
-            }
-            MelonCoroutines.Start(MRLCore.Instance.ApplyConfig());
-
-        }
-
-        private void ResetAllVariables()
-        {
-            LoggerInstance.Msg("Resetting all variables to default values...");
-            HomeScreenScrollRect = null;
-            IconsPageTemplate = null;
-            HomeScreenScrollRectContent = null;
-            HomeScreenHorizontalLayoutGroup = null;
-            CompatabilityIconsPage = null;
-            UIAppPages.Clear();
-            AllApps.Clear();
-            currentAppPage = 0;
-            snapOffset = -30f;
-            snapDuration = 0.15f;
-            snapVelocity = 0f;
-            isInitialSnapDone = false;
-            IsHomescreenLoaded = false;
-
-            // Setze die Konfiguration zurück
-            MRLCore.Instance.config = null;
-            isLegitVersion = false;
-
-            // Leere die Dictionaries
-            MRLCore.Instance.maxiumumLaunderValues.Clear();
-            MRLCore.Instance.createdAppEntries.Clear();
-
-            // Leere die HashSets
-            MRLCore.Instance.processedBusinesses.Clear();
-            MRLCore.Instance.createdBusinessesEntries.Clear();
-            MRLCore.Instance.boostedOps.Clear();
-
-            // Reset Money and Notifications Managers
-            MRLCore.Instance.moneyManager = null;
-            MRLCore.Instance.notificationsManager = null;
-
-            // Setze die Laundering App zurück
-            if (launderingApp != null)
-            {
-                launderingApp._isLaunderingAppLoaded = false;
-                launderingApp.launderingAppViewportContentTransform = null;
-                launderingApp.dansHardwareTemplate = null;
-                launderingApp.gasMartWestTemplate = null;
-                launderingApp.viewPortContentSpaceTemplate = null;
-            }
-
-            // Setze die CreditCardIcon zurück
-            MRLCore.Instance.CreditCardIcon = null;
-
-            // Entferne alle Listener
-            Business.onOperationStarted = null;
-            Business.onOperationFinished = null;
-
-
-            LoggerInstance.Msg("All variables have been reset.");
-        }
-
-        private void InitializeListeners()
-        {
-            try
-            {
-                Business.onOperationStarted = new Action<LaunderingOperation>(this.OnLaunderingStarted);
-                LoggerInstance.Msg("Registered 'Laundering Started' Listener.");
-                Business.onOperationFinished = new Action<LaunderingOperation>(this.OnLaunderingFinished);
-                LoggerInstance.Msg("Registered 'Laundering Finished' Listener.");
-            }
-            catch (Exception ex)
-            {
-                MelonLogger.Error("Failed to register laundering listeners: " + ex.Message);
-            }
-        }
-        public IEnumerator ApplyConfig()
+        public IEnumerator ApplyPropertyConfig()
         {
             MelonLogger.Msg("Found unowned businesses. Processing...");
             if (!isLegitVersion)
@@ -545,14 +272,12 @@ namespace MoreRealisticLaundering
                                         createdBusinessesEntries.Add(business.name);
                                         MRLCore.Instance.CreateAppEntryForBusiness(business);
                                     }
-
                                 }
                                 else
                                 {
                                     MelonLogger.Warning("Config is not loaded yet. Skipping ApplyCap for business: " + business.name);
                                 }
                             }
-
 
                             if (processedBusinesses.Count >= 4)
                             {
@@ -572,7 +297,6 @@ namespace MoreRealisticLaundering
                     MelonLogger.Warning("OwnedBusinesses is null. Retrying...");
                 }
 
-
                 yield return new WaitForSeconds(3f);
             }
         }
@@ -587,6 +311,10 @@ namespace MoreRealisticLaundering
         }
         public void CreateAppEntryForBusiness(Business business)
         {
+            if (isLegitVersion)
+            {
+                return;
+            }
             // Überprüfe, ob bereits ein AppEntry für dieses Business erstellt wurde
             if (createdAppEntries.Contains(business.name))
             {
@@ -648,8 +376,6 @@ namespace MoreRealisticLaundering
                             imagePath = "";
                             subTitle = "Just a regular business. Nothing to see here.";
                             break;
-
-
                     }
 
                     MRLCore.launderingApp.AddEntryFromTemplate(displayName, displayName, subTitle, business, template, color, imagePath);
@@ -679,9 +405,9 @@ namespace MoreRealisticLaundering
             CreateAppEntryForBusiness(business);
         }
 
-        public void MaybeBoost(LaunderingOperation operation)
+        public void AdjustLaunderingTime(LaunderingOperation operation)
         {
-            if (operation == null || MRLCore.Instance.boostedOps.Contains(operation))
+            if (operation == null || MRLCore.Instance.boostedOperations.Contains(operation))
                 return;
 
             if (MRLCore.Instance.aliasMap.TryGetValue(operation.business.name, out string key))
@@ -699,7 +425,7 @@ namespace MoreRealisticLaundering
                 operation.completionTime_Minutes = launderingTime * 60;
                 string displayName = operation.business.name == "PostOffice" ? "Post Office" : operation.business.name;
                 //    MelonLogger.Msg($"Speeding up Laundering Operation: {displayName} Amount: {operation.amount:N0} Completion Time: {operation.completionTime_Minutes}");
-                MRLCore.Instance.boostedOps.Add(operation);
+                MRLCore.Instance.boostedOperations.Add(operation);
             }
         }
 
@@ -728,10 +454,10 @@ namespace MoreRealisticLaundering
                     string displayName = operation.business.name == "PostOffice" ? "Post Office" : operation.business.name;
                     //   MelonLogger.Msg($"Laundering finished: {displayName} {operation.amount:N0} {operation.minutesSinceStarted:N0} minutes since started. {operation.completionTime_Minutes:N0} minutes to complete.");
 
-                    float taxAmount = CalculateTaxedPayout(operation);
+                    float taxAmount = CalculateTaxes(operation);
                     if (taxAmount > 0)
                     {
-                        DeductBankMoney(taxAmount, operation.business.name);
+                        RemoveTaxesFromBankBalance(taxAmount, operation.business.name);
                     }
                 }
             }
@@ -741,14 +467,13 @@ namespace MoreRealisticLaundering
             }
         }
 
-        private void DeductBankMoney(float amount, string businessName)
+        private void RemoveTaxesFromBankBalance(float amount, string businessName)
         {
             try
             {
                 if (moneyManager != null)
                 {
                     string transactionText = $"Tax for {businessName}";
-                    //moneyManager.ReceiveOnlineTransaction(transactionText, -amount, 1, transactionText);
                     moneyManager.CreateOnlineTransaction(transactionText, -amount, 1, transactionText);
                     //    MelonLogger.Msg($"Removed {amount:N0} from Bank Account.");
 
@@ -767,7 +492,7 @@ namespace MoreRealisticLaundering
             }
         }
 
-        public float CalculateTaxedPayout(LaunderingOperation operation)
+        public float CalculateTaxes(LaunderingOperation operation)
         {
             if (MRLCore.Instance.aliasMap.TryGetValue(operation.business.name, out string key))
             {
@@ -791,7 +516,6 @@ namespace MoreRealisticLaundering
 
                 return taxAmount;
             }
-
             return 0f;
         }
 
@@ -810,7 +534,6 @@ namespace MoreRealisticLaundering
                     return image.sprite;
                 }
             }
-
             LoggerInstance.Error("Failed to find the CreditCard icon.");
             return null;
         }
@@ -852,7 +575,6 @@ namespace MoreRealisticLaundering
             {
                 MelonLogger.Warning("UnownedBusinesses is null. Cannot apply prices.");
             }
-
             ApplyPricesForHomeProperties();
         }
 
@@ -1158,7 +880,6 @@ namespace MoreRealisticLaundering
 
                 }
             }
-
             UpdateVehicleSignPrices();
         }
 
