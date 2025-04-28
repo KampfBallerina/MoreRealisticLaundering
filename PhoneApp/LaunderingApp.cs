@@ -36,6 +36,8 @@ namespace MoreRealisticLaundering.PhoneApp
         {
             GameObject cloningCandidate = null;
             string cloningName = null;
+            GameObject cloningCandidateKeep = null;
+            string cloningNameKeep = null;
             GameObject icons = null;
 
             // Warte auf das AppIcons-Objekt
@@ -55,6 +57,15 @@ namespace MoreRealisticLaundering.PhoneApp
                         cloningName = "Deliveries";
                     }
                 ));
+
+                yield return MelonCoroutines.Start(Utils.WaitForObject(
+                    "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/ProductManagerApp",
+                    delegate (GameObject obj)
+                    {
+                        cloningCandidateKeep = obj;
+                        cloningNameKeep = "Products";
+                    }
+                ));
             }
             else
             {
@@ -62,22 +73,26 @@ namespace MoreRealisticLaundering.PhoneApp
                     "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/Messages",
                     delegate (GameObject obj)
                     {
-                        cloningCandidate = obj;
-                        cloningName = "Messages";
+                        cloningCandidateKeep = obj;
+                        cloningNameKeep = "Messages";
                     }
                 ));
             }
 
             // Klone das App-Canvas
             GameObject parentCanvas = GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/");
+            GameObject clonedKeepApp = UnityEngine.Object.Instantiate(cloningCandidateKeep, parentCanvas.transform);
             GameObject clonedApp = UnityEngine.Object.Instantiate(cloningCandidate, parentCanvas.transform);
-            Transform detailEntriesTransform = null;
+            Transform entriesTransform = null;
+
+            Transform container = clonedKeepApp.transform.Find("Container");
+            Utils.ClearChildren(container);
 
             // Ändere die Eigenschaften des Containers, ohne Kinder zu löschen
-            Transform containerTransform = clonedApp.transform.Find("Container");
-            if (containerTransform != null)
+            Transform containerTransformClonedApp = clonedApp.transform.Find("Container");
+            if (containerTransformClonedApp != null)
             {
-                Transform topbarTransform = containerTransform.Find("Topbar");
+                Transform topbarTransform = containerTransformClonedApp.Find("Topbar");
                 if (topbarTransform != null)
                 {
                     //Adjust Topbar Color
@@ -90,10 +105,33 @@ namespace MoreRealisticLaundering.PhoneApp
                     {
                         topbarTitleTransform.GetComponent<Text>().text = Title;
                     }
+                    topbarTransform.SetParent(container, false);
                 }
 
-                Transform detailsTransformOrig = containerTransform.Find("Deliveries");
-                Transform detailsTransform = UnityEngine.Object.Instantiate(detailsTransformOrig, detailsTransformOrig.parent);
+                Transform backgroundTransform = containerTransformClonedApp.Find("Background");
+                if (backgroundTransform != null)
+                {
+                    Transform backgroundTransformKeep = container.Find("Background");
+                    if (backgroundTransform != null)
+                    {
+                        GameObject clonedBackground = UnityEngine.Object.Instantiate(backgroundTransform.gameObject, container);
+                        clonedBackground.name = "Background"; // Ensure the name matches the original
+                        clonedBackground.transform.SetAsFirstSibling(); // Place it as the first child in the container
+                    }
+                }
+
+                Transform scrollViewTransformOrig = containerTransformClonedApp.Find("Scroll View");
+                if (scrollViewTransformOrig != null)
+                {
+                    GameObject clonedScrollView = UnityEngine.Object.Instantiate(scrollViewTransformOrig.gameObject, container);
+                    clonedScrollView.name = "Scroll View"; // Ensure the name matches the original
+                }
+
+                GameObject newEntriesObject = new GameObject("Options");
+
+                Transform detailsTransformOrig = containerTransformClonedApp.Find("Deliveries");
+
+                Transform detailsTransform = UnityEngine.Object.Instantiate(detailsTransformOrig, container);
                 if (detailsTransform != null)
                 {
                     // Ändere den Namen des Details-Objekts
@@ -105,19 +143,57 @@ namespace MoreRealisticLaundering.PhoneApp
                         detailsTitleTransform.GetComponent<Text>().text = "Details";
                     }
 
-                    detailEntriesTransform = detailsTransform.Find("Entries");
-                    if (detailEntriesTransform != null)
-                    {
-                        // Ändere den Namen des Entries-Objekts
-                        detailEntriesTransform.name = "Options";
+                    entriesTransform = detailsTransform.Find("Entries");
 
-                        RectTransform detailEntriesRect = detailEntriesTransform.GetComponent<RectTransform>();
-                        if (detailEntriesRect != null)
+                    if (entriesTransform != null)
+                    {
+                        newEntriesObject.transform.SetParent(detailsTitleTransform.parent, false); // Set parent to the same as entriesTransform
+
+                        VerticalLayoutGroup existingVerticalLayoutGroup = entriesTransform.GetComponent<VerticalLayoutGroup>();
+                        VerticalLayoutGroup verticalLayoutGroup = newEntriesObject.GetComponent<VerticalLayoutGroup>();
+                        if (verticalLayoutGroup == null)
                         {
-                            detailEntriesRect.anchoredPosition = new Vector2(10, -25);
+                            verticalLayoutGroup = newEntriesObject.gameObject.AddComponent<VerticalLayoutGroup>();
+                        }
+                        if (existingVerticalLayoutGroup != null)
+                        {
+                            verticalLayoutGroup.childControlHeight = existingVerticalLayoutGroup.childControlHeight;
+                            verticalLayoutGroup.childControlWidth = existingVerticalLayoutGroup.childControlWidth;
+                            verticalLayoutGroup.childForceExpandHeight = existingVerticalLayoutGroup.childForceExpandHeight;
+                            verticalLayoutGroup.childForceExpandWidth = existingVerticalLayoutGroup.childForceExpandWidth;
+                            verticalLayoutGroup.childScaleHeight = existingVerticalLayoutGroup.childScaleHeight;
+                            verticalLayoutGroup.childScaleWidth = existingVerticalLayoutGroup.childScaleWidth;
+                            verticalLayoutGroup.childAlignment = existingVerticalLayoutGroup.childAlignment;
+                            verticalLayoutGroup.spacing = existingVerticalLayoutGroup.spacing;
+                        }
+                        else
+                        {
+                            verticalLayoutGroup.childControlWidth = true;
+                            verticalLayoutGroup.childForceExpandWidth = true;
+                            verticalLayoutGroup.childControlHeight = false;
+                            verticalLayoutGroup.childForceExpandHeight = false;
+                            verticalLayoutGroup.childAlignment = TextAnchor.UpperLeft;
+                            verticalLayoutGroup.spacing = 10f; // Default spacing
                         }
 
-                        Transform noneEntryTransform = detailEntriesTransform.Find("None");
+                        RectTransform newEntriesRect = newEntriesObject.GetComponent<RectTransform>();
+                        if (newEntriesRect == null)
+                        {
+                            newEntriesRect = newEntriesObject.AddComponent<RectTransform>();
+                        }
+                        if (newEntriesRect != null)
+                        {
+                            newEntriesRect.anchorMin = new Vector2(0, 0);
+                            newEntriesRect.anchorMax = new Vector2(1, 1);
+                            newEntriesRect.pivot = new Vector2(0.5f, 0.5f);
+                            newEntriesRect.offsetMin = new Vector2(10, 0);
+                            newEntriesRect.offsetMax = new Vector2(-10, -50);
+                            newEntriesRect.sizeDelta = new Vector2(-20, -50);
+                            newEntriesRect.anchoredPosition = new Vector2(10, -25);
+                        }
+
+
+                        Transform noneEntryTransform = entriesTransform.Find("None");
                         if (noneEntryTransform != null)
                         {
                             Text noneEntryText = noneEntryTransform.GetComponent<Text>();
@@ -125,10 +201,14 @@ namespace MoreRealisticLaundering.PhoneApp
                             {
                                 noneEntryText.text = "Choose one of your businesses";
                             }
+                            noneEntryTransform.SetParent(newEntriesObject.transform, false);
+                            noneEntryTransform.gameObject.SetActive(true);
                         }
 
+                        entriesTransform.gameObject.Destroy();
+
                         // Erstelle eine Kopie von Entries
-                        priceOptionsTransform = UnityEngine.Object.Instantiate(detailEntriesTransform, detailEntriesTransform.parent);
+                        priceOptionsTransform = UnityEngine.Object.Instantiate(newEntriesObject.transform, newEntriesObject.transform.parent);
                         if (priceOptionsTransform != null)
                         {
                             priceOptionsTransform.name = "PriceOptions";
@@ -140,13 +220,13 @@ namespace MoreRealisticLaundering.PhoneApp
                                 Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
                                 if (noneEntryText != null)
                                 {
-                                    noneEntryText.text = "Adjusting the prices of properties";
+                                    noneEntryText.text = "Adjusting the prices of Properties";
                                 }
                             }
                         }
 
                         // Erstelle eine Kopie von Entries
-                        vehicleOptionsTransform = UnityEngine.Object.Instantiate(detailEntriesTransform, detailEntriesTransform.parent);
+                        vehicleOptionsTransform = UnityEngine.Object.Instantiate(newEntriesObject.transform, newEntriesObject.transform.parent);
                         if (vehicleOptionsTransform != null)
                         {
                             vehicleOptionsTransform.name = "VehicleOptions";
@@ -158,12 +238,12 @@ namespace MoreRealisticLaundering.PhoneApp
                                 Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
                                 if (noneEntryText != null)
                                 {
-                                    noneEntryText.text = "Adjusting the prices of vehicles";
+                                    noneEntryText.text = "Adjusting the prices of Vehicles";
                                 }
                             }
                         }
 
-                        skateboardOptionsTransform = UnityEngine.Object.Instantiate(detailEntriesTransform, detailEntriesTransform.parent);
+                        skateboardOptionsTransform = UnityEngine.Object.Instantiate(newEntriesObject.transform, newEntriesObject.transform.parent);
                         if (skateboardOptionsTransform != null)
                         {
                             skateboardOptionsTransform.name = "SkateboardOptions";
@@ -175,7 +255,7 @@ namespace MoreRealisticLaundering.PhoneApp
                                 Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
                                 if (noneEntryText != null)
                                 {
-                                    noneEntryText.text = "Adjusting the prices of skateboards";
+                                    noneEntryText.text = "Adjusting the prices of Skateboards";
                                 }
                             }
                         }
@@ -186,10 +266,10 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
 
                 // Setze den Namen des geklonten Objekts
-                clonedApp.name = IDName;
+                clonedKeepApp.name = IDName;
 
                 // Aktualisiere das App-Icon
-                GameObject appIconByName = Utils.GetAppIconByName(cloningName, 1);
+                GameObject appIconByName = Utils.GetAppIconByName(cloningNameKeep, 1);
                 Transform labelTransform = appIconByName.transform.Find("Label");
                 GameObject labelObject = labelTransform != null ? labelTransform.gameObject : null;
                 if (labelObject != null)
@@ -201,9 +281,15 @@ namespace MoreRealisticLaundering.PhoneApp
                     }
                 }
 
-                Transform scrollViewTransform = containerTransform.Find("Scroll View");
+                Transform scrollViewTransform = container.Find("Scroll View");
                 if (scrollViewTransform != null)
                 {
+                    Transform orderSubmittedTransform = scrollViewTransform.Find("OrderSubmitted");
+                    if (orderSubmittedTransform != null)
+                    {
+                        orderSubmittedTransform.gameObject.Destroy(); // Zerstöre das ursprüngliche GameObject
+                    }
+                    
                     Transform viewportTransform = scrollViewTransform.Find("Viewport");
                     if (viewportTransform != null)
                     {
@@ -265,10 +351,17 @@ namespace MoreRealisticLaundering.PhoneApp
                             MelonLogger.Error("Viewport Content not found!");
                         }
 
-                        optionsTransform = detailEntriesTransform;
+                        // Aktualisiere das App-Icon
+                        GameObject appIconByNameCopy = Utils.GetAppIconByName(cloningName, 1);
+                        appIconByNameCopy.Destroy(); // Zerstöre das geklonte App-Icon-Objekt
+                        clonedApp.Destroy(); // Zerstöre das geklonte App-Objekt
+
+
+
+                        optionsTransform = newEntriesObject.transform;
                         AddSpaceFromTemplate(viewportContentTransform);
                         AddPriceOptionsForHomeProperties(priceOptionsTransform);
-                        AddOptionsForBusiness(detailEntriesTransform);
+                        AddOptionsForBusiness(newEntriesObject.transform);
                         AddPriceOptionsForRealEstate(priceOptionsTransform);
                         AddVehicleOptions(vehicleOptionsTransform);
                         AddSkateboardOptions(skateboardOptionsTransform);
@@ -1737,7 +1830,7 @@ namespace MoreRealisticLaundering.PhoneApp
                 string subTitleString = $"for <color=#329AC5>{displayName}</color>";
                 MRLCore.Instance.notificationsManager.SendNotification("Saved Changes", subTitleString, businessSprite, 5, true);
             }
-           // MelonLogger.Msg($"Details for {displayName} have been saved and applied successfully.");
+            // MelonLogger.Msg($"Details for {displayName} have been saved and applied successfully.");
         }
 
         void SaveRealEstate(Text buttonText)
