@@ -47,22 +47,23 @@ namespace MoreRealisticLaundering.Config
                     EnsureFieldExists("Laundromat_Cap", configState.Laundromat_Cap);
                     EnsureFieldExists("Laundromat_Laundering_time_hours", configState.Laundromat_Laundering_time_hours);
                     EnsureFieldExists("Laundromat_Tax_Percentage", configState.Laundromat_Tax_Percentage);
-                    EnsureFieldExists("Laundromat_Price", configState.Laundromat_Price);
-
-                    EnsureFieldExists("Taco_Ticklers_Cap", configState.Taco_Ticklers_Cap);
-                    EnsureFieldExists("Taco_Ticklers_Laundering_time_hours", configState.Taco_Ticklers_Laundering_time_hours);
-                    EnsureFieldExists("Taco_Ticklers_Tax_Percentage", configState.Taco_Ticklers_Tax_Percentage);
-                    EnsureFieldExists("Taco_Ticklers_Price", configState.Taco_Ticklers_Price);
-
-                    EnsureFieldExists("Car_Wash_Cap", configState.Car_Wash_Cap);
-                    EnsureFieldExists("Car_Wash_Laundering_time_hours", configState.Car_Wash_Laundering_time_hours);
-                    EnsureFieldExists("Car_Wash_Tax_Percentage", configState.Car_Wash_Tax_Percentage);
-                    EnsureFieldExists("Car_Wash_Price", configState.Car_Wash_Price);
 
                     EnsureFieldExists("Post_Office_Cap", configState.Post_Office_Cap);
                     EnsureFieldExists("Post_Office_Laundering_time_hours", configState.Post_Office_Laundering_time_hours);
                     EnsureFieldExists("Post_Office_Tax_Percentage", configState.Post_Office_Tax_Percentage);
+
+                    EnsureFieldExists("Car_Wash_Cap", configState.Car_Wash_Cap);
+                    EnsureFieldExists("Car_Wash_Laundering_time_hours", configState.Car_Wash_Laundering_time_hours);
+                    EnsureFieldExists("Car_Wash_Tax_Percentage", configState.Car_Wash_Tax_Percentage);
+
+                    EnsureFieldExists("Taco_Ticklers_Cap", configState.Taco_Ticklers_Cap);
+                    EnsureFieldExists("Taco_Ticklers_Laundering_time_hours", configState.Taco_Ticklers_Laundering_time_hours);
+                    EnsureFieldExists("Taco_Ticklers_Tax_Percentage", configState.Taco_Ticklers_Tax_Percentage);
+
+                    EnsureFieldExists("Laundromat_Price", configState.Laundromat_Price);
                     EnsureFieldExists("Post_Office_Price", configState.Post_Office_Price);
+                    EnsureFieldExists("Car_Wash_Price", configState.Car_Wash_Price);
+                    EnsureFieldExists("Taco_Ticklers_Price", configState.Taco_Ticklers_Price);
 
                     EnsureFieldExists("Motel_Room_Price", configState.Motel_Room_Price);
                     EnsureFieldExists("Sweatshop_Price", configState.Sweatshop_Price);
