@@ -9,11 +9,11 @@
 [size=5]What's new in Version 1.2.2?[/size]
 - Restructured the MoreRealisticLaundering.json for better readability
 - [b]PLEASE SAVE YOUR CURRENT CONFIG BEFORE UPDATING - YOUR OLD CONFIG WILL BE OVERWRITTEN![/b]
-- Introducing [b]Jeff's Shred Shack[/b] where you can now adjust the [b]prices for all Skateboards[/b]
+- Introducing [b]Jeff's Shred Shack[/b] where you can now adjust the [b]prices for all Skateboards[/b]
 - Skateboard Price Support for Legit Mode
 - Adaption of all Skateboard Price Signs dynamically
-- Restructured the Homescreen to default behavior for better compatibility (e.g. Modern Phone Mod)
-- Restructered whole App Construction to fix bugs with Deliveries (might resolve some compatibility issues with oder Mods)
+- Restructured the Homescreen to default behavior for better compatibility (e.g. [b]Modern Phone[/b] Mod)
+- Restructered whole App Construction to fix [b]bugs with Deliveries[/b] (might resolve some compatibility issues with oder Mods)
 
 [center][img]https://github.com/user-attachments/assets/4699d890-c6ab-42dc-a673-d42f40580e6d[/img][/center]
 
@@ -23,7 +23,7 @@
 [list=1]
 [*]Download the latest release from the [url=https://github.com/user/MoreRealisticLaundering/releases]GitHub Releases[/url] page.
 [*]Extract the [b]Mods[/b] and [b]UserData[/b] folders of the ZIP file into your game's directory.
-[*]Launch the game and the mod will automatically initialize.
+[*]Launch the game and the mod will automatically initialize [b]after joining your first game[/b].
 [/list]
 [size=5]Configuration[/size]
 - The mod generates a configuration file ([b]MoreRealisticLaundering.json[/b]) in the [b]UserData[/b] folder.
