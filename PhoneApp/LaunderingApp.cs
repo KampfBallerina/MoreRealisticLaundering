@@ -398,6 +398,34 @@ namespace MoreRealisticLaundering.PhoneApp
                     if (iconImageComponent != null)
                     {
                         iconImageComponent.sprite = newSprite;
+                        if (imagePath.Contains("Laundromat.png"))
+                        {
+                            laundromatSprite = newSprite;
+                        }
+                        else if (imagePath.Contains("TacoTickler.png"))
+                        {
+                            tacoTicklersSprite = newSprite;
+                        }
+                        else if (imagePath.Contains("CarWash.png"))
+                        {
+                            carWashSprite = newSprite;
+                        }
+                        else if (imagePath.Contains("PostOffice.png"))
+                        {
+                            postOfficeSprite = newSprite;
+                        }
+                        else if (imagePath.Contains("HylandAuto.png"))
+                        {
+                            hylandAutoSprite = newSprite;
+                        }
+                        else if (imagePath.Contains("Jeff.png"))
+                        {
+                            shredShackSprite = newSprite;
+                        }
+                        else if (imagePath.Contains("RaysRealEstate.png"))
+                        {
+                            raysRealEstateSprite = newSprite;
+                        }
                     }
                 }
                 else
@@ -1659,22 +1687,47 @@ namespace MoreRealisticLaundering.PhoneApp
                 displayName = "Post Office";
             }
 
-            if (appIconSprite == null)
+            Sprite businessSprite = null;
+            if (displayName == "Laundromat")
             {
-                string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
-                if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                businessSprite = laundromatSprite;
+            }
+            else if (displayName == "Taco Ticklers")
+            {
+                businessSprite = tacoTicklersSprite;
+            }
+            else if (displayName == "Car Wash")
+            {
+                businessSprite = carWashSprite;
+            }
+            else if (displayName == "Post Office")
+            {
+                businessSprite = postOfficeSprite;
+            }
+
+            if (businessSprite == null)
+            {
+                if (appIconSprite == null)
                 {
-                    byte[] imageData = File.ReadAllBytes(imagePath);
-                    Texture2D texture = new Texture2D(2, 2);
-                    if (texture.LoadImage(imageData))
+                    string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                     {
-                        Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                        appIconSprite = newSprite;
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            businessSprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                        }
                     }
-                    else
-                    {
-                        MelonLogger.Error($"Failed to load image from path: {imagePath}");
-                    }
+                }
+                else
+                {
+                    businessSprite = appIconSprite;
                 }
             }
 
@@ -1682,9 +1735,9 @@ namespace MoreRealisticLaundering.PhoneApp
             if (MRLCore.Instance.notificationsManager != null)
             {
                 string subTitleString = $"for <color=#329AC5>{displayName}</color>";
-                MRLCore.Instance.notificationsManager.SendNotification("Saved Changes", subTitleString, appIconSprite, 5, true);
+                MRLCore.Instance.notificationsManager.SendNotification("Saved Changes", subTitleString, businessSprite, 5, true);
             }
-            MelonLogger.Msg($"Details for {displayName} have been saved and applied successfully.");
+           // MelonLogger.Msg($"Details for {displayName} have been saved and applied successfully.");
         }
 
         void SaveRealEstate(Text buttonText)
@@ -1845,26 +1898,38 @@ namespace MoreRealisticLaundering.PhoneApp
             if (MRLCore.Instance.notificationsManager != null)
             {
                 string subTitleString = "Config saved";
-
-                if (appIconSprite == null)
+                Sprite notificationSprite = null;
+                if (raysRealEstateSprite)
                 {
-                    string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
-                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    notificationSprite = raysRealEstateSprite;
+                }
+                if (notificationSprite == null)
+                {
+                    if (appIconSprite == null)
                     {
-                        byte[] imageData = File.ReadAllBytes(imagePath);
-                        Texture2D texture = new Texture2D(2, 2);
-                        if (texture.LoadImage(imageData))
+                        string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                        if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                         {
-                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                            appIconSprite = newSprite;
-                        }
-                        else
-                        {
-                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            byte[] imageData = File.ReadAllBytes(imagePath);
+                            Texture2D texture = new Texture2D(2, 2);
+                            if (texture.LoadImage(imageData))
+                            {
+                                Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                                appIconSprite = newSprite;
+                                notificationSprite = appIconSprite;
+                            }
+                            else
+                            {
+                                MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            }
                         }
                     }
+                    else
+                    {
+                        notificationSprite = appIconSprite;
+                    }
                 }
-                MRLCore.Instance.notificationsManager.SendNotification("Property Prices", subTitleString, appIconSprite, 5, true);
+                MRLCore.Instance.notificationsManager.SendNotification("Property Prices", subTitleString, notificationSprite, 5, true);
             }
 
             buttonText.text = "Save & Apply";
@@ -1958,26 +2023,38 @@ namespace MoreRealisticLaundering.PhoneApp
             if (MRLCore.Instance.notificationsManager != null)
             {
                 string subTitleString = "Config saved";
-
-                if (appIconSprite == null)
+                Sprite notificationSprite = null;
+                if (shredShackSprite)
                 {
-                    string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
-                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    notificationSprite = shredShackSprite;
+                }
+                if (notificationSprite == null)
+                {
+                    if (appIconSprite == null)
                     {
-                        byte[] imageData = File.ReadAllBytes(imagePath);
-                        Texture2D texture = new Texture2D(2, 2);
-                        if (texture.LoadImage(imageData))
+                        string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                        if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                         {
-                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                            appIconSprite = newSprite;
-                        }
-                        else
-                        {
-                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            byte[] imageData = File.ReadAllBytes(imagePath);
+                            Texture2D texture = new Texture2D(2, 2);
+                            if (texture.LoadImage(imageData))
+                            {
+                                Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                                appIconSprite = newSprite;
+                                notificationSprite = appIconSprite;
+                            }
+                            else
+                            {
+                                MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            }
                         }
                     }
+                    else
+                    {
+                        notificationSprite = appIconSprite;
+                    }
                 }
-                MRLCore.Instance.notificationsManager.SendNotification("Skateboard Prices", subTitleString, appIconSprite, 5, true);
+                MRLCore.Instance.notificationsManager.SendNotification("Skateboard Prices", subTitleString, notificationSprite, 5, true);
             }
 
             buttonText.text = "Save & Apply";
@@ -2081,26 +2158,38 @@ namespace MoreRealisticLaundering.PhoneApp
             if (MRLCore.Instance.notificationsManager != null)
             {
                 string subTitleString = "Config saved";
-
-                if (appIconSprite == null)
+                Sprite notificationSprite = null;
+                if (hylandAutoSprite)
                 {
-                    string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
-                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    notificationSprite = hylandAutoSprite;
+                }
+                if (notificationSprite == null)
+                {
+                    if (appIconSprite == null)
                     {
-                        byte[] imageData = File.ReadAllBytes(imagePath);
-                        Texture2D texture = new Texture2D(2, 2);
-                        if (texture.LoadImage(imageData))
+                        string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                        if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
                         {
-                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                            appIconSprite = newSprite;
-                        }
-                        else
-                        {
-                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            byte[] imageData = File.ReadAllBytes(imagePath);
+                            Texture2D texture = new Texture2D(2, 2);
+                            if (texture.LoadImage(imageData))
+                            {
+                                Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                                appIconSprite = newSprite;
+                                notificationSprite = appIconSprite;
+                            }
+                            else
+                            {
+                                MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                            }
                         }
                     }
+                    else
+                    {
+                        notificationSprite = appIconSprite;
+                    }
                 }
-                MRLCore.Instance.notificationsManager.SendNotification("Vehicle Prices", subTitleString, appIconSprite, 5, true);
+                MRLCore.Instance.notificationsManager.SendNotification("Vehicle Prices", subTitleString, notificationSprite, 5, true);
             }
 
             buttonText.text = "Save & Apply";
@@ -2636,10 +2725,16 @@ namespace MoreRealisticLaundering.PhoneApp
         public Transform skateboardOptionsTransform = null;
         Sprite inputBackgroundSprite = null;
         Sprite saveButtonSprite = null;
-
         Sprite toggleButtonSprite = null;
         Sprite toggleButtonPressedSprite = null;
         Sprite appIconSprite = null;
+        Sprite raysRealEstateSprite = null;
+        Sprite shredShackSprite = null;
+        Sprite hylandAutoSprite = null;
+        Sprite laundromatSprite = null;
+        Sprite postOfficeSprite = null;
+        Sprite carWashSprite = null;
+        Sprite tacoTicklersSprite = null;
         private Business _selectedBusiness = null;
         public bool isSaveStillRunning = false;
     }
