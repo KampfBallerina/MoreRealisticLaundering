@@ -1,5 +1,6 @@
 using System.Collections;
 using Il2CppFluffyUnderware.DevTools.Extensions;
+using Il2CppScheduleOne.Dialogue;
 using Il2CppScheduleOne.Property;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppSystem;
@@ -178,6 +179,24 @@ namespace MoreRealisticLaundering.PhoneApp
                                 }
                             }
                         }
+
+                        skateboardOptionsTransform = UnityEngine.Object.Instantiate(detailEntriesTransform, detailEntriesTransform.parent);
+                        if (skateboardOptionsTransform != null)
+                        {
+                            skateboardOptionsTransform.name = "SkateboardOptions";
+                            skateboardOptionsTransform.gameObject.SetActive(false);
+
+                            Transform noneEntryPriceTransform = skateboardOptionsTransform.Find("None");
+                            if (noneEntryPriceTransform != null)
+                            {
+                                Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
+                                if (noneEntryText != null)
+                                {
+                                    noneEntryText.text = "Adjusting the prices of skateboards";
+                                }
+                            }
+                        }
+
                         // Destroy the original detailsTransform
                         detailsTransformOrig.gameObject.Destroy();
                     }
@@ -269,6 +288,7 @@ namespace MoreRealisticLaundering.PhoneApp
                         AddOptionsForBusiness(detailEntriesTransform);
                         AddPriceOptionsForRealEstate(priceOptionsTransform);
                         AddVehicleOptions(vehicleOptionsTransform);
+                        AddSkateboardOptions(skateboardOptionsTransform);
 
                     }
                 }
@@ -440,6 +460,18 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
             }
 
+            if (newObjectName == "Shred Shack")
+            {
+                Button headerButton = headerTransform.GetComponent<Button>();
+                if (headerButton != null)
+                {
+                    headerButton.name = newObjectName + " Button";
+                    headerButton.onClick.RemoveAllListeners(); // Remove existing listeners to avoid old functionality after copying
+                    void FuncThatCallsFunc() => ShredShackButtonClicked();
+                    headerButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+                }
+            }
+
             // Set the new entry as the first child if isFirstEntry is true
             if (isFirstEntry)
             {
@@ -448,6 +480,99 @@ namespace MoreRealisticLaundering.PhoneApp
             newEntry.SetActive(true);
             //  MelonLogger.Msg($"Added new entry: {newObjectName} with text: {newTitle}");
             AddSpaceFromTemplate(viewportContentTransform); // Add space after the new entry
+        }
+
+        void ShredShackButtonClicked()
+        {
+            if (optionsTransform == null)
+            {
+                MelonLogger.Error("optionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            if (priceOptionsTransform == null)
+            {
+                MelonLogger.Error("priceOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            if (vehicleOptionsTransform == null)
+            {
+                MelonLogger.Error("vehicleOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            if (skateboardOptionsTransform == null)
+            {
+                MelonLogger.Error("skateboardOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
+            // Deaktiviere priceOptionsTransform
+            if (priceOptionsTransform.gameObject.activeSelf)
+            {
+                priceOptionsTransform.gameObject.SetActive(false);
+            }
+
+            // Deaktiviere optionsTransform
+            if (optionsTransform.gameObject.activeSelf)
+            {
+                optionsTransform.gameObject.SetActive(false);
+            }
+            // Deaktiviere vehicleOptionsTransform
+            if (vehicleOptionsTransform.gameObject.activeSelf)
+            {
+                vehicleOptionsTransform.gameObject.SetActive(false);
+            }
+
+            // Aktiviere vehicleOptionsTransform
+            if (!skateboardOptionsTransform.gameObject.activeSelf)
+            {
+                skateboardOptionsTransform.gameObject.SetActive(true);
+            }
+
+            Transform saveButtonTransform = skateboardOptionsTransform.Find("Save Button");
+            if (saveButtonTransform != null && !saveButtonTransform.gameObject.activeSelf)
+            {
+                saveButtonTransform.gameObject.SetActive(true);
+            }
+
+            Transform cheapSkateboardContainer = skateboardOptionsTransform.Find("Cheap Skateboard Horizontal Container");
+            Transform skateboardContainer = skateboardOptionsTransform.Find("Skateboard Horizontal Container");
+            Transform lightweightBoardContainer = skateboardOptionsTransform.Find("Lightweight Board Horizontal Container");
+            Transform cruiserContainer = skateboardOptionsTransform.Find("Cruiser Horizontal Container");
+            Transform goldenSkateboardContainer = skateboardOptionsTransform.Find("Golden Skateboard Horizontal Container");
+
+            if (cheapSkateboardContainer != null && !cheapSkateboardContainer.gameObject.activeSelf)
+            {
+                cheapSkateboardContainer.gameObject.SetActive(true);
+            }
+            if (skateboardContainer != null && !skateboardContainer.gameObject.activeSelf)
+            {
+                skateboardContainer.gameObject.SetActive(true);
+            }
+            if (lightweightBoardContainer != null && !lightweightBoardContainer.gameObject.activeSelf)
+            {
+                lightweightBoardContainer.gameObject.SetActive(true);
+            }
+            if (cruiserContainer != null && !cruiserContainer.gameObject.activeSelf)
+            {
+                cruiserContainer.gameObject.SetActive(true);
+            }
+            if (goldenSkateboardContainer != null && !goldenSkateboardContainer.gameObject.activeSelf)
+            {
+                goldenSkateboardContainer.gameObject.SetActive(true);
+            }
+
+            foreach (DialogueController_SkateboardSeller.Option option in MRLCore.Instance.shackShopDialogueController.Options)
+            {
+                if (option == null) continue;
+                string displayName = MRLCore.Instance.skateboardAliasMap.ContainsKey(option.Name)
+                    ? MRLCore.Instance.skateboardAliasMap[option.Name]
+                    : skateboard.name;
+                float price = skateboard.price;
+                SetInputFieldValue(skateboardOptionsTransform, displayName, price);
+            }
         }
 
         void HylandAutoButtonClicked()
@@ -470,6 +595,12 @@ namespace MoreRealisticLaundering.PhoneApp
                 return;
             }
 
+            if (skateboardOptionsTransform == null)
+            {
+                MelonLogger.Error("skateboardOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
+                return;
+            }
+
             // Deaktiviere priceOptionsTransform
             if (priceOptionsTransform.gameObject.activeSelf)
             {
@@ -481,6 +612,13 @@ namespace MoreRealisticLaundering.PhoneApp
             {
                 optionsTransform.gameObject.SetActive(false);
             }
+
+            // Deaktiviere skateboardOptionsTransform
+            if (skateboardOptionsTransform.gameObject.activeSelf)
+            {
+                skateboardOptionsTransform.gameObject.SetActive(false);
+            }
+
             // Aktiviere vehicleOptionsTransform
             if (!vehicleOptionsTransform.gameObject.activeSelf)
             {
@@ -569,6 +707,12 @@ namespace MoreRealisticLaundering.PhoneApp
             if (vehicleOptionsTransform.gameObject.activeSelf)
             {
                 vehicleOptionsTransform.gameObject.SetActive(false);
+            }
+
+            // Deaktiviere skateboardOptionsTransform
+            if (skateboardOptionsTransform.gameObject.activeSelf)
+            {
+                skateboardOptionsTransform.gameObject.SetActive(false);
             }
 
             // Aktiviere die vier Container in priceOptionsTransform, falls sie deaktiviert sind
@@ -839,6 +983,15 @@ namespace MoreRealisticLaundering.PhoneApp
                 if (vehicleOptionsTransform.gameObject.activeSelf)
                 {
                     vehicleOptionsTransform.gameObject.SetActive(false);
+                }
+            }
+
+            // Deaktiviere skateboardOptionsTransform
+            if (skateboardOptionsTransform != null)
+            {
+                if (skateboardOptionsTransform.gameObject.activeSelf)
+                {
+                    skateboardOptionsTransform.gameObject.SetActive(false);
                 }
             }
 
@@ -1279,7 +1432,7 @@ namespace MoreRealisticLaundering.PhoneApp
             GameObject saveSpaceObject = new GameObject("SaveSpace");
             saveSpaceObject.transform.SetParent(parentTransform, false);
             RectTransform saveSpaceRect = saveSpaceObject.AddComponent<RectTransform>();
-            if (saveString == "RealEstate" || saveString == "Vehicles")
+            if (saveString == "RealEstate" || saveString == "Vehicles") //TODO Skateboard
             {
                 saveSpaceRect.sizeDelta = new Vector2(100, 75); // Abstand zwischen dem letzten Element und dem Button
             }
@@ -1404,6 +1557,12 @@ namespace MoreRealisticLaundering.PhoneApp
             if (saveString == "Vehicles")
             {
                 void FuncThatCallsFunc() => SaveVehicleOptions(buttonText);
+                saveButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
+            }
+
+            if (saveString == "Skateboards")
+            {
+                void FuncThatCallsFunc() => SaveSkateboardOptions(buttonText); //TODO
                 saveButton.onClick.AddListener((UnityAction)FuncThatCallsFunc);
             }
 
@@ -1736,6 +1895,116 @@ namespace MoreRealisticLaundering.PhoneApp
             // MelonLogger.Msg("Real estate prices have been saved and applied successfully.");
         }
 
+        void SaveSkateboardOptions(Text buttonText)
+        {
+            isSaveStillRunning = true;
+            buttonText.text = "Saving...";
+
+            if (skateboardOptionsTransform == null)
+            {
+                MelonLogger.Error("skateboardOptionsTransform is null! Cannot save skateboard prices.");
+                buttonText.text = "Save & Apply";
+                isSaveStillRunning = false;
+                return;
+            }
+
+            Transform cheapSkateboardPriceInputTransform = skateboardOptionsTransform.Find("Cheap Skateboard Horizontal Container/Cheap Skateboard Input");
+            Transform skateboardPriceInputTransform = skateboardOptionsTransform.Find("Skateboard Horizontal Container/Skateboard Input");
+            Transform cruiserPriceInputTransform = skateboardOptionsTransform.Find("Cruiser Horizontal Container/Cruiser Input");
+            Transform lightweightSkateboardPriceInputTransform = skateboardOptionsTransform.Find("Lightweight Skateboard Horizontal Container/Lightweight Skateboard Input");
+            Transform goldenSkateboardPriceInputTransform = skateboardOptionsTransform.Find("Golden Skateboard Horizontal Container/Golden Skateboard Input");
+
+            float cheapSkateboardPrice = MRLCore.Instance.config.Cheap_Skateboard_Price;
+            float skateboardPrice = MRLCore.Instance.config.Skateboard_Price;
+            float cruiserPrice = MRLCore.Instance.config.Cruiser_Price;
+            float lightweightSkateboardPrice = MRLCore.Instance.config.Lightweight_Skateboard_Price;
+            float goldenSkateboardPrice = MRLCore.Instance.config.Golden_Skateboard_Price;
+
+            // Aktualisiere den Preis für Cheap Skateboard
+            if (cheapSkateboardPriceInputTransform != null)
+            {
+                InputField cheapSkateboardPriceInputField = cheapSkateboardPriceInputTransform.GetComponent<InputField>();
+                if (cheapSkateboardPriceInputField != null && float.TryParse(cheapSkateboardPriceInputField.text, out float parsedCheapSkateboardPrice))
+                {
+                    cheapSkateboardPrice = parsedCheapSkateboardPrice;
+                }
+            }
+            // Aktualisiere den Preis für Skateboard
+            if (skateboardPriceInputTransform != null)
+            {
+                InputField skateboardPriceInputField = skateboardPriceInputTransform.GetComponent<InputField>();
+                if (skateboardPriceInputField != null && float.TryParse(skateboardPriceInputField.text, out float parsedSkateboardPrice))
+                {
+                    skateboardPrice = parsedSkateboardPrice;
+                }
+            }
+            // Aktualisiere den Preis für Cruiser
+            if (cruiserPriceInputTransform != null)
+            {
+                InputField cruiserPriceInputField = cruiserPriceInputTransform.GetComponent<InputField>();
+                if (cruiserPriceInputField != null && float.TryParse(cruiserPriceInputField.text, out float parsedCruiserPrice))
+                {
+                    cruiserPrice = parsedCruiserPrice;
+                }
+            }
+            // Aktualisiere den Preis für Lightweight Skateboard
+            if (lightweightSkateboardPriceInputTransform != null)
+            {
+                InputField lightweightSkateboardPriceInputField = lightweightSkateboardPriceInputTransform.GetComponent<InputField>();
+                if (lightweightSkateboardPriceInputField != null && float.TryParse(lightweightSkateboardPriceInputField.text, out float parsedLightweightSkateboardPrice))
+                {
+                    lightweightSkateboardPrice = parsedLightweightSkateboardPrice;
+                }
+            }
+            // Aktualisiere den Preis für Golden Skateboard
+            if (goldenSkateboardPriceInputTransform != null)
+            {
+                InputField goldenSkateboardPriceInputField = goldenSkateboardPriceInputTransform.GetComponent<InputField>();
+                if (goldenSkateboardPriceInputField != null && float.TryParse(goldenSkateboardPriceInputField.text, out float parsedGoldenSkateboardPrice))
+                {
+                    goldenSkateboardPrice = parsedGoldenSkateboardPrice;
+                }
+            }
+            // Speichere die aktualisierten Preise in der Konfiguration
+            MRLCore.Instance.config.Cheap_Skateboard_Price = cheapSkateboardPrice;
+            MRLCore.Instance.config.Skateboard_Price = skateboardPrice;
+            MRLCore.Instance.config.Cruiser_Price = cruiserPrice;
+            MRLCore.Instance.config.Lightweight_Skateboard_Price = lightweightSkateboardPrice;
+            MRLCore.Instance.config.Golden_Skateboard_Price = goldenSkateboardPrice;
+
+            // Speichere die aktualisierte Konfiguration
+            ConfigManager.Save(MRLCore.Instance.config);
+            // Aktualisiere die Preise in den SkateboardListings
+            MRLCore.Instance.ApplyPricesToSkateboards();
+
+            if (MRLCore.Instance.notificationsManager != null)
+            {
+                string subTitleString = "Config saved";
+
+                if (appIconSprite == null)
+                {
+                    string imagePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
+                    if (!string.IsNullOrEmpty(imagePath) && File.Exists(imagePath))
+                    {
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        Texture2D texture = new Texture2D(2, 2);
+                        if (texture.LoadImage(imageData))
+                        {
+                            Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                            appIconSprite = newSprite;
+                        }
+                        else
+                        {
+                            MelonLogger.Error($"Failed to load image from path: {imagePath}");
+                        }
+                    }
+                }
+                MRLCore.Instance.notificationsManager.SendNotification("Skateboard Prices", subTitleString, appIconSprite, 5, true);
+            }
+
+            buttonText.text = "Save & Apply";
+            isSaveStillRunning = false;
+        }
         void SaveVehicleOptions(Text buttonText)
         {
             isSaveStillRunning = true;
@@ -2287,7 +2556,7 @@ namespace MoreRealisticLaundering.PhoneApp
             optionVerticalLayout.childControlWidth = true;
             optionVerticalLayout.childForceExpandWidth = false;
             optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -40f; // Abstand zwischen den Optionen
+            optionVerticalLayout.spacing = -35f; // Abstand zwischen den Optionen
 
             // Füge die Label-Input-Paare für die vier Unternehmen hinzu
             AddLabelInputPair("Laundromat", priceOptionsTransform, "$");
@@ -2343,6 +2612,38 @@ namespace MoreRealisticLaundering.PhoneApp
             AddSaveButton(parentTransform, "Vehicles");
         }
 
+        public void AddSkateboardOptions(Transform parentTransform)
+        {
+            if (parentTransform == null)
+            {
+                MelonLogger.Error("detailEntriesTransform is null! Cannot add price options.");
+                return;
+            }
+
+            // Füge ein VerticalLayoutGroup hinzu, falls es nicht existiert
+            VerticalLayoutGroup optionVerticalLayout = parentTransform.GetComponent<VerticalLayoutGroup>();
+            if (optionVerticalLayout == null)
+            {
+                optionVerticalLayout = parentTransform.gameObject.AddComponent<VerticalLayoutGroup>();
+            }
+
+            // Konfiguriere das Layout
+            optionVerticalLayout.childControlWidth = true;
+            optionVerticalLayout.childForceExpandWidth = false;
+            optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
+            optionVerticalLayout.spacing = -25f; // Abstand zwischen den Optionen
+
+            // Füge die Label-Input-Paare für die vier Unternehmen hinzu
+            AddLabelInputPair("Cheap Skateboard", parentTransform, "$");
+            AddLabelInputPair("Skateboard", parentTransform, "$");
+            AddLabelInputPair("Lightweight Board", parentTransform, "$");
+            AddLabelInputPair("Cruiser", parentTransform, "$");
+            AddLabelInputPair("Golden Skateboard", parentTransform, "$");
+
+            // Füge einen Save-Button hinzu
+            AddSaveButton(parentTransform, "Skateboards");
+        }
+
         public GameObject dansHardwareTemplate;
         public GameObject gasMartWestTemplate;
         public GameObject viewPortContentSpaceTemplate;
@@ -2353,8 +2654,8 @@ namespace MoreRealisticLaundering.PhoneApp
         public bool _isLaunderingAppLoaded = false;
         public Transform optionsTransform = null;
         public Transform priceOptionsTransform = null;
-
         public Transform vehicleOptionsTransform = null;
+        public Transform skateboardOptionsTransform = null;
         Sprite inputBackgroundSprite = null;
         Sprite saveButtonSprite = null;
 

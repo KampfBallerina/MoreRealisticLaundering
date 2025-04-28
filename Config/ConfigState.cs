@@ -46,5 +46,12 @@ namespace MoreRealisticLaundering.Config
 		public float Dinkler_Price = 38000f;
 		public float Hounddog_Price = 42000f;
 		public float Cheetah_Price = 120000f;
+
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Cheap_Skateboard_Price = 800f;
+		public float Skateboard_Price = 1250f;
+		public float Cruiser_Price = 2850f;
+		public float Lightweight_Skateboard_Price = 2850f;
+		public float Golden_Skateboard_Price = 5000f;
 	}
 }

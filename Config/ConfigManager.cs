@@ -78,6 +78,11 @@ namespace MoreRealisticLaundering.Config
                     EnsureFieldExists("Hounddog_Price", configState.Hounddog_Price);
                     EnsureFieldExists("Cheetah_Price", configState.Cheetah_Price);
 
+                    EnsureFieldExists("Cheap_Skateboard_Price", configState.Cheap_Skateboard_Price);
+                    EnsureFieldExists("Skateboard_Price", configState.Skateboard_Price);
+                    EnsureFieldExists("Cruiser_Price", configState.Cruiser_Price);
+                    EnsureFieldExists("Lightweight_Skateboard_Price", configState.Lightweight_Skateboard_Price);
+                    EnsureFieldExists("Golden_Skateboard_Price", configState.Golden_Skateboard_Price);
 
                     if (isConfigUpdated)
                     {
@@ -274,6 +279,38 @@ namespace MoreRealisticLaundering.Config
                         isConfigUpdated = true;
                     }
 
+                    // Überprüfe und aktualisiere die Werte für Skateboards
+                    if (loadedConfigState.Cheap_Skateboard_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Cheap_Skateboard_Price in config. Reverting to default (800).");
+                        loadedConfigState.Cheap_Skateboard_Price = configState.Cheap_Skateboard_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Skateboard_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Skateboard_Price in config. Reverting to default (1250).");
+                        loadedConfigState.Skateboard_Price = configState.Skateboard_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Cruiser_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Cruiser_Price in config. Reverting to default (2850).");
+                        loadedConfigState.Cruiser_Price = configState.Cruiser_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Lightweight_Skateboard_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Lightweight_Skateboard_Price in config. Reverting to default (2850).");
+                        loadedConfigState.Lightweight_Skateboard_Price = configState.Lightweight_Skateboard_Price;
+                        isConfigUpdated = true;
+                    }
+                    if (loadedConfigState.Golden_Skateboard_Price <= 100f)
+                    {
+                        MelonLogger.Warning("Invalid Golden_Skateboard_Price in config. Reverting to default (5000).");
+                        loadedConfigState.Golden_Skateboard_Price = configState.Golden_Skateboard_Price;
+                        isConfigUpdated = true;
+                    }
+
                     // Speichere die aktualisierte Konfiguration, falls Änderungen vorgenommen wurden
                     if (isConfigUpdated)
                     {
@@ -437,6 +474,34 @@ namespace MoreRealisticLaundering.Config
                 default:
                     MelonLogger.Warning($"Vehicle '{vehicleName}' not found. Returning default value (1000).");
                     return 1000f; // Standardwert, falls das Fahrzeug nicht gefunden wird
+            }
+        }
+
+        public static float GetSkateboardPrice(ConfigState config, string skateboardName)
+        {
+            switch (skateboardName.ToLower())
+            {
+                case "cheap_skateboard":
+                case "cheap skateboard":
+                    return config.Cheap_Skateboard_Price;
+
+                case "skateboard":
+                    return config.Skateboard_Price;
+
+                case "cruiser":
+                    return config.Cruiser_Price;
+
+                case "lightweight_skateboard":
+                case "lightweight skateboard":
+                    return config.Lightweight_Skateboard_Price;
+
+                case "golden_skateboard":
+                case "golden skateboard":
+                    return config.Golden_Skateboard_Price;
+
+                default:
+                    MelonLogger.Warning($"Skateboard '{skateboardName}' not found. Returning default value (1000).");
+                    return 1000f; // Standardwert, falls das Skateboard nicht gefunden wird
             }
         }
 

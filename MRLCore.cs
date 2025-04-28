@@ -13,6 +13,8 @@ using Il2CppScheduleOne.Dialogue;
 using MoreRealisticLaundering.Config;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Tools;
+using Il2CppScheduleOne.Management.Presets.Options;
+using UnityEngine.PlayerLoop;
 
 [assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.2.1", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
@@ -110,6 +112,14 @@ namespace MoreRealisticLaundering
 
                 { "Cheetah", "Cheetah" },
                 { "Coupe", "Cheetah"}
+            };
+            MRLCore.Instance.skateBoardAliasMap = new System.Collections.Generic.Dictionary<string, string>
+            {
+                { "Cheap Skateboard", "Cheap Skateboard" },
+                { "Skateboard", "Skateboard" },
+                { "Cruiser", "Cruiser" },
+                { "Lightweight Skateboard", "Lightweight Skateboard" },
+                { "Golden Skateboard", "Golden Skateboard" }
             };
         }
 
@@ -399,7 +409,7 @@ namespace MoreRealisticLaundering
                 MelonCoroutines.Start(InitHomescreen());
                 MelonCoroutines.Start(MRLCore.launderingApp.InitializeLaunderApp());
             }
-            MelonCoroutines.Start(MRLCore.Instance.ApplyPropertyConfig());
+            MelonCoroutines.Start(MRLCore.Instance.ApplyConfig());
 
         }
 
@@ -472,7 +482,7 @@ namespace MoreRealisticLaundering
                 MelonLogger.Error("Failed to register laundering listeners: " + ex.Message);
             }
         }
-        public IEnumerator ApplyPropertyConfig()
+        public IEnumerator ApplyConfig()
         {
             MelonLogger.Msg("Found unowned businesses. Processing...");
             if (!isLegitVersion)
@@ -481,7 +491,9 @@ namespace MoreRealisticLaundering
                 {
                     yield return new WaitForSeconds(1f);
                 }
-                string imagePath = Path.Combine(ConfigFolder, "HylandAuto.png");
+                string imagePath = Path.Combine(ConfigFolder, "Jeff.png");
+                MRLCore.launderingApp.AddEntryFromTemplate("Shred Shack", "Shred Shack", "We're all about the grind, bro — street and money.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Redpurple"), imagePath, null, true);
+                imagePath = Path.Combine(ConfigFolder, "HylandAuto.png");
                 MRLCore.launderingApp.AddEntryFromTemplate("Hyland Auto", "Hyland Auto", "We make you drive crazy.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Dark Green"), imagePath, null, true);
                 imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
                 MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
@@ -489,6 +501,7 @@ namespace MoreRealisticLaundering
             ApplyPricesToProperties();
             ApplyPricesToPropertyListings();
             ApplyPricesToVehicles();
+            ApplyPricesToSkateboards();
             yield break;
         }
 
@@ -1193,6 +1206,46 @@ namespace MoreRealisticLaundering
             }
         }
 
+        public void ApplyPricesToSkateboards()
+        {
+            DialogueController_SkateboardSeller[] skateboardDialogueControllers = UnityEngine.Object.FindObjectsOfType<DialogueController_SkateboardSeller>();
+            foreach (DialogueController_SkateboardSeller dialogController in skateboardDialogueControllers)
+            {
+                string sNPCName = dialogController.gameObject.transform.parent?.name;
+                if (sNPCName != null)
+                {
+                    // MelonLogger.Msg($"Adjusting {sNPCName}'s Dialogue.");
+                    if (sNPCName.Contains("Jeff"))
+                    {
+                        shackShopDialogueController = dialogController;
+                        foreach (DialogueController_SkateboardSeller.Option option in dialogController.Options)
+                        {
+                            MelonLogger.Msg($"Option: {option.Name} - Price: {option.Price}");
+                            if (MRLCore.Instance.skateBoardAliasMap.TryGetValue(option.Name, out string key))
+                            {
+                                float price = key switch
+                                {
+                                    "Cheap Skateboard" => MRLCore.Instance.config.Cheap_Skateboard_Price,
+                                    "Skateboard" => MRLCore.Instance.config.Skateboard_Price,
+                                    "Cruiser" => MRLCore.Instance.config.Cruiser_Price,
+                                    "Lightweight Skateboard" => MRLCore.Instance.config.Lightweight_Skateboard_Price,
+                                    "Golden Skateboard" => MRLCore.Instance.config.Golden_Skateboard_Price,
+                                    _ => 1000f // Standardwert, falls das Skateboard nicht gefunden wird
+                                };
+                                option.Price = price;
+                            }
+                            else
+                            {
+                                MelonLogger.Warning($"Skateboard '{option.Name}' not found in skateBoardAliasMap. Skipping price assignment.");
+                            }
+                        }
+
+                        // TODO  UpdateSkateboardSign();
+                    }
+                }
+            }
+        }
+
         private void UpdateSignPrice(GameObject sellSign, string objectName)
         {
             if (sellSign == null)
@@ -1269,11 +1322,12 @@ namespace MoreRealisticLaundering
         public System.Collections.Generic.Dictionary<string, float> maxiumumLaunderValues;
         public System.Collections.Generic.Dictionary<string, string> aliasMap;
         public System.Collections.Generic.Dictionary<string, string> vehicleAliasMap;
+        public System.Collections.Generic.Dictionary<string, string> skateBoardAliasMap;
         private readonly System.Collections.Generic.HashSet<string> createdAppEntries = new System.Collections.Generic.HashSet<string>();
         public bool isWaitAndApplyCapsRunning = false;
         private static readonly string ConfigFolder = Path.Combine(MelonEnvironment.UserDataDirectory, "MoreRealisticLaundering");
         private readonly System.Collections.Generic.HashSet<LaunderingOperation> boostedOps = new System.Collections.Generic.HashSet<LaunderingOperation>();
-
+        public DialogueController_SkateboardSeller shackShopDialogueController;
         public MoneyManager moneyManager;
         public NotificationsManager notificationsManager;
         public VehicleManager vehicleManager;
