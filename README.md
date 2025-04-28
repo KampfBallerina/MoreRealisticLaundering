@@ -10,19 +10,23 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
 
-## What's new in Version 1.2.1?
-- Introducing `Hyland Auto` where you can now adjust the prices for all Vehicles that you can buy
-- Vehicle Price Support for Legit Mode
-- Adaption of all Vehicle Price Signs dynamically
-- Fixed that Ray's Real Estate was not appearing, when all 4 businesses where already bought (will now always appear)
-  
-![Hyland Auto](https://github.com/user-attachments/assets/53770a7e-7b9d-4bac-9ebe-1990dfe3468a)
+## What's new in Version 1.2.2?
+- Restructured the MoreRealisticLaundering.json for better readability
+- `PLEASE SAVE YOUR CURRENT CONFIG BEFORE UPDATING - YOUR OLD CONFIG WILL BE OVERWRITTEN!`
+- Introducing `Jeff's Shred Shack` where you can now adjust the prices for all `Skateboards`
+- Skateboard Price Support for Legit Mode
+- Adaption of all Skateboard Price Signs dynamically
+- Restructured the Homescreen to default behavior for better compatibility (e.g. Modern Phone Mod)
+- Restructered whole App Construction to fix bugs with Deliveries (might resolve some compatibility issues with oder Mods)
 
+![Shred Shack](https://github.com/user-attachments/assets/4699d890-c6ab-42dc-a673-d42f40580e6d)
+
+![SkateboardSigns](https://github.com/user-attachments/assets/556f6d2c-008c-4b6d-a1bc-df69152cd9a4)
 
 ## Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.
 2. Extract the `Mods` and `UserData` folders of the ZIP file into your game's directory.
-3. Launch the game, and the mod will automatically initialize.
+3. Launch the game, and the mod will automatically initialize after joining your first game.
 
 
 ## Configuration
@@ -51,6 +55,15 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 ### Automatic Business Detection:
 - Automatically detects newly owned businesses and adds them to the app for management.
 - Ensures that all businesses are processed and updated dynamically.
+
+### Enhanced Jeff's Shred Shack:
+- Introduces a dedicated "Shred Shack" section in the app for managing Skateboard prices.
+- Allows players to view and adjust the prices of Skateboards dynamically from the app.
+- Adapts the related price signs automatically
+
+![Shred Shack](https://github.com/user-attachments/assets/4699d890-c6ab-42dc-a673-d42f40580e6d)
+
+![SkateboardSigns](https://github.com/user-attachments/assets/556f6d2c-008c-4b6d-a1bc-df69152cd9a4)
 
 ### Enhanced Hyland Auto Management:
 - Introduces a dedicated "Hyland Auto" section in the app for managing vehicle prices.
