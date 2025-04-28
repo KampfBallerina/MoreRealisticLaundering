@@ -9,7 +9,7 @@
 [size=5]What's new in Version 1.2.2?[/size]
 - Restructured the MoreRealisticLaundering.json for better readability
 - [b]PLEASE SAVE YOUR CURRENT CONFIG BEFORE UPDATING - YOUR OLD CONFIG WILL BE OVERWRITTEN![/b]
-- Introducing `Jeff's Shred Shack` where you can now adjust the prices for all `Skateboards`
+- Introducing [b]Jeff's Shred Shack[/b] where you can now adjust the [b]prices for all Skateboards[/b]
 - Skateboard Price Support for Legit Mode
 - Adaption of all Skateboard Price Signs dynamically
 - Restructured the Homescreen to default behavior for better compatibility (e.g. Modern Phone Mod)
