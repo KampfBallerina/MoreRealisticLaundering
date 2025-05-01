@@ -86,40 +86,42 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform entriesTransform = null;
 
             Transform container = clonedKeepApp.transform.Find("Container");
-            Utils.ClearChildren(container);
+            //  Utils.ClearChildren(container);
+
+            //Adjust Topbar for Sleep App
+            Transform topbarTransform = container.Find("Topbar");
+            if (topbarTransform != null)
+            {
+                //Adjust Topbar Color
+                Image topbarImage = topbarTransform.GetComponent<Image>();
+                topbarImage.color = ColorUtil.GetColor("Cyan");
+
+                //Adjust Topbar Title
+                Transform topbarTitleTransform = topbarTransform.Find("Title");
+                if (topbarTitleTransform != null)
+                {
+                    topbarTitleTransform.GetComponent<Text>().text = Title;
+                }
+            }
+
+            // Scroll View from the Laundering App
+            Transform scrollViewProductsApp = container.Find("Scroll View");
+            if (scrollViewProductsApp != null)
+            {
+                // This needs to stay to avoid the Meth Oven to brick
+                scrollViewProductsApp.gameObject.SetActive(false);
+                scrollViewProductsApp.gameObject.name = "DeactivatedScrollView";
+                /* This needs to stay since new products try to find the LaunderingApp ScrollView*/
+            }
+
+            // Remove old Details from Laundering App
+            Transform oldDetailsTransform = container.Find("Details");
+            oldDetailsTransform.gameObject.Destroy();
 
             // Ändere die Eigenschaften des Containers, ohne Kinder zu löschen
             Transform containerTransformClonedApp = clonedApp.transform.Find("Container");
             if (containerTransformClonedApp != null)
             {
-                Transform topbarTransform = containerTransformClonedApp.Find("Topbar");
-                if (topbarTransform != null)
-                {
-                    //Adjust Topbar Color
-                    Image topbarImage = topbarTransform.GetComponent<Image>();
-                    topbarImage.color = ColorUtil.GetColor("Cyan");
-
-                    //Adjust Topbar Title
-                    Transform topbarTitleTransform = topbarTransform.Find("Title");
-                    if (topbarTitleTransform != null)
-                    {
-                        topbarTitleTransform.GetComponent<Text>().text = Title;
-                    }
-                    topbarTransform.SetParent(container, false);
-                }
-
-                Transform backgroundTransform = containerTransformClonedApp.Find("Background");
-                if (backgroundTransform != null)
-                {
-                    Transform backgroundTransformKeep = container.Find("Background");
-                    if (backgroundTransform != null)
-                    {
-                        GameObject clonedBackground = UnityEngine.Object.Instantiate(backgroundTransform.gameObject, container);
-                        clonedBackground.name = "Background"; // Ensure the name matches the original
-                        clonedBackground.transform.SetAsFirstSibling(); // Place it as the first child in the container
-                    }
-                }
-
                 Transform scrollViewTransformOrig = containerTransformClonedApp.Find("Scroll View");
                 if (scrollViewTransformOrig != null)
                 {
@@ -289,7 +291,7 @@ namespace MoreRealisticLaundering.PhoneApp
                     {
                         orderSubmittedTransform.gameObject.Destroy(); // Zerstöre das ursprüngliche GameObject
                     }
-                    
+
                     Transform viewportTransform = scrollViewTransform.Find("Viewport");
                     if (viewportTransform != null)
                     {

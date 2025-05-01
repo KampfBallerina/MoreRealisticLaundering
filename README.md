@@ -10,18 +10,9 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
 
-## What's new in Version 1.2.2?
-- Restructured the MoreRealisticLaundering.json for better readability
-- `PLEASE SAVE YOUR CURRENT CONFIG BEFORE UPDATING - YOUR OLD CONFIG WILL BE OVERWRITTEN!`
-- Introducing `Jeff's Shred Shack` where you can now adjust the prices for all `Skateboards`
-- Skateboard Price Support for Legit Mode
-- Adaption of all Skateboard Price Signs dynamically
-- Restructured the Homescreen to default behavior for better compatibility (e.g. Modern Phone Mod)
-- Restructered whole App Construction to fix bugs with Deliveries (might resolve some compatibility issues with oder Mods)
-
-![Shred Shack](https://github.com/user-attachments/assets/4699d890-c6ab-42dc-a673-d42f40580e6d)
-
-![SkateboardSigns](https://github.com/user-attachments/assets/556f6d2c-008c-4b6d-a1bc-df69152cd9a4)
+## What's new in Version 1.2.3?
+-Fixed Lap Oven getting stuck when not using Legit Mode
+-Reorganized ZIP Structure to allow Mod Loader Installation
 
 ## Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.

@@ -6,18 +6,9 @@
 - Not compatible with most mods that modify the Deliveries App (e.g. [url=https://www.nexusmods.com/schedule1/mods/521]DeliveryApp Improvements[/url])
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
-[size=5]What's new in Version 1.2.2?[/size]
-- Restructured the MoreRealisticLaundering.json for better readability
-- [b]PLEASE SAVE YOUR CURRENT CONFIG BEFORE UPDATING - YOUR OLD CONFIG WILL BE OVERWRITTEN![/b]
-- Introducing [b]Jeff's Shred Shack[/b] where you can now adjust the [b]prices for all Skateboards[/b]
-- Skateboard Price Support for Legit Mode
-- Adaption of all Skateboard Price Signs dynamically
-- Restructured the Homescreen to default behavior for better compatibility (e.g. [b]Modern Phone[/b] Mod)
-- Restructered whole App Construction to fix [b]bugs with Deliveries[/b] (might resolve some compatibility issues with oder Mods)
-
-[center][img]https://github.com/user-attachments/assets/4699d890-c6ab-42dc-a673-d42f40580e6d[/img][/center]
-
-[center][img]https://github.com/user-attachments/assets/556f6d2c-008c-4b6d-a1bc-df69152cd9a4[/img][/center]
+[size=5]What's new in Version 1.2.3?[/size]
+-Fixed Lap Oven getting stuck when not using Legit Mode
+-Reorganized ZIP Structure to allow Mod Loader Installation
 
 [size=5]Installation[/size]
 [list=1]
