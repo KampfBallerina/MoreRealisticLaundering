@@ -45,7 +45,9 @@ namespace MoreRealisticLaundering
                 { "Barn", "Barn"},
                 { "Docks Warehouse", "Docks Warehouse"},
                 { "DocksWarehouse", "Docks Warehouse"},
-                { "Manor", "Manor"}
+                { "Manor", "Manor"},
+                { "StorageUnit", "Storage Unit"},
+                { "Storage Unit", "Storage Unit"}
             };
             MRLCore.Instance.vehicleAliasMap = new System.Collections.Generic.Dictionary<string, string>
             {
@@ -622,6 +624,7 @@ namespace MoreRealisticLaundering
                             "Barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
                             "Docks Warehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
                             "Manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
+                            "Storage Unit" => MRLCore.Instance.config.Properties.PrivateProperties.Storage_Unit_Price,
                             _ => 1000f // Standardwert, falls das Business nicht gefunden wird
                         };
 
@@ -656,6 +659,7 @@ namespace MoreRealisticLaundering
                                 "Barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
                                 "Docks Warehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
                                 "Manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
+                                "Storage Unit" => MRLCore.Instance.config.Properties.PrivateProperties.Storage_Unit_Price,
                                 _ => 1000f // Standardwert, falls die Property nicht gefunden wird
                             };
 
@@ -776,7 +780,8 @@ namespace MoreRealisticLaundering
                 reOfficeWhiteboardHomes.transform.Find("PropertyListing Bungalow"),
                 reOfficeWhiteboardHomes.transform.Find("PropertyListing Barn"),
                 reOfficeWhiteboardHomes.transform.Find("PropertyListing Docks Warehouse"),
-                reOfficeWhiteboardHomes.transform.Find("PropertyListing Manor")
+                reOfficeWhiteboardHomes.transform.Find("PropertyListing Manor"),
+                reOfficeWhiteboardHomes.transform.Find("PropertyListing Storage Unit")
             };
 
             foreach (Transform homePropertyListing in homePropertyListings)
@@ -801,6 +806,7 @@ namespace MoreRealisticLaundering
                         "Barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
                         "Docks Warehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
                         "Manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
+                        "Storage Unit" => MRLCore.Instance.config.Properties.PrivateProperties.Storage_Unit_Price,
                         _ => 1000f // Standardwert, falls das Business nicht gefunden wird
                     };
 
@@ -844,6 +850,7 @@ namespace MoreRealisticLaundering
             GameObject sellSignBarn = GameObject.Find("@Properties/Barn/ForSaleSign");
             GameObject sellSignDocksWarehouse = GameObject.Find("@Properties/DocksWarehouse/ForSaleSign");
             GameObject sellSignManor = GameObject.Find("@Properties/Manor/ForSaleSign (1)");
+            GameObject sellSignStorageUnit = GameObject.Find("@Properties/StorageUnit/ForSaleSign");
 
             // Aktualisiere die Preise für jedes Schild
             UpdateSignPrice(sellSignPostOffice, "Post Office");
@@ -857,6 +864,7 @@ namespace MoreRealisticLaundering
             UpdateSignPrice(sellSignBarn, "Barn");
             UpdateSignPrice(sellSignDocksWarehouse, "Docks Warehouse");
             UpdateSignPrice(sellSignManor, "Manor");
+            UpdateSignPrice(sellSignStorageUnit, "Storage Unit");
             // MelonLogger.Msg("Updated all sell sign prices.");
         }
 
@@ -1029,6 +1037,7 @@ namespace MoreRealisticLaundering
                     "Barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
                     "Docks Warehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
                     "Manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
+                    "Storage Unit" => MRLCore.Instance.config.Properties.PrivateProperties.Storage_Unit_Price,
                     _ => 1000f
                 };
             }

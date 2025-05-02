@@ -29,6 +29,8 @@ namespace MoreRealisticLaundering.Config
 	public class PrivatePropertySettings
 	{
 		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Storage_Unit_Price = 12000f;
+		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Motel_Room_Price = 750f;
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Sweatshop_Price = 2500f;

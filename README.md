@@ -6,13 +6,15 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 
 ## Known Incompatiblities / Issues
 - Not compatible with most translation mods
-- Not compatible with most mods that modify the Deliveries App
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
 
-## What's new in Version 1.2.3?
--Fixed Lap Oven getting stuck when not using Legit Mode
--Reorganized ZIP Structure to allow Mod Loader Installation
+## What's new in Version 1.2.4?
+- Updated for Beta Branch Release v0.3.5
+- You do not need to update this mod yet if you're not playing on the beta branch
+- Added `Storage Unit to Ray's Real Estate` Section
+- Added above for Legit Version
+- Fixed the MoreRealisticLaundering Config to automatically detect and save missing fields again
 
 ## Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.

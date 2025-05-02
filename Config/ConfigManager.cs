@@ -8,6 +8,7 @@ namespace MoreRealisticLaundering.Config
 {
     public static class ConfigManager
     {
+        private static bool isConfigUpdated = false;
         public static ConfigState Load()
         {
             ConfigState configState = new ConfigState();
@@ -31,7 +32,7 @@ namespace MoreRealisticLaundering.Config
                 {
                     string fileContent = File.ReadAllText(ConfigManager.FilePath);
                     dynamic jsonObject = JsonConvert.DeserializeObject<dynamic>(fileContent) ?? new ConfigState();
-                    bool isConfigUpdated = false;
+                    isConfigUpdated = false;
 
                     // Ergänze alle Felder aus ConfigState
                     //EnsureFieldExists<bool>(jsonObject, "Use_Legit_Version", configState.Use_Legit_Version);
@@ -61,6 +62,7 @@ namespace MoreRealisticLaundering.Config
                     // Properties
                     EnsureFieldExists((object)jsonObject, "Properties", configState.Properties);
                     EnsureFieldExists((object)jsonObject.Properties, "PrivateProperties", configState.Properties.PrivateProperties);
+                    EnsureFieldExists((object)jsonObject.Properties.PrivateProperties, "Storage_Unit_Price", configState.Properties.PrivateProperties.Storage_Unit_Price);
                     EnsureFieldExists((object)jsonObject.Properties.PrivateProperties, "Motel_Room_Price", configState.Properties.PrivateProperties.Motel_Room_Price);
                     EnsureFieldExists((object)jsonObject.Properties.PrivateProperties, "Sweatshop_Price", configState.Properties.PrivateProperties.Sweatshop_Price);
                     EnsureFieldExists((object)jsonObject.Properties.PrivateProperties, "Bungalow_Price", configState.Properties.PrivateProperties.Bungalow_Price);
@@ -100,224 +102,8 @@ namespace MoreRealisticLaundering.Config
 
                     ConfigState loadedConfigState = jsonObject.ToObject<ConfigState>();
 
-                    // Check if Use Legit Version is a boolean
-                    if (loadedConfigState.Use_Legit_Version != true && loadedConfigState.Use_Legit_Version != false)
-                    {
-                        MelonLogger.Warning("Invalid Use_Legit_Version in config. Adding default value (false).");
-                        loadedConfigState.Use_Legit_Version = configState.Use_Legit_Version;
-                        isConfigUpdated = true;
-                    }
-
-                    // Überprüfe und aktualisiere die Werte für Laundromat
-                    if (loadedConfigState.Businesses.Laundromat.Laundromat_Cap <= 0f)
-                    {
-                        MelonLogger.Warning("Invalid Laundromat_Cap in config. Reverting to default (1000).");
-                        loadedConfigState.Businesses.Laundromat.Laundromat_Cap = configState.Businesses.Laundromat.Laundromat_Cap;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Businesses.Laundromat.Laundromat_Laundering_time_hours < 2 || loadedConfigState.Businesses.Laundromat.Laundromat_Laundering_time_hours % 2 != 0)
-                    {
-                        MelonLogger.Warning("Invalid Laundromat_Laundering_time_hours in config. Reverting to default (24).");
-                        loadedConfigState.Businesses.Laundromat.Laundromat_Laundering_time_hours = configState.Businesses.Laundromat.Laundromat_Laundering_time_hours;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Businesses.Laundromat.Laundromat_Tax_Percentage < 0 || loadedConfigState.Businesses.Laundromat.Laundromat_Tax_Percentage > 100)
-                    {
-                        MelonLogger.Warning("Invalid Laundromat_Tax_Percentage in config. Reverting to default (19%).");
-                        loadedConfigState.Businesses.Laundromat.Laundromat_Tax_Percentage = configState.Businesses.Laundromat.Laundromat_Tax_Percentage;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.BusinessProperties.Laundromat_Price < 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Laundromat_Price in config. Reverting to default (10000).");
-                        loadedConfigState.Properties.BusinessProperties.Laundromat_Price = configState.Properties.BusinessProperties.Laundromat_Price;
-                        isConfigUpdated = true;
-                    }
-
-                    // Überprüfe und aktualisiere die Werte für Taco Ticklers
-                    if (loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Cap <= 0f)
-                    {
-                        MelonLogger.Warning("Invalid Taco_Ticklers_Cap in config. Reverting to default (10000).");
-                        loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Cap = configState.Businesses.TacoTicklers.Taco_Ticklers_Cap;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours < 2 || loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours % 2 != 0)
-                    {
-                        MelonLogger.Warning("Invalid Taco_Ticklers_Laundering_time_hours in config. Reverting to default (24).");
-                        loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours = configState.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage < 0 || loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage > 100)
-                    {
-                        MelonLogger.Warning("Invalid Taco_Ticklers_Tax_Percentage in config. Reverting to default (19%).");
-                        loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage = configState.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.BusinessProperties.Taco_Ticklers_Price < 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Taco_Ticklers_Price in config. Reverting to default (100000).");
-                        loadedConfigState.Properties.BusinessProperties.Taco_Ticklers_Price = configState.Properties.BusinessProperties.Taco_Ticklers_Price;
-                        isConfigUpdated = true;
-                    }
-
-                    // Überprüfe und aktualisiere die Werte für Car Wash
-                    if (loadedConfigState.Businesses.CarWash.Car_Wash_Cap <= 0f)
-                    {
-                        loadedConfigState.Businesses.CarWash.Car_Wash_Cap = configState.Businesses.CarWash.Car_Wash_Cap;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Businesses.CarWash.Car_Wash_Laundering_time_hours < 2 || loadedConfigState.Businesses.CarWash.Car_Wash_Laundering_time_hours % 2 != 0)
-                    {
-                        MelonLogger.Warning("Invalid Car_Wash_Laundering_time_hours in config. Reverting to default (24).");
-                        loadedConfigState.Businesses.CarWash.Car_Wash_Laundering_time_hours = configState.Businesses.CarWash.Car_Wash_Laundering_time_hours;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Businesses.CarWash.Car_Wash_Tax_Percentage < 0 || loadedConfigState.Businesses.CarWash.Car_Wash_Tax_Percentage > 100)
-                    {
-                        MelonLogger.Warning("Invalid Car_Wash_Tax_Percentage in config. Reverting to default (19%).");
-                        loadedConfigState.Businesses.CarWash.Car_Wash_Tax_Percentage = configState.Businesses.CarWash.Car_Wash_Tax_Percentage;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.BusinessProperties.Car_Wash_Price < 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Car_Wash_Price in config. Reverting to default (30000).");
-                        loadedConfigState.Properties.BusinessProperties.Car_Wash_Price = configState.Properties.BusinessProperties.Car_Wash_Price;
-                        isConfigUpdated = true;
-                    }
-
-                    // Überprüfe und aktualisiere die Werte für Post Office
-                    if (loadedConfigState.Businesses.PostOffice.Post_Office_Cap <= 0f)
-                    {
-                        MelonLogger.Warning("Invalid Post_Office_Cap in config. Reverting to default (2000).");
-                        loadedConfigState.Businesses.PostOffice.Post_Office_Cap = configState.Businesses.PostOffice.Post_Office_Cap;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Businesses.PostOffice.Post_Office_Laundering_time_hours < 2 || loadedConfigState.Businesses.PostOffice.Post_Office_Laundering_time_hours % 2 != 0)
-                    {
-                        MelonLogger.Warning("Invalid Post_Office_Laundering_time_hours in config. Reverting to default (24).");
-                        loadedConfigState.Businesses.PostOffice.Post_Office_Laundering_time_hours = configState.Businesses.PostOffice.Post_Office_Laundering_time_hours;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Businesses.PostOffice.Post_Office_Tax_Percentage < 0 || loadedConfigState.Businesses.PostOffice.Post_Office_Tax_Percentage > 100)
-                    {
-                        MelonLogger.Warning("Invalid Post_Office_Tax_Percentage in config. Reverting to default (19%).");
-                        loadedConfigState.Businesses.PostOffice.Post_Office_Tax_Percentage = configState.Businesses.PostOffice.Post_Office_Tax_Percentage;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.BusinessProperties.Post_Office_Price < 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Post_Office_Price in config. Reverting to default (20000).");
-                        loadedConfigState.Properties.BusinessProperties.Post_Office_Price = configState.Properties.BusinessProperties.Post_Office_Price;
-                        isConfigUpdated = true;
-                    }
-
-                    // Überprüfe und aktualisiere die Werte für Home Properties
-                    if (loadedConfigState.Properties.PrivateProperties.Motel_Room_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Motel_Room_Price in config. Reverting to default (750).");
-                        loadedConfigState.Properties.PrivateProperties.Motel_Room_Price = configState.Properties.PrivateProperties.Motel_Room_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.PrivateProperties.Sweatshop_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Sweatshop_Price in config. Reverting to default (2500).");
-                        loadedConfigState.Properties.PrivateProperties.Sweatshop_Price = configState.Properties.PrivateProperties.Sweatshop_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.PrivateProperties.Bungalow_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Bungalow_Price in config. Reverting to default (10000).");
-                        loadedConfigState.Properties.PrivateProperties.Bungalow_Price = configState.Properties.PrivateProperties.Bungalow_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.PrivateProperties.Barn_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Barn_Price in config. Reverting to default (38000).");
-                        loadedConfigState.Properties.PrivateProperties.Barn_Price = configState.Properties.PrivateProperties.Barn_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.PrivateProperties.Docks_Warehouse_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Docks_Warehouse_Price in config. Reverting to default (80000).");
-                        loadedConfigState.Properties.PrivateProperties.Docks_Warehouse_Price = configState.Properties.PrivateProperties.Docks_Warehouse_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Properties.PrivateProperties.Manor_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Manor_Price in config. Reverting to default (250000).");
-                        loadedConfigState.Properties.PrivateProperties.Manor_Price = configState.Properties.PrivateProperties.Manor_Price;
-                        isConfigUpdated = true;
-                    }
-
-                    // Überprüfe und aktualisiere die Werte für Autos
-                    if (loadedConfigState.Vehicles.Shitbox_Price <= 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Shitbox_Price in config. Reverting to default (12800).");
-                        loadedConfigState.Vehicles.Shitbox_Price = configState.Vehicles.Shitbox_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Vehicles.Veeper_Price <= 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Veeper_Price in config. Reverting to default (46999).");
-                        loadedConfigState.Vehicles.Veeper_Price = configState.Vehicles.Veeper_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Vehicles.Bruiser_Price <= 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Bruiser_Price in config. Reverting to default (25000).");
-                        loadedConfigState.Vehicles.Bruiser_Price = configState.Vehicles.Bruiser_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Vehicles.Dinkler_Price <= 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Dinkler_Price in config. Reverting to default (38000).");
-                        loadedConfigState.Vehicles.Dinkler_Price = configState.Vehicles.Dinkler_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Vehicles.Hounddog_Price <= 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Hounddog_Price in config. Reverting to default (42000).");
-                        loadedConfigState.Vehicles.Hounddog_Price = configState.Vehicles.Hounddog_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Vehicles.Cheetah_Price <= 1000f)
-                    {
-                        MelonLogger.Warning("Invalid Cheetah_Price in config. Reverting to default (120000).");
-                        loadedConfigState.Vehicles.Cheetah_Price = configState.Vehicles.Cheetah_Price;
-                        isConfigUpdated = true;
-                    }
-
-                    // Überprüfe und aktualisiere die Werte für Skateboards
-                    if (loadedConfigState.Skateboards.Cheap_Skateboard_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Cheap_Skateboard_Price in config. Reverting to default (800).");
-                        loadedConfigState.Skateboards.Cheap_Skateboard_Price = configState.Skateboards.Cheap_Skateboard_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Skateboards.Skateboard_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Skateboard_Price in config. Reverting to default (1250).");
-                        loadedConfigState.Skateboards.Skateboard_Price = configState.Skateboards.Skateboard_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Skateboards.Cruiser_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Cruiser_Price in config. Reverting to default (2850).");
-                        loadedConfigState.Skateboards.Cruiser_Price = configState.Skateboards.Cruiser_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Skateboards.Lightweight_Board_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Lightweight_Skateboard_Price in config. Reverting to default (2850).");
-                        loadedConfigState.Skateboards.Lightweight_Board_Price = configState.Skateboards.Lightweight_Board_Price;
-                        isConfigUpdated = true;
-                    }
-                    if (loadedConfigState.Skateboards.Golden_Skateboard_Price <= 100f)
-                    {
-                        MelonLogger.Warning("Invalid Golden_Skateboard_Price in config. Reverting to default (5000).");
-                        loadedConfigState.Skateboards.Golden_Skateboard_Price = configState.Skateboards.Golden_Skateboard_Price;
-                        isConfigUpdated = true;
-                    }
+                    // Check Sleep Settings
+                    ValidateConfigSettings(loadedConfigState, configState, ref isConfigUpdated);
 
                     // Speichere die aktualisierte Konfiguration, falls Änderungen vorgenommen wurden
                     if (isConfigUpdated)
@@ -354,6 +140,9 @@ namespace MoreRealisticLaundering.Config
             {
                 MelonLogger.Warning($"Field '{fieldName}' is missing in the config. Adding default value ({defaultValue}).");
                 parent[fieldName] = defaultValue;
+
+                // Setze isConfigUpdated auf true
+                isConfigUpdated = true;
             }
             else if (defaultValue is not null && defaultValue.GetType().IsClass && !(defaultValue is string))
             {
@@ -367,6 +156,9 @@ namespace MoreRealisticLaundering.Config
                     {
                         MelonLogger.Warning($"Field '{fieldName}.{subFieldName}' is missing in the config. Adding default value ({subDefaultValue}).");
                         parent[fieldName][subFieldName] = subDefaultValue;
+
+                        // Setze isConfigUpdated auf true
+                        isConfigUpdated = true;
                     }
                     else if (subDefaultValue is not null && subDefaultValue.GetType().IsClass && !(subDefaultValue is string))
                     {
@@ -521,7 +313,10 @@ namespace MoreRealisticLaundering.Config
 
                 case "manor":
                     return config.Properties.PrivateProperties.Manor_Price;
-
+                case "storage_unit":
+                case "storageunit":
+                case "storage unit":
+                    return config.Properties.PrivateProperties.Storage_Unit_Price;
                 default:
                     MelonLogger.Warning($"Property '{propertyName}' not found. Returning default value (1000).");
                     return 1000f; // Default value if the property is not found
@@ -584,6 +379,234 @@ namespace MoreRealisticLaundering.Config
                 default:
                     MelonLogger.Warning($"Skateboard '{skateboardName}' not found. Returning default value (1000).");
                     return 1000f; // Default value if the skateboard is not found
+            }
+        }
+
+        private static void ValidateConfigSettings(ConfigState loadedConfigState, ConfigState configState, ref bool isConfigUpdated)
+        {
+            // Check if Use Legit Version is a boolean
+            if (loadedConfigState.Use_Legit_Version != true && loadedConfigState.Use_Legit_Version != false)
+            {
+                MelonLogger.Warning("Invalid Use_Legit_Version in config. Adding default value (false).");
+                loadedConfigState.Use_Legit_Version = configState.Use_Legit_Version;
+                isConfigUpdated = true;
+            }
+
+            // Überprüfe und aktualisiere die Werte für Laundromat
+            if (loadedConfigState.Businesses.Laundromat.Laundromat_Cap <= 0f)
+            {
+                MelonLogger.Warning("Invalid Laundromat_Cap in config. Reverting to default (1000).");
+                loadedConfigState.Businesses.Laundromat.Laundromat_Cap = configState.Businesses.Laundromat.Laundromat_Cap;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Businesses.Laundromat.Laundromat_Laundering_time_hours < 2 || loadedConfigState.Businesses.Laundromat.Laundromat_Laundering_time_hours % 2 != 0)
+            {
+                MelonLogger.Warning("Invalid Laundromat_Laundering_time_hours in config. Reverting to default (24).");
+                loadedConfigState.Businesses.Laundromat.Laundromat_Laundering_time_hours = configState.Businesses.Laundromat.Laundromat_Laundering_time_hours;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Businesses.Laundromat.Laundromat_Tax_Percentage < 0 || loadedConfigState.Businesses.Laundromat.Laundromat_Tax_Percentage > 100)
+            {
+                MelonLogger.Warning("Invalid Laundromat_Tax_Percentage in config. Reverting to default (19%).");
+                loadedConfigState.Businesses.Laundromat.Laundromat_Tax_Percentage = configState.Businesses.Laundromat.Laundromat_Tax_Percentage;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.BusinessProperties.Laundromat_Price < 1000f)
+            {
+                MelonLogger.Warning("Invalid Laundromat_Price in config. Reverting to default (10000).");
+                loadedConfigState.Properties.BusinessProperties.Laundromat_Price = configState.Properties.BusinessProperties.Laundromat_Price;
+                isConfigUpdated = true;
+            }
+
+            // Überprüfe und aktualisiere die Werte für Taco Ticklers
+            if (loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Cap <= 0f)
+            {
+                MelonLogger.Warning("Invalid Taco_Ticklers_Cap in config. Reverting to default (10000).");
+                loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Cap = configState.Businesses.TacoTicklers.Taco_Ticklers_Cap;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours < 2 || loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours % 2 != 0)
+            {
+                MelonLogger.Warning("Invalid Taco_Ticklers_Laundering_time_hours in config. Reverting to default (24).");
+                loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours = configState.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage < 0 || loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage > 100)
+            {
+                MelonLogger.Warning("Invalid Taco_Ticklers_Tax_Percentage in config. Reverting to default (19%).");
+                loadedConfigState.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage = configState.Businesses.TacoTicklers.Taco_Ticklers_Tax_Percentage;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.BusinessProperties.Taco_Ticklers_Price < 1000f)
+            {
+                MelonLogger.Warning("Invalid Taco_Ticklers_Price in config. Reverting to default (100000).");
+                loadedConfigState.Properties.BusinessProperties.Taco_Ticklers_Price = configState.Properties.BusinessProperties.Taco_Ticklers_Price;
+                isConfigUpdated = true;
+            }
+
+            // Überprüfe und aktualisiere die Werte für Car Wash
+            if (loadedConfigState.Businesses.CarWash.Car_Wash_Cap <= 0f)
+            {
+                loadedConfigState.Businesses.CarWash.Car_Wash_Cap = configState.Businesses.CarWash.Car_Wash_Cap;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Businesses.CarWash.Car_Wash_Laundering_time_hours < 2 || loadedConfigState.Businesses.CarWash.Car_Wash_Laundering_time_hours % 2 != 0)
+            {
+                MelonLogger.Warning("Invalid Car_Wash_Laundering_time_hours in config. Reverting to default (24).");
+                loadedConfigState.Businesses.CarWash.Car_Wash_Laundering_time_hours = configState.Businesses.CarWash.Car_Wash_Laundering_time_hours;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Businesses.CarWash.Car_Wash_Tax_Percentage < 0 || loadedConfigState.Businesses.CarWash.Car_Wash_Tax_Percentage > 100)
+            {
+                MelonLogger.Warning("Invalid Car_Wash_Tax_Percentage in config. Reverting to default (19%).");
+                loadedConfigState.Businesses.CarWash.Car_Wash_Tax_Percentage = configState.Businesses.CarWash.Car_Wash_Tax_Percentage;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.BusinessProperties.Car_Wash_Price < 1000f)
+            {
+                MelonLogger.Warning("Invalid Car_Wash_Price in config. Reverting to default (30000).");
+                loadedConfigState.Properties.BusinessProperties.Car_Wash_Price = configState.Properties.BusinessProperties.Car_Wash_Price;
+                isConfigUpdated = true;
+            }
+
+            // Überprüfe und aktualisiere die Werte für Post Office
+            if (loadedConfigState.Businesses.PostOffice.Post_Office_Cap <= 0f)
+            {
+                MelonLogger.Warning("Invalid Post_Office_Cap in config. Reverting to default (2000).");
+                loadedConfigState.Businesses.PostOffice.Post_Office_Cap = configState.Businesses.PostOffice.Post_Office_Cap;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Businesses.PostOffice.Post_Office_Laundering_time_hours < 2 || loadedConfigState.Businesses.PostOffice.Post_Office_Laundering_time_hours % 2 != 0)
+            {
+                MelonLogger.Warning("Invalid Post_Office_Laundering_time_hours in config. Reverting to default (24).");
+                loadedConfigState.Businesses.PostOffice.Post_Office_Laundering_time_hours = configState.Businesses.PostOffice.Post_Office_Laundering_time_hours;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Businesses.PostOffice.Post_Office_Tax_Percentage < 0 || loadedConfigState.Businesses.PostOffice.Post_Office_Tax_Percentage > 100)
+            {
+                MelonLogger.Warning("Invalid Post_Office_Tax_Percentage in config. Reverting to default (19%).");
+                loadedConfigState.Businesses.PostOffice.Post_Office_Tax_Percentage = configState.Businesses.PostOffice.Post_Office_Tax_Percentage;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.BusinessProperties.Post_Office_Price < 1000f)
+            {
+                MelonLogger.Warning("Invalid Post_Office_Price in config. Reverting to default (20000).");
+                loadedConfigState.Properties.BusinessProperties.Post_Office_Price = configState.Properties.BusinessProperties.Post_Office_Price;
+                isConfigUpdated = true;
+            }
+
+            // Überprüfe und aktualisiere die Werte für Home Properties
+            if (loadedConfigState.Properties.PrivateProperties.Storage_Unit_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Storage_Unit_Price in config. Reverting to default (12000).");
+                loadedConfigState.Properties.PrivateProperties.Storage_Unit_Price = configState.Properties.PrivateProperties.Storage_Unit_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.PrivateProperties.Motel_Room_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Motel_Room_Price in config. Reverting to default (750).");
+                loadedConfigState.Properties.PrivateProperties.Motel_Room_Price = configState.Properties.PrivateProperties.Motel_Room_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.PrivateProperties.Sweatshop_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Sweatshop_Price in config. Reverting to default (2500).");
+                loadedConfigState.Properties.PrivateProperties.Sweatshop_Price = configState.Properties.PrivateProperties.Sweatshop_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.PrivateProperties.Bungalow_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Bungalow_Price in config. Reverting to default (10000).");
+                loadedConfigState.Properties.PrivateProperties.Bungalow_Price = configState.Properties.PrivateProperties.Bungalow_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.PrivateProperties.Barn_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Barn_Price in config. Reverting to default (38000).");
+                loadedConfigState.Properties.PrivateProperties.Barn_Price = configState.Properties.PrivateProperties.Barn_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.PrivateProperties.Docks_Warehouse_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Docks_Warehouse_Price in config. Reverting to default (80000).");
+                loadedConfigState.Properties.PrivateProperties.Docks_Warehouse_Price = configState.Properties.PrivateProperties.Docks_Warehouse_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Properties.PrivateProperties.Manor_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Manor_Price in config. Reverting to default (250000).");
+                loadedConfigState.Properties.PrivateProperties.Manor_Price = configState.Properties.PrivateProperties.Manor_Price;
+                isConfigUpdated = true;
+            }
+
+            // Überprüfe und aktualisiere die Werte für Autos
+            if (loadedConfigState.Vehicles.Shitbox_Price <= 1000f)
+            {
+                MelonLogger.Warning("Invalid Shitbox_Price in config. Reverting to default (12800).");
+                loadedConfigState.Vehicles.Shitbox_Price = configState.Vehicles.Shitbox_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Vehicles.Veeper_Price <= 1000f)
+            {
+                MelonLogger.Warning("Invalid Veeper_Price in config. Reverting to default (46999).");
+                loadedConfigState.Vehicles.Veeper_Price = configState.Vehicles.Veeper_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Vehicles.Bruiser_Price <= 1000f)
+            {
+                MelonLogger.Warning("Invalid Bruiser_Price in config. Reverting to default (25000).");
+                loadedConfigState.Vehicles.Bruiser_Price = configState.Vehicles.Bruiser_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Vehicles.Dinkler_Price <= 1000f)
+            {
+                MelonLogger.Warning("Invalid Dinkler_Price in config. Reverting to default (38000).");
+                loadedConfigState.Vehicles.Dinkler_Price = configState.Vehicles.Dinkler_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Vehicles.Hounddog_Price <= 1000f)
+            {
+                MelonLogger.Warning("Invalid Hounddog_Price in config. Reverting to default (42000).");
+                loadedConfigState.Vehicles.Hounddog_Price = configState.Vehicles.Hounddog_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Vehicles.Cheetah_Price <= 1000f)
+            {
+                MelonLogger.Warning("Invalid Cheetah_Price in config. Reverting to default (120000).");
+                loadedConfigState.Vehicles.Cheetah_Price = configState.Vehicles.Cheetah_Price;
+                isConfigUpdated = true;
+            }
+
+            // Überprüfe und aktualisiere die Werte für Skateboards
+            if (loadedConfigState.Skateboards.Cheap_Skateboard_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Cheap_Skateboard_Price in config. Reverting to default (800).");
+                loadedConfigState.Skateboards.Cheap_Skateboard_Price = configState.Skateboards.Cheap_Skateboard_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Skateboards.Skateboard_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Skateboard_Price in config. Reverting to default (1250).");
+                loadedConfigState.Skateboards.Skateboard_Price = configState.Skateboards.Skateboard_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Skateboards.Cruiser_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Cruiser_Price in config. Reverting to default (2850).");
+                loadedConfigState.Skateboards.Cruiser_Price = configState.Skateboards.Cruiser_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Skateboards.Lightweight_Board_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Lightweight_Skateboard_Price in config. Reverting to default (2850).");
+                loadedConfigState.Skateboards.Lightweight_Board_Price = configState.Skateboards.Lightweight_Board_Price;
+                isConfigUpdated = true;
+            }
+            if (loadedConfigState.Skateboards.Golden_Skateboard_Price <= 100f)
+            {
+                MelonLogger.Warning("Invalid Golden_Skateboard_Price in config. Reverting to default (5000).");
+                loadedConfigState.Skateboards.Golden_Skateboard_Price = configState.Skateboards.Golden_Skateboard_Price;
+                isConfigUpdated = true;
             }
         }
 

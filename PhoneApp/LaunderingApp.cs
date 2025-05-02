@@ -847,6 +847,7 @@ namespace MoreRealisticLaundering.PhoneApp
             }
 
             // Deaktiviere die vier Container in priceOptionsTransform, falls sie deaktiviert sind
+            Transform storageUnitContainer = priceOptionsTransform.Find("Storage Unit Horizontal Container");
             Transform motelContainer = priceOptionsTransform.Find("Motel Horizontal Container");
             Transform SweatshopContainer = priceOptionsTransform.Find("Sweatshop Horizontal Container");
             Transform bungalowContainer = priceOptionsTransform.Find("Bungalow Horizontal Container");
@@ -854,6 +855,10 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform docksContainer = priceOptionsTransform.Find("Docks Warehouse Horizontal Container");
             Transform manorContainer = priceOptionsTransform.Find("Manor Horizontal Container");
 
+            if (storageUnitContainer != null && storageUnitContainer.gameObject.activeSelf)
+            {
+                storageUnitContainer.gameObject.SetActive(false);
+            }
             if (motelContainer != null && motelContainer.gameObject.activeSelf)
             {
                 motelContainer.gameObject.SetActive(false);
@@ -1018,7 +1023,11 @@ namespace MoreRealisticLaundering.PhoneApp
                     {
                         displayName = "Docks Warehouse";
                     }
-
+                    if (displayName == "StorageUnit")
+                    {
+                        displayName = "Storage Unit";
+                    }
+                    
                     float price = property.Price;
                     SetInputFieldValue(priceOptionsTransform, displayName, price);
                 }
@@ -1228,18 +1237,18 @@ namespace MoreRealisticLaundering.PhoneApp
         }
 
 
-        public void AddOptionsForBusiness(Transform detailEntriesTransform)
+        public void AddOptionsForBusiness(Transform parentTransform)
         {
-            if (detailEntriesTransform == null)
+            if (parentTransform == null)
             {
                 MelonLogger.Error("detailEntriesTransform is null! Cannot add options.");
                 return;
             }
 
-            VerticalLayoutGroup optionVerticalLayout = detailEntriesTransform.GetComponent<VerticalLayoutGroup>();
+            VerticalLayoutGroup optionVerticalLayout = parentTransform.GetComponent<VerticalLayoutGroup>();
             if (optionVerticalLayout == null)
             {
-                optionVerticalLayout = detailEntriesTransform.gameObject.AddComponent<VerticalLayoutGroup>();
+                optionVerticalLayout = parentTransform.gameObject.AddComponent<VerticalLayoutGroup>();
             }
 
             optionVerticalLayout.childControlWidth = true;
@@ -1248,10 +1257,10 @@ namespace MoreRealisticLaundering.PhoneApp
             optionVerticalLayout.spacing = -25f; // Abstand zwischen den Optionen
 
             // Füge die Optionen hinzu
-            AddLabelInputPair("Maximum Launder", detailEntriesTransform, "$");
-            AddLabelInputPair("Launder Time", detailEntriesTransform, "hr");
-            AddLabelInputPair("Taxation", detailEntriesTransform, "%");
-            AddSaveButton(detailEntriesTransform, "BusinessDetails");
+            AddLabelInputPair("Maximum Launder", parentTransform, "$");
+            AddLabelInputPair("Launder Time", parentTransform, "hr");
+            AddLabelInputPair("Taxation", parentTransform, "%");
+            AddSaveButton(parentTransform, "BusinessDetails");
 
             //   MelonLogger.Msg("Added options for business to detailEntriesTransform.");
         }
@@ -1506,7 +1515,7 @@ namespace MoreRealisticLaundering.PhoneApp
                     MelonLogger.Warning($"{labelText} was < 1000. Applying '$1000' as value.");
                 }
             }
-            else if (labelText.Contains("Motel") || labelText.Contains("Bungalow") || labelText.Contains("Barn") || labelText.Contains("Docks Warehouse") || labelText.Contains("Manor"))
+            else if (labelText.Contains("Motel") || labelText.Contains("Bungalow") || labelText.Contains("Barn") || labelText.Contains("Docks Warehouse") || labelText.Contains("Manor") || labelText.Contains("Storage"))
             {
                 // Überprüfe, ob die Eingabe leer ist oder kleiner als 100
                 if (string.IsNullOrEmpty(input) || float.TryParse(input, out float parsedValue) && parsedValue < 100)
@@ -1854,6 +1863,7 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform carWashPriceInputTransform = priceOptionsTransform.Find("Car Wash Horizontal Container/Car Wash Input");
             Transform postOfficePriceInputTransform = priceOptionsTransform.Find("Post Office Horizontal Container/Post Office Input");
 
+            Transform storageUnitPriceInputTransform = priceOptionsTransform.Find("Storage Unit Horizontal Container/Storage Unit Input");
             Transform motelPriceInputTransform = priceOptionsTransform.Find("Motel Horizontal Container/Motel Input");
             Transform sweatPriceInputTransform = priceOptionsTransform.Find("Sweatshop Horizontal Container/Sweatshop Input");
             Transform bungalowPriceInputTransform = priceOptionsTransform.Find("Bungalow Horizontal Container/Bungalow Input");
@@ -1866,6 +1876,7 @@ namespace MoreRealisticLaundering.PhoneApp
             float carWashPrice = MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price;
             float postOfficePrice = MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price;
 
+            float storageUnitPrice = MRLCore.Instance.config.Properties.PrivateProperties.Storage_Unit_Price;
             float motelPrice = MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price;
             float sweatshopPrice = MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price;
             float bungalowPrice = MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price;
@@ -1910,6 +1921,16 @@ namespace MoreRealisticLaundering.PhoneApp
                 if (postOfficePriceInputField != null && float.TryParse(postOfficePriceInputField.text, out float parsedPostOfficePrice))
                 {
                     postOfficePrice = parsedPostOfficePrice;
+                }
+            }
+
+            // Aktualisiere den Preis für Storage Unit
+            if (storageUnitPriceInputTransform != null)
+            {
+                InputField storageUnitPriceInputField = storageUnitPriceInputTransform.GetComponent<InputField>();
+                if (storageUnitPriceInputField != null && float.TryParse(storageUnitPriceInputField.text, out float parsedStorageUnitPrice))
+                {
+                    storageUnitPrice = parsedStorageUnitPrice;
                 }
             }
 
@@ -1975,6 +1996,7 @@ namespace MoreRealisticLaundering.PhoneApp
             MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price = tacoTicklersPrice;
             MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price = carWashPrice;
             MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price = postOfficePrice;
+            MRLCore.Instance.config.Properties.PrivateProperties.Storage_Unit_Price = storageUnitPrice;
             MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price = motelPrice;
             MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price = sweatshopPrice;
             MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price = bungalowPrice;
@@ -2572,7 +2594,8 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform carWashContainer = priceOptionsTransform.Find("Car Wash Horizontal Container");
             Transform tacoTicklersContainer = priceOptionsTransform.Find("Taco Ticklers Horizontal Container");
 
-            // Find the other 5 containers
+            // Find the other 6 containers
+            Transform storageUnitContainer = priceOptionsTransform.Find("Storage Unit Horizontal Container");
             Transform motelContainer = priceOptionsTransform.Find("Motel Horizontal Container");
             Transform sweatshopContainer = priceOptionsTransform.Find("Sweatshop Horizontal Container");
             Transform bungalowContainer = priceOptionsTransform.Find("Bungalow Horizontal Container");
@@ -2587,6 +2610,7 @@ namespace MoreRealisticLaundering.PhoneApp
             if (tacoTicklersContainer != null) tacoTicklersContainer.gameObject.SetActive(false);
 
             // Activate the other 5 containers
+            if (storageUnitContainer != null) storageUnitContainer.gameObject.SetActive(true);
             if (motelContainer != null) motelContainer.gameObject.SetActive(true);
             if (sweatshopContainer != null) sweatshopContainer.gameObject.SetActive(true);
             if (bungalowContainer != null) bungalowContainer.gameObject.SetActive(true);
@@ -2676,6 +2700,7 @@ namespace MoreRealisticLaundering.PhoneApp
             Transform tacoTicklersContainer = priceOptionsTransform.Find("Taco Ticklers Horizontal Container");
 
             // Find the other 5 containers
+            Transform storageUnitContainer = priceOptionsTransform.Find("Storage Unit Horizontal Container");
             Transform motelContainer = priceOptionsTransform.Find("Motel Horizontal Container");
             Transform sweatshopContainer = priceOptionsTransform.Find("Sweatshop Horizontal Container");
             Transform bungalowContainer = priceOptionsTransform.Find("Bungalow Horizontal Container");
@@ -2690,6 +2715,7 @@ namespace MoreRealisticLaundering.PhoneApp
             if (tacoTicklersContainer != null) tacoTicklersContainer.gameObject.SetActive(true);
 
             // Deactivate the other 5 containers
+            if (storageUnitContainer != null) storageUnitContainer.gameObject.SetActive(false);
             if (motelContainer != null) motelContainer.gameObject.SetActive(false);
             if (sweatshopContainer != null) sweatshopContainer.gameObject.SetActive(false);
             if (bungalowContainer != null) bungalowContainer.gameObject.SetActive(false);
@@ -2718,7 +2744,7 @@ namespace MoreRealisticLaundering.PhoneApp
             optionVerticalLayout.childControlWidth = true;
             optionVerticalLayout.childForceExpandWidth = false;
             optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -40f; // Abstand zwischen den Optionen
+            optionVerticalLayout.spacing = -45f; // Abstand zwischen den Optionen
 
             // Füge die Label-Input-Paare für die vier Unternehmen hinzu
             AddLabelInputPair("Laundromat", priceOptionsTransform, "$");
@@ -2726,6 +2752,7 @@ namespace MoreRealisticLaundering.PhoneApp
             AddLabelInputPair("Car Wash", priceOptionsTransform, "$");
             AddLabelInputPair("Taco Ticklers", priceOptionsTransform, "$");
 
+            AddLabelInputPair("Storage Unit", priceOptionsTransform, "$");
             AddLabelInputPair("Motel", priceOptionsTransform, "$");
             AddLabelInputPair("Sweatshop", priceOptionsTransform, "$");
             AddLabelInputPair("Bungalow", priceOptionsTransform, "$");

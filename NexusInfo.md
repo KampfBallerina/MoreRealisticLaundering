@@ -3,12 +3,14 @@
 
 [size=5]Known Incompatiblities / Issues[/size]
 - Not compatible with most translation mods
-- Not compatible with most mods that modify the Deliveries App (e.g. [url=https://www.nexusmods.com/schedule1/mods/521]DeliveryApp Improvements[/url])
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
-[size=5]What's new in Version 1.2.3?[/size]
--Fixed Lap Oven getting stuck when not using Legit Mode
--Reorganized ZIP Structure to allow Mod Loader Installation
+[size=5]What's new in Version 1.2.4?[/size]
+- Updated for Beta Branch Release v0.3.5
+- You do not need to update this mod yet if you're not playing on the beta branch
+- Added [b]Storage Unit to Ray's Real Estate[/b] Section
+- Added above for Legit Version
+- Fixed the MoreRealisticLaundering Config to automatically detect and save missing fields again
 
 [size=5]Installation[/size]
 [list=1]
