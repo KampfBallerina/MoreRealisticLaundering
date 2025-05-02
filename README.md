@@ -16,6 +16,13 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Added above for Legit Version
 - Fixed the MoreRealisticLaundering Config to automatically detect and save missing fields again
 
+![Rays Real Estate](https://github.com/user-attachments/assets/a3e44a3a-2994-4b14-92d0-ef16d85fa986)
+
+![Storage Unit Sign](https://github.com/user-attachments/assets/ef3643a4-e529-4562-b195-353d71b378cb)
+
+![Properties Whiteboard](https://github.com/user-attachments/assets/badd26b2-b363-43c3-aec7-65d8fd3f1a20)
+
+
 ## Installation
 1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.
 2. Extract the `Mods` and `UserData` folders of the ZIP file into your game's directory.
@@ -89,13 +96,13 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices.
 - Allows players to view and adjust the prices of unowned (and owned) properties directly from the app.
   
-![Rays Real Estate](https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49)
+![Rays Real Estate](https://github.com/user-attachments/assets/a3e44a3a-2994-4b14-92d0-ef16d85fa986)
 
 ### Property Listings Price Updates:
 - Automatically updates the prices displayed on the property listings in "Ray's Real Estate Office" based on the player's configuration.
 - Ensures that the displayed prices are always accurate and reflect the latest settings.
   
-![Properties Whiteboard](https://github.com/user-attachments/assets/96145491-afef-4aa5-abb4-a9b506e21d9c)
+![Properties Whiteboard](https://github.com/user-attachments/assets/badd26b2-b363-43c3-aec7-65d8fd3f1a20)
 
 ### Sell Sign Price Updates:
 - Updates the prices displayed on the "For Sale" signs for each property.
