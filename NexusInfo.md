@@ -12,6 +12,12 @@
 - Added above for Legit Version
 - Fixed the MoreRealisticLaundering Config to automatically detect and save missing fields again
 
+[center][img]https://github.com/user-attachments/assets/a3e44a3a-2994-4b14-92d0-ef16d85fa986[/img][/center]
+
+[center][img]https://github.com/user-attachments/assets/ef3643a4-e529-4562-b195-353d71b378cb[/img][/center]
+
+[center][img]https://github.com/user-attachments/assets/badd26b2-b363-43c3-aec7-65d8fd3f1a20[/img][/center]
+
 [size=5]Installation[/size]
 [list=1]
 [*]Download the latest release from the [url=https://github.com/user/MoreRealisticLaundering/releases]GitHub Releases[/url] page.
@@ -83,13 +89,13 @@
 - Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices.
 - Allows players to view and adjust the prices of unowned (and owned) properties directly from the app.
 
-[center][img]https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49[/img][/center]
+[center][img]https://github.com/user-attachments/assets/a3e44a3a-2994-4b14-92d0-ef16d85fa986[/img][/center]
 
 [size=3]Property Listings Price Updates:[/size]
 - Automatically updates the prices displayed on the whiteboards in "Ray's Real Estate Office" based on the player's configuration.
 - Ensures that the displayed prices are always accurate and reflect the latest settings.
 
-[center][img]https://github.com/user-attachments/assets/96145491-afef-4aa5-abb4-a9b506e21d9c[/img][/center]
+[center][img]https://github.com/user-attachments/assets/badd26b2-b363-43c3-aec7-65d8fd3f1a20[/img][/center]
 
 [size=3]Sell Sign Price Updates:[/size]
 - Updates the prices displayed on the "For Sale" signs for each property.
