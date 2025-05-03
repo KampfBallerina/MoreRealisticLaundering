@@ -1027,7 +1027,7 @@ namespace MoreRealisticLaundering.PhoneApp
                     {
                         displayName = "Storage Unit";
                     }
-                    
+
                     float price = property.Price;
                     SetInputFieldValue(priceOptionsTransform, displayName, price);
                 }
@@ -1045,6 +1045,10 @@ namespace MoreRealisticLaundering.PhoneApp
                     if (displayName == "DocksWarehouse")
                     {
                         displayName = "Docks Warehouse";
+                    }
+                    if (displayName == "StorageUnit")
+                    {
+                        displayName = "Storage Unit";
                     }
                     float price = property.Price;
                     SetInputFieldValue(priceOptionsTransform, displayName, price);
