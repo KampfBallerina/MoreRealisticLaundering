@@ -225,18 +225,15 @@ namespace MoreRealisticLaundering.PhoneApp
                     instructionsText.fontSize = 20;
 
                 }
-
+                
                 // Adjust the Spacing for the right Scroll View, so that the Title is on top
                 Transform settingsSpaceTransform = settingsContentTransform.Find("Space");
                 if (settingsSpaceTransform != null)
                 {
                     settingsSpaceTransform.gameObject.SetActive(true); // Hide
                     RectTransform settingsSpaceRect = settingsSpaceTransform.GetComponent<RectTransform>();
-                    settingsSpaceRect.sizeDelta = new Vector2(settingsSpaceRect.sizeDelta.x, 30f);
-                }
-
-                // Content -> sizeDelta -250, Vertical Layout Group 
-                //settingsTransform.Find("Scroll View/Viewport/Content/Toggle");                    
+                    settingsSpaceRect.sizeDelta = new Vector2(settingsSpaceRect.sizeDelta.x, 200f);
+                }            
             }
 
             CreateTemplates(container, settingsContentTransform);
