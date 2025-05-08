@@ -502,9 +502,9 @@ namespace MoreRealisticLaundering.Config
                 loadedConfigState.Properties.PrivateProperties.Storage_Unit_Price = configState.Properties.PrivateProperties.Storage_Unit_Price;
                 isConfigUpdated = true;
             }
-            if (loadedConfigState.Properties.PrivateProperties.Motel_Room_Price <= 100f)
+            if (loadedConfigState.Properties.PrivateProperties.Motel_Room_Price < 75f)
             {
-                MelonLogger.Warning("Invalid Motel_Room_Price in config. Reverting to default (750).");
+                MelonLogger.Warning("Invalid Motel_Room_Price in config. Reverting to default (250).");
                 loadedConfigState.Properties.PrivateProperties.Motel_Room_Price = configState.Properties.PrivateProperties.Motel_Room_Price;
                 isConfigUpdated = true;
             }

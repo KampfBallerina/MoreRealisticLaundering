@@ -31,7 +31,7 @@ namespace MoreRealisticLaundering.Config
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Storage_Unit_Price = 12000f;
 		[JsonConverter(typeof(CleanFloatConverter))]
-		public float Motel_Room_Price = 750f;
+		public float Motel_Room_Price = 250f;
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Sweatshop_Price = 2500f;
 		[JsonConverter(typeof(CleanFloatConverter))]

@@ -1697,7 +1697,7 @@ namespace MoreRealisticLaundering.PhoneApp
                     MelonLogger.Warning($"{labelText} was < 1000. Applying '$1000' as value.");
                 }
             }
-            else if (labelText.Contains("Motel") || labelText.Contains("Bungalow") || labelText.Contains("Barn") || labelText.Contains("Docks Warehouse") || labelText.Contains("Manor") || labelText.Contains("Storage"))
+            else if (labelText.Contains("Bungalow") || labelText.Contains("Barn") || labelText.Contains("Docks Warehouse") || labelText.Contains("Manor") || labelText.Contains("Storage"))
             {
                 // Überprüfe, ob die Eingabe leer ist oder kleiner als 100
                 if (string.IsNullOrEmpty(input) || float.TryParse(input, out float parsedValue) && parsedValue < 100)
@@ -1709,6 +1709,20 @@ namespace MoreRealisticLaundering.PhoneApp
                         MRLCore.Instance.notificationsManager.SendNotification("Property Price", subTitleString, appIconSprite, 3, true);
                     }
                     MelonLogger.Warning($"{labelText} was < 100. Applying '$1000' as value.");
+                }
+            }
+            else if (labelText.Contains("Motel"))
+            {
+                // Überprüfe, ob die Eingabe leer ist oder kleiner als 75
+                if (string.IsNullOrEmpty(input) || float.TryParse(input, out float parsedValue) && parsedValue < 75)
+                {
+                    inputFieldComponent.text = "1000";
+                    if (MRLCore.Instance.notificationsManager != null)
+                    {
+                        subTitleString = $"Has to be <color=#329AC5>at least $75</color>";
+                        MRLCore.Instance.notificationsManager.SendNotification("Property Price", subTitleString, appIconSprite, 3, true);
+                    }
+                    MelonLogger.Warning($"{labelText} was < 75. Applying '$1000' as value.");
                 }
             }
         }
