@@ -32,61 +32,76 @@ namespace MoreRealisticLaundering.PhoneApp
             yield return MelonCoroutines.Start(CreateApp("TaxNWash", "Tax & Wash", true, FilePath));
             yield break;
         }
+
         public IEnumerator CreateApp(string IDName, string Title, bool IsRotated = true, string IconPath = null)
         {
-            GameObject cloningCandidate = null;
-            string cloningName = null;
-            GameObject cloningCandidateKeep = null;
-            string cloningNameKeep = null;
+            GameObject cloningCandidateProducts = null;
+            string cloningNameProducts = null;
+            GameObject cloningCandidateDeliveries = null;
+            string cloningNameDeliveries = null;
+            GameObject cloningCandidateProductsCopy = null;
+            string cloningNameProductsCopy = null;
             GameObject icons = null;
 
             // Warte auf das AppIcons-Objekt
             yield return MelonCoroutines.Start(Utils.WaitForObject(
                 "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons/",
-                delegate (GameObject obj) { icons = obj; }
+                delegate (GameObject obj)
+                {
+                    icons = obj;
+                }
             ));
 
             // Bestimme das CloningCandidate basierend auf IsRotated
             if (IsRotated)
             {
                 yield return MelonCoroutines.Start(Utils.WaitForObject(
-                    "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/DeliveryApp",
-                    delegate (GameObject obj)
-                    {
-                        cloningCandidate = obj;
-                        cloningName = "Deliveries";
-                    }
-                ));
+                   "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/DeliveryApp",
+                   delegate (GameObject objD)
+                   {
+                       cloningCandidateDeliveries = objD;
+                       cloningNameDeliveries = "Deliveries";
+                   }
+               ));
+
+                yield return MelonCoroutines.Start(Utils.WaitForObject(
+                     "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/ProductManagerApp",
+                     delegate (GameObject objP)
+                     {
+                         cloningCandidateProductsCopy = objP;
+                         cloningNameProductsCopy = "Products";
+                     }
+                 ));
 
                 yield return MelonCoroutines.Start(Utils.WaitForObject(
                     "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/ProductManagerApp",
                     delegate (GameObject obj)
                     {
-                        cloningCandidateKeep = obj;
-                        cloningNameKeep = "Products";
-                    }
-                ));
-            }
-            else
-            {
-                yield return MelonCoroutines.Start(Utils.WaitForObject(
-                    "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/Messages",
-                    delegate (GameObject obj)
-                    {
-                        cloningCandidateKeep = obj;
-                        cloningNameKeep = "Messages";
+                        cloningCandidateProducts = obj;
+                        cloningNameProducts = "Products";
                     }
                 ));
             }
 
             // Klone das App-Canvas
             GameObject parentCanvas = GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/");
-            GameObject clonedKeepApp = UnityEngine.Object.Instantiate(cloningCandidateKeep, parentCanvas.transform);
-            GameObject clonedApp = UnityEngine.Object.Instantiate(cloningCandidate, parentCanvas.transform);
-            Transform entriesTransform = null;
 
-            Transform container = clonedKeepApp.transform.Find("Container");
-            //  Utils.ClearChildren(container);
+            GameObject deliveriesApp = UnityEngine.Object.Instantiate(cloningCandidateDeliveries, parentCanvas.transform);
+            deliveriesApp.name = "DeliveriesTemp";
+
+            GameObject productsApp = UnityEngine.Object.Instantiate(cloningCandidateProductsCopy, parentCanvas.transform);
+            deliveriesApp.name = "ProductsTemp";
+
+            GameObject mrlApp = UnityEngine.Object.Instantiate(cloningCandidateProducts, parentCanvas.transform);
+            mrlApp.name = IDName;
+
+            // Aktualisiere den Namen vom App-Icon für das Deliveries Copy Object
+            GameObject appIconByNameDeliveries = Utils.ChangeLabelFromAppIcon(cloningNameDeliveries, "DeliveriesCopy");
+
+            // Aktualisiere den Namen vom App-Icon für das Products Copy Object
+            GameObject appIconByNameProducts = Utils.ChangeLabelFromAppIcon(cloningNameProductsCopy, "ProductsCopy");
+
+            Transform container = mrlApp.transform.Find("Container");
 
             //Adjust Topbar for Sleep App
             Transform topbarTransform = container.Find("Topbar");
@@ -102,290 +117,338 @@ namespace MoreRealisticLaundering.PhoneApp
                 {
                     topbarTitleTransform.GetComponent<Text>().text = Title;
                 }
+
+                Transform topbarSubtitleTransform = topbarTransform.Find("Subtitle");
+                if (topbarSubtitleTransform != null)
+                {
+                    topbarSubtitleTransform.GetComponent<Text>().text = "by KampfBallerina";
+                    topbarSubtitleTransform.GetComponent<Text>().alignment = TextAnchor.MiddleRight;
+                    topbarSubtitleTransform.GetComponent<Text>().color = ColorUtil.GetColor("White");
+                    topbarSubtitleTransform.GetComponent<RectTransform>().anchorMax = new Vector2(0.98f, 1);
+                }
             }
 
-            // Scroll View from the Laundering App
+            // Scroll View from the Sleep App
             Transform scrollViewProductsApp = container.Find("Scroll View");
             if (scrollViewProductsApp != null)
             {
                 // This needs to stay to avoid the Meth Oven to brick
                 scrollViewProductsApp.gameObject.SetActive(false);
                 scrollViewProductsApp.gameObject.name = "DeactivatedScrollView";
-                /* This needs to stay since new products try to find the LaunderingApp ScrollView*/
+                /* This needs to stay since new products try to find the SleepingApp ScrollView*/
             }
 
-            // Remove old Details from Laundering App
-            Transform oldDetailsTransform = container.Find("Details");
-            oldDetailsTransform.gameObject.Destroy();
-
-            // Ändere die Eigenschaften des Containers, ohne Kinder zu löschen
-            Transform containerTransformClonedApp = clonedApp.transform.Find("Container");
-            if (containerTransformClonedApp != null)
+            Transform containerTransformClonedDeliveriesApp = deliveriesApp.transform.Find("Container");
+            if (containerTransformClonedDeliveriesApp != null)
             {
-                Transform scrollViewTransformOrig = containerTransformClonedApp.Find("Scroll View");
-                if (scrollViewTransformOrig != null)
+                Transform scrollViewTransformDeliveriesClone = containerTransformClonedDeliveriesApp.Find("Scroll View");
+                if (scrollViewTransformDeliveriesClone != null)
                 {
-                    GameObject clonedScrollView = UnityEngine.Object.Instantiate(scrollViewTransformOrig.gameObject, container);
-                    clonedScrollView.name = "Scroll View"; // Ensure the name matches the original
+
+                    Transform scrollViewViewport = scrollViewTransformDeliveriesClone.transform.Find("Viewport");
+                    if (scrollViewViewport != null)
+                    {
+                        Transform scrollViewContent = scrollViewViewport.transform.Find("Content");
+                        /* Utils.ClearChildren(scrollViewContent, child =>
+                             child.name == "Space" ||
+                             child == scrollViewContent.GetChild(0).gameObject ||
+                             child.transform.IsChildOf(scrollViewContent.GetChild(0))
+                         );*/
+                    }
+
+                    Transform orderSubmitted = scrollViewTransformDeliveriesClone.transform.Find("OrderSubmitted");
+                    if (orderSubmitted != null)
+                    {
+                        UnityEngine.Object.DestroyImmediate(orderSubmitted.gameObject);
+                    }
+                    scrollViewTransformDeliveriesClone.transform.GetComponent<RectTransform>().sizeDelta = new Vector2(-100, -60); // Set the sizeDelta to match the original
+                    scrollViewTransformDeliveriesClone.transform.GetComponent<RectTransform>().anchoredPosition = new Vector2(-50, -30); // Set the anchoredPosition to match the original
+                    scrollViewTransformDeliveriesClone.SetParent(container, false);
+                }
+            }
+
+            Transform settingsTransform = container.Find("Details");
+            if (settingsTransform != null)
+            {
+                // Ändere den Namen des Details-Objekts
+                settingsTransform.name = "Details";
+                settingsTransform.GetComponent<RectTransform>().sizeDelta = new Vector2(95f, -60f); // Setze die Größe des Details-Objekts
+                settingsTransform.GetComponent<RectTransform>().anchoredPosition = new Vector2(-47.5f, -30f); // Setze die Position des Details-Objekts
+
+                Transform detailsTitleTransform = settingsTransform.Find("Scroll View/Viewport/Content/Title");
+                if (detailsTitleTransform != null)
+                {
+                    detailsTitleObject = detailsTitleTransform.gameObject;
+                    detailsTitleObject.SetActive(false);
+                    Text detailsTitleText = detailsTitleTransform.GetComponent<Text>();
+                    detailsTitleText.text = "DetailsTitleText";
                 }
 
-                GameObject newEntriesObject = new GameObject("Options");
-
-                Transform detailsTransformOrig = containerTransformClonedApp.Find("Deliveries");
-
-                Transform detailsTransform = UnityEngine.Object.Instantiate(detailsTransformOrig, container);
-                if (detailsTransform != null)
+                Transform detailsSubtitleTransform = settingsTransform.Find("Scroll View/Viewport/Content/Description");
+                if (detailsSubtitleTransform != null)
                 {
-                    // Ändere den Namen des Details-Objekts
-                    detailsTransform.name = "Details";
-
-                    Transform detailsTitleTransform = detailsTransform.Find("Title");
-                    if (detailsTitleTransform != null)
-                    {
-                        detailsTitleTransform.GetComponent<Text>().text = "Details";
-                    }
-
-                    entriesTransform = detailsTransform.Find("Entries");
-
-                    if (entriesTransform != null)
-                    {
-                        newEntriesObject.transform.SetParent(detailsTitleTransform.parent, false); // Set parent to the same as entriesTransform
-
-                        VerticalLayoutGroup existingVerticalLayoutGroup = entriesTransform.GetComponent<VerticalLayoutGroup>();
-                        VerticalLayoutGroup verticalLayoutGroup = newEntriesObject.GetComponent<VerticalLayoutGroup>();
-                        if (verticalLayoutGroup == null)
-                        {
-                            verticalLayoutGroup = newEntriesObject.gameObject.AddComponent<VerticalLayoutGroup>();
-                        }
-                        if (existingVerticalLayoutGroup != null)
-                        {
-                            verticalLayoutGroup.childControlHeight = existingVerticalLayoutGroup.childControlHeight;
-                            verticalLayoutGroup.childControlWidth = existingVerticalLayoutGroup.childControlWidth;
-                            verticalLayoutGroup.childForceExpandHeight = existingVerticalLayoutGroup.childForceExpandHeight;
-                            verticalLayoutGroup.childForceExpandWidth = existingVerticalLayoutGroup.childForceExpandWidth;
-                            verticalLayoutGroup.childScaleHeight = existingVerticalLayoutGroup.childScaleHeight;
-                            verticalLayoutGroup.childScaleWidth = existingVerticalLayoutGroup.childScaleWidth;
-                            verticalLayoutGroup.childAlignment = existingVerticalLayoutGroup.childAlignment;
-                            verticalLayoutGroup.spacing = existingVerticalLayoutGroup.spacing;
-                        }
-                        else
-                        {
-                            verticalLayoutGroup.childControlWidth = true;
-                            verticalLayoutGroup.childForceExpandWidth = true;
-                            verticalLayoutGroup.childControlHeight = false;
-                            verticalLayoutGroup.childForceExpandHeight = false;
-                            verticalLayoutGroup.childAlignment = TextAnchor.UpperLeft;
-                            verticalLayoutGroup.spacing = 10f; // Default spacing
-                        }
-
-                        RectTransform newEntriesRect = newEntriesObject.GetComponent<RectTransform>();
-                        if (newEntriesRect == null)
-                        {
-                            newEntriesRect = newEntriesObject.AddComponent<RectTransform>();
-                        }
-                        if (newEntriesRect != null)
-                        {
-                            newEntriesRect.anchorMin = new Vector2(0, 0);
-                            newEntriesRect.anchorMax = new Vector2(1, 1);
-                            newEntriesRect.pivot = new Vector2(0.5f, 0.5f);
-                            newEntriesRect.offsetMin = new Vector2(10, 0);
-                            newEntriesRect.offsetMax = new Vector2(-10, -50);
-                            newEntriesRect.sizeDelta = new Vector2(-20, -50);
-                            newEntriesRect.anchoredPosition = new Vector2(10, -25);
-                        }
-
-
-                        Transform noneEntryTransform = entriesTransform.Find("None");
-                        if (noneEntryTransform != null)
-                        {
-                            Text noneEntryText = noneEntryTransform.GetComponent<Text>();
-                            if (noneEntryText != null)
-                            {
-                                noneEntryText.text = "Choose one of your businesses";
-                            }
-                            noneEntryTransform.SetParent(newEntriesObject.transform, false);
-                            noneEntryTransform.gameObject.SetActive(true);
-                        }
-
-                        entriesTransform.gameObject.Destroy();
-
-                        // Erstelle eine Kopie von Entries
-                        priceOptionsTransform = UnityEngine.Object.Instantiate(newEntriesObject.transform, newEntriesObject.transform.parent);
-                        if (priceOptionsTransform != null)
-                        {
-                            priceOptionsTransform.name = "PriceOptions";
-                            priceOptionsTransform.gameObject.SetActive(false);
-
-                            Transform noneEntryPriceTransform = priceOptionsTransform.Find("None");
-                            if (noneEntryPriceTransform != null)
-                            {
-                                Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
-                                if (noneEntryText != null)
-                                {
-                                    noneEntryText.text = "Adjusting the prices of Properties";
-                                }
-                            }
-                        }
-
-                        // Erstelle eine Kopie von Entries
-                        vehicleOptionsTransform = UnityEngine.Object.Instantiate(newEntriesObject.transform, newEntriesObject.transform.parent);
-                        if (vehicleOptionsTransform != null)
-                        {
-                            vehicleOptionsTransform.name = "VehicleOptions";
-                            vehicleOptionsTransform.gameObject.SetActive(false);
-
-                            Transform noneEntryPriceTransform = vehicleOptionsTransform.Find("None");
-                            if (noneEntryPriceTransform != null)
-                            {
-                                Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
-                                if (noneEntryText != null)
-                                {
-                                    noneEntryText.text = "Adjusting the prices of Vehicles";
-                                }
-                            }
-                        }
-
-                        skateboardOptionsTransform = UnityEngine.Object.Instantiate(newEntriesObject.transform, newEntriesObject.transform.parent);
-                        if (skateboardOptionsTransform != null)
-                        {
-                            skateboardOptionsTransform.name = "SkateboardOptions";
-                            skateboardOptionsTransform.gameObject.SetActive(false);
-
-                            Transform noneEntryPriceTransform = skateboardOptionsTransform.Find("None");
-                            if (noneEntryPriceTransform != null)
-                            {
-                                Text noneEntryText = noneEntryPriceTransform.GetComponent<Text>();
-                                if (noneEntryText != null)
-                                {
-                                    noneEntryText.text = "Adjusting the prices of Skateboards";
-                                }
-                            }
-                        }
-
-                        // Destroy the original detailsTransform
-                        detailsTransformOrig.gameObject.Destroy();
-                    }
+                    detailsSubtitleTransform.GetComponent<Text>().text = "This is going to be the description of the app.";
+                    detailsSubtitleTransform.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0); // Set the anchoredPosition to match the original
+                    detailsSubtitleTransform.GetComponent<RectTransform>().sizeDelta = new Vector2(400, 50); // Set the sizeDelta to match the original
+                    detailsSubtitleTransform.GetComponent<Text>().fontSize = 18;
+                    detailsSubtitleTransform.gameObject.SetActive(false);
+                    detailsSubtitleObject = detailsSubtitleTransform.gameObject;
                 }
 
-                // Setze den Namen des geklonten Objekts
-                clonedKeepApp.name = IDName;
+                //  MelonLogger.Msg("Deleting unneeded objects");
+                settingsContentTransform = settingsTransform.Find("Scroll View/Viewport/Content");
+                Transform toDeleteTransform = settingsContentTransform.Find("Value");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das Value-Objekt
+                toDeleteTransform = settingsContentTransform.Find("Effects");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das Effects-Objekt
+                toDeleteTransform = settingsContentTransform.Find("Addiction");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das Addiction-Objekt
+                toDeleteTransform = settingsContentTransform.Find("Recipes");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das Recipes-Objekt
+                toDeleteTransform = settingsContentTransform.Find("RecipesContainer");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das RecipesContainer-Objekt
+                toDeleteTransform = settingsContentTransform.Find("Listed");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das Listed-Objekt
+                toDeleteTransform = settingsContentTransform.Find("Delisted");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das Delisted-Objekt
+                toDeleteTransform = settingsContentTransform.Find("NotDiscovered");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das NotDiscovered-Objekt
+                toDeleteTransform = settingsContentTransform.Find("Properties");
+                toDeleteTransform.gameObject.Destroy(); // Zerstöre das Properties-Objekt
 
-                // Aktualisiere das App-Icon
-                GameObject appIconByName = Utils.GetAppIconByName(cloningNameKeep, 1);
-                Transform labelTransform = appIconByName.transform.Find("Label");
-                GameObject labelObject = labelTransform != null ? labelTransform.gameObject : null;
-                if (labelObject != null)
+                Transform instructionTransform = settingsTransform.Find("Instruction");
+                if (instructionTransform != null)
                 {
-                    Text labelText = labelObject.GetComponent<Text>();
-                    if (labelText != null)
-                    {
-                        labelText.text = Title;
-                    }
+                    InstructionsTextObject = instructionTransform.gameObject;
+                    Text instructionsText = instructionTransform.GetComponent<Text>();
+                    instructionsText.text = "Select a section to adjust settings";
+                    instructionsText.fontSize = 20;
+
                 }
 
-                Transform scrollViewTransform = container.Find("Scroll View");
-                if (scrollViewTransform != null)
+                // Adjust the Spacing for the right Scroll View, so that the Title is on top
+                Transform settingsSpaceTransform = settingsContentTransform.Find("Space");
+                if (settingsSpaceTransform != null)
                 {
-                    Transform orderSubmittedTransform = scrollViewTransform.Find("OrderSubmitted");
-                    if (orderSubmittedTransform != null)
+                    settingsSpaceTransform.gameObject.SetActive(true); // Hide
+                    RectTransform settingsSpaceRect = settingsSpaceTransform.GetComponent<RectTransform>();
+                    settingsSpaceRect.sizeDelta = new Vector2(settingsSpaceRect.sizeDelta.x, 30f);
+                }
+
+                // Content -> sizeDelta -250, Vertical Layout Group 
+                //settingsTransform.Find("Scroll View/Viewport/Content/Toggle");                    
+            }
+
+            CreateTemplates(container, settingsContentTransform);
+
+            // Destroy the Temp Apps
+            UnityEngine.Object.DestroyImmediate(appIconByNameDeliveries.gameObject);
+            deliveriesApp.Destroy();
+            UnityEngine.Object.DestroyImmediate(appIconByNameProducts.gameObject);
+            productsApp.Destroy();
+
+            // Aktualisiere den Namen vom App-Icon für das Sleeping App Object
+            GameObject appIconByName = Utils.ChangeLabelFromAppIcon(cloningNameProducts, Title);
+
+            // Ändere das App-Icon-Bild
+            MRLCore.Instance.ChangeAppIconImage(appIconByName, IconPath);
+
+            // Registriere die App
+            MRLCore.Instance.RegisterApp(appIconByName, Title);
+            settingsContentTransform.gameObject.SetActive(true);
+
+
+            //AddSpaceFromTemplate(viewportContentTransform);
+            AddOptionsForBusiness(settingsContentTransform);
+            AddPriceOptionsWithToggleButton(settingsContentTransform);
+            AddVehicleOptions(settingsContentTransform);
+            AddSkateboardOptions(settingsContentTransform);
+            _isLaunderingAppLoaded = true;
+
+
+        }
+
+        void CreateTemplates(Transform deliveriesContainer, Transform productsContainer = null)
+        {
+            if (deliveriesContainer == null)
+            {
+                MelonLogger.Error("Container not found!");
+                return;
+            }
+
+            //Products Templates
+            if (productsContainer != null)
+            {
+                Transform toggleTransform = productsContainer.Find("Toggle");
+                if (toggleTransform != null)
+                {
+                    RectTransform toggleRectTransform = toggleTransform.GetComponent<RectTransform>();
+                    if (toggleRectTransform != null)
                     {
-                        orderSubmittedTransform.gameObject.Destroy(); // Zerstöre das ursprüngliche GameObject
+                        // toggleRectTransform.anchoredPosition = new Vector2(0, 0); // Set the anchoredPosition to match the original
                     }
 
-                    Transform viewportTransform = scrollViewTransform.Find("Viewport");
-                    if (viewportTransform != null)
+                    HorizontalLayoutGroup horizontalContainerGroup = toggleTransform.GetComponent<HorizontalLayoutGroup>();
+                    if (horizontalContainerGroup == null)
                     {
-                        Transform viewportContentTransform = viewportTransform.Find("Content");
-                        if (viewportContentTransform != null)
+                        horizontalContainerGroup = toggleTransform.gameObject.AddComponent<HorizontalLayoutGroup>();
+                        horizontalContainerGroup.spacing = 100f; // Abstand zwischen den Elementen
+                        horizontalContainerGroup.childForceExpandWidth = false; // Breite der Kinder nicht erzwingen
+                        horizontalContainerGroup.childForceExpandHeight = false; // Höhe der Kinder nicht erzwingen
+                        horizontalContainerGroup.childControlWidth = true; // Breite der Kinder steuern
+                        horizontalContainerGroup.childControlHeight = true; // Höhe der Kinder steuern
+                        horizontalContainerGroup.childAlignment = TextAnchor.MiddleLeft; // Elemente linksbündig ausrichten
+                    }
+
+                    // Füge einen ContentSizeFitter hinzu, um die Breite automatisch anzupassen
+                    ContentSizeFitter contentSizeFitter = toggleTransform.GetComponent<ContentSizeFitter>();
+                    if (contentSizeFitter == null)
+                    {
+                        contentSizeFitter = toggleTransform.gameObject.AddComponent<ContentSizeFitter>();
+                        contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize; // Passe die Breite an den Inhalt an
+                        contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained; // Höhe nicht anpassen
+                    }
+
+
+                    Transform toggleTextTransform = toggleTransform.Find("Text");
+                    if (toggleTextTransform != null)
+                    {
+                        Text textComponent = toggleTextTransform.GetComponent<Text>();
+                        textComponent.font = FontLoader.openSansSemiBold ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+                        textComponent.text = "toggleTransformText";
+                        textComponent.color = ColorUtil.GetColor("White");
+                        textComponent.fontSize = 18;
+                        toggleTextTransform.SetAsFirstSibling();
+                        toggleTextTransform.GetComponent<RectTransform>().sizeDelta = new Vector2(325, 30);
+
+                        LayoutElement labelLayoutElement = toggleTextTransform.GetComponent<LayoutElement>();
+                        if (labelLayoutElement == null)
                         {
-                            launderingAppViewportContentTransform = viewportContentTransform;
-                            // Suche nach den GameObjects "Dan's Hardware" und "Gas-Mart (West)" und "Space" und speichere sie in Variablen
-                            GameObject dansHardware = viewportContentTransform.Find("Dan's Hardware").gameObject;
-                            GameObject gasMartWest = viewportContentTransform.Find("Gas-Mart (West)").gameObject;
-                            GameObject viewPortContentSpace = viewportContentTransform.Find("Space").gameObject;
+                            labelLayoutElement = toggleTextTransform.gameObject.AddComponent<LayoutElement>();
+                            labelLayoutElement.minWidth = 325; // Mindestbreite des Labels
+                        }
+                    }
 
-                            if (dansHardware != null && dansHardwareTemplate == null)
-                            {
-                                dansHardwareTemplate = UnityEngine.Object.Instantiate(dansHardware);
-                                dansHardwareTemplate.name = "Dan's Hardware Template";
-                                dansHardwareTemplate.SetActive(false); // Deaktiviere das Template
-
-                                Transform contentsDansTemplateTransform = dansHardwareTemplate.transform.Find("Contents");
-                                if (contentsDansTemplateTransform != null)
-                                {
-                                    UnityEngine.Object.DestroyImmediate(contentsDansTemplateTransform.gameObject); // Entferne den "Contents"
-                                                                                                                   //   MelonLogger.Msg("Removed Contents from Dans Hardware Template");
-                                }
-
-                                UnityEngine.Object.Destroy(dansHardware); // Entferne das ursprüngliche GameObject
-                            }
-
-                            if (gasMartWest != null && gasMartWestTemplate == null)
-                            {
-                                gasMartWestTemplate = UnityEngine.Object.Instantiate(gasMartWest);
-                                gasMartWestTemplate.name = "Gas-Mart (West) Template";
-                                gasMartWestTemplate.SetActive(false); // Deaktiviere das Template
-
-                                Transform contentsMarketTemplateTransform = gasMartWestTemplate.transform.Find("Contents");
-                                if (contentsMarketTemplateTransform != null)
-                                {
-                                    UnityEngine.Object.DestroyImmediate(contentsMarketTemplateTransform.gameObject); // Entferne den "Contents"
-                                                                                                                     //   MelonLogger.Msg("Removed Contents from Gas Mart West Template");
-                                }
-                                UnityEngine.Object.Destroy(gasMartWest); // Entferne das ursprüngliche GameObject
-                            }
-
-                            if (viewPortContentSpace != null && viewPortContentSpaceTemplate == null)
-                            {
-                                viewPortContentSpaceTemplate = UnityEngine.Object.Instantiate(viewPortContentSpace);
-                                viewPortContentSpaceTemplate.name = "Space Template";
-                                viewPortContentSpaceTemplate.SetActive(false); // Deaktiviere das Template
-                                UnityEngine.Object.Destroy(viewPortContentSpace); // Entferne das ursprüngliche GameObject
-                            }
-
-                            Utils.ClearChildren(viewportContentTransform);
-
-                            //  MelonLogger.Msg("Saved Dan's Hardware, Gas Mart and Space as Templates");
+                    Toggle toggleToggle = toggleTransform.GetComponent<Toggle>();
+                    if (toggleToggle != null)
+                    {
+                        toggleToggle.isOn = false; // Set the toggle to off
+                        toggleToggle.onValueChanged.RemoveAllListeners(); // Remove existing listeners to avoid old functionality after copying
+                    }
+                    Transform backgroundTransform = toggleTransform.Find("Background");
+                    if (backgroundTransform != null)
+                    {
+                        backgroundTransform.name = "CheckboxBackground";
+                        LayoutElement checkboxLayoutElement = backgroundTransform.GetComponent<LayoutElement>();
+                        if (checkboxLayoutElement == null)
+                        {
+                            checkboxLayoutElement = backgroundTransform.gameObject.AddComponent<LayoutElement>();
+                            checkboxLayoutElement.minWidth = 30; // Mindestbreite des Labels
+                            checkboxLayoutElement.preferredWidth = 30; // Bevorzugte Breite des Labels
+                            checkboxLayoutElement.minHeight = 30; // Mindesthöhe des Labels
+                            checkboxLayoutElement.preferredHeight = 30; // Bevorzugte Höhe des Labels
 
                         }
-                        else
+                    }
+                    Transform checkmarkTransform = backgroundTransform.Find("Checkmark");
+                    if (checkmarkTransform != null)
+                    {
+                        checkmarkTransform.GetComponent<Image>().color = ColorUtil.GetColor("Cyan");
+                    }
+
+                    RectTransform checkboxRect = toggleTransform.gameObject.GetComponent<RectTransform>();
+                    if (checkboxRect != null)
+                    {
+                        checkboxRect.sizeDelta = new Vector2(30, 30);
+                    }
+
+                    // Save as Template
+                    checkboxTemplate = UnityEngine.Object.Instantiate(toggleTransform.gameObject);
+                    checkboxTemplate.name = "Checkbox Template";
+                    checkboxTemplate.SetActive(true);
+
+                    toggleTransform.gameObject.Destroy(); // Zerstöre das ursprüngliche GameObject
+                }
+            }
+
+
+            // Deliveries Templates and Cleaning
+            Transform scrollViewTransform = deliveriesContainer.Find("Scroll View");
+            if (scrollViewTransform != null)
+            {
+                Transform orderSubmittedTransform = scrollViewTransform.Find("OrderSubmitted");
+                if (orderSubmittedTransform != null)
+                {
+                    orderSubmittedTransform.gameObject.Destroy(); // Zerstöre das ursprüngliche GameObject
+                }
+
+                Transform viewportTransform = scrollViewTransform.Find("Viewport");
+                if (viewportTransform != null)
+                {
+                    Transform viewportContentTransform = viewportTransform.Find("Content");
+                    if (viewportContentTransform != null)
+                    {
+                        launderingAppViewportContentTransform = viewportContentTransform;
+                        // Suche nach den GameObjects "Dan's Hardware" und "Gas-Mart (West)" und "Space" und speichere sie in Variablen
+                        GameObject dansHardware = viewportContentTransform.Find("Dan's Hardware").gameObject;
+                        GameObject gasMartWest = viewportContentTransform.Find("Gas-Mart (West)").gameObject;
+                        GameObject viewPortContentSpace = viewportContentTransform.Find("Space").gameObject;
+
+                        if (dansHardware != null && DansHardwareTemplate == null)
                         {
-                            MelonLogger.Error("Viewport Content not found!");
+                            DansHardwareTemplate = UnityEngine.Object.Instantiate(dansHardware);
+                            DansHardwareTemplate.name = "Dan's Hardware Template";
+                            DansHardwareTemplate.SetActive(false); // Deaktiviere das Template
+
+                            Transform contentsDansTemplateTransform = DansHardwareTemplate.transform.Find("Contents");
+                            if (contentsDansTemplateTransform != null)
+                            {
+                                UnityEngine.Object.DestroyImmediate(contentsDansTemplateTransform.gameObject); // Entferne den "Contents"
+                                                                                                               //   MelonLogger.Msg("Removed Contents from Dans Hardware Template");
+                            }
+
+                            UnityEngine.Object.Destroy(dansHardware); // Entferne das ursprüngliche GameObject
                         }
 
-                        // Aktualisiere das App-Icon
-                        GameObject appIconByNameCopy = Utils.GetAppIconByName(cloningName, 1);
-                        appIconByNameCopy.Destroy(); // Zerstöre das geklonte App-Icon-Objekt
-                        clonedApp.Destroy(); // Zerstöre das geklonte App-Objekt
+                        if (gasMartWest != null && GasMartWestTemplate == null)
+                        {
+                            GasMartWestTemplate = UnityEngine.Object.Instantiate(gasMartWest);
+                            GasMartWestTemplate.name = "Gas-Mart (West) Template";
+                            GasMartWestTemplate.SetActive(false); // Deaktiviere das Template
 
+                            Transform contentsMarketTemplateTransform = GasMartWestTemplate.transform.Find("Contents");
+                            if (contentsMarketTemplateTransform != null)
+                            {
+                                UnityEngine.Object.DestroyImmediate(contentsMarketTemplateTransform.gameObject); // Entferne den "Contents"
+                                                                                                                 //   MelonLogger.Msg("Removed Contents from Gas Mart West Template");
+                            }
+                            UnityEngine.Object.Destroy(gasMartWest); // Entferne das ursprüngliche GameObject
+                        }
 
+                        if (viewPortContentSpace != null && viewPortContentSpaceTemplate == null)
+                        {
+                            viewPortContentSpaceTemplate = UnityEngine.Object.Instantiate(viewPortContentSpace);
+                            viewPortContentSpaceTemplate.name = "Space Template";
+                            viewPortContentSpaceTemplate.SetActive(false); // Deaktiviere das Template
+                            UnityEngine.Object.Destroy(viewPortContentSpace); // Entferne das ursprüngliche GameObject
+                        }
 
-                        optionsTransform = newEntriesObject.transform;
+                        Utils.ClearChildren(viewportContentTransform);
                         AddSpaceFromTemplate(viewportContentTransform);
-                        AddPriceOptionsForHomeProperties(priceOptionsTransform);
-                        AddOptionsForBusiness(newEntriesObject.transform);
-                        AddPriceOptionsForRealEstate(priceOptionsTransform);
-                        AddVehicleOptions(vehicleOptionsTransform);
-                        AddSkateboardOptions(skateboardOptionsTransform);
-
+                        //  MelonLogger.Msg("Saved Dan's Hardware, Gas Mart and Space as Templates");
+                    }
+                    else
+                    {
+                        MelonLogger.Error("Viewport Content not found!");
                     }
                 }
-
-                // Ändere das App-Icon-Bild
-                MRLCore.Instance.ChangeAppIconImage(appIconByName, IconPath);
-
-                // Registriere die App
-                MRLCore.Instance.RegisterApp(appIconByName, Title);
-                _isLaunderingAppLoaded = true;
             }
         }
 
-        public void ChangeBackgroundColor(bool isToggled, Image backgroundImage, Image knobImage)
-        {
-            MelonLogger.Msg($"Switch toggled: {isToggled}");
-            knobImage.color = isToggled ? Color.grey : Color.white; // Change knob color when toggled
-            backgroundImage.color = isToggled ? Color.white : Color.gray; // Change background color when toggled
-        }
+
+
+
+
 
         public void AddSpaceFromTemplate(Transform viewportContentTransform = null)
         {
@@ -440,9 +503,9 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
             }
 
-            if (template == null && gasMartWestTemplate != null)
+            if (template == null && GasMartWestTemplate != null)
             {
-                template = gasMartWestTemplate; // Standard-Template verwenden, wenn kein Template angegeben ist
+                template = GasMartWestTemplate; // Standard-Template verwenden, wenn kein Template angegeben ist
             }
 
             // Erstelle ein Duplikat des Templates
@@ -614,6 +677,23 @@ namespace MoreRealisticLaundering.PhoneApp
                 return;
             }
 
+            if (InstructionsTextObject.activeSelf)
+            {
+                InstructionsTextObject.SetActive(false);
+            }
+
+            if (!detailsTitleObject.activeSelf)
+            {
+                detailsTitleObject.SetActive(true);
+            }
+            detailsTitleObject.GetComponent<Text>().text = "Shred Shack";
+
+            if (!detailsSubtitleObject.activeSelf)
+            {
+                detailsSubtitleObject.SetActive(true);
+            }
+            detailsSubtitleObject.GetComponent<Text>().text = "Adjusting the prices of skateboards.";
+
             // Deaktiviere priceOptionsTransform
             if (priceOptionsTransform.gameObject.activeSelf)
             {
@@ -704,6 +784,23 @@ namespace MoreRealisticLaundering.PhoneApp
                 MelonLogger.Error("skateboardOptionsTransform is null! Ensure it is initialized before calling RealEstateButtonClicked.");
                 return;
             }
+
+            if (InstructionsTextObject.activeSelf)
+            {
+                InstructionsTextObject.SetActive(false);
+            }
+
+            if (!detailsTitleObject.activeSelf)
+            {
+                detailsTitleObject.SetActive(true);
+            }
+            detailsTitleObject.GetComponent<Text>().text = "Hyland Auto";
+
+            if (!detailsSubtitleObject.activeSelf)
+            {
+                detailsSubtitleObject.SetActive(true);
+            }
+            detailsSubtitleObject.GetComponent<Text>().text = "Adjusting the prices of vehicles.";
 
             // Deaktiviere priceOptionsTransform
             if (priceOptionsTransform.gameObject.activeSelf)
@@ -817,6 +914,23 @@ namespace MoreRealisticLaundering.PhoneApp
                 skateboardOptionsTransform.gameObject.SetActive(false);
             }
 
+            if (InstructionsTextObject.activeSelf)
+            {
+                InstructionsTextObject.SetActive(false);
+            }
+
+            if (!detailsTitleObject.activeSelf)
+            {
+                detailsTitleObject.SetActive(true);
+            }
+            detailsTitleObject.GetComponent<Text>().text = "Ray's Real Estate";
+
+            if (!detailsSubtitleObject.activeSelf)
+            {
+                detailsSubtitleObject.SetActive(true);
+            }
+            detailsSubtitleObject.GetComponent<Text>().text = "Adjusting the prices of properties.";
+
             // Aktiviere die vier Container in priceOptionsTransform, falls sie deaktiviert sind
             Transform laundromatContainer = priceOptionsTransform.Find("Laundromat Horizontal Container");
             Transform postOfficeContainer = priceOptionsTransform.Find("Post Office Horizontal Container");
@@ -885,6 +999,7 @@ namespace MoreRealisticLaundering.PhoneApp
             }
 
             // Setze den Business Toggle Button auf Pressed
+
             Transform businessToggleButtonTransform = priceOptionsTransform.Find("ToggleContainer/ToggleButton");
             GameObject businessToggleButtonObject = businessToggleButtonTransform?.gameObject;
             if (businessToggleButtonObject != null)
@@ -1110,7 +1225,6 @@ namespace MoreRealisticLaundering.PhoneApp
                 }
             }
 
-
             _selectedBusiness = business;
 
             // Aktiviere die drei Container in optionsTransform, falls sie deaktiviert sind
@@ -1147,21 +1261,23 @@ namespace MoreRealisticLaundering.PhoneApp
                 businessName = "Post Office";
             }
             string subTitleText = "Adjusting the settings for " + businessName;
-            Transform noneTransform = optionsTransform.Find("None");
-            if (noneTransform != null)
+
+            if (InstructionsTextObject.activeSelf)
             {
-                Text noneText = noneTransform.gameObject.GetComponentInChildren<Text>();
-                if (noneText != null)
-                {
-                    noneText.text = subTitleText;
-                }
+                InstructionsTextObject.SetActive(false);
             }
 
-            Transform saveButtonTransform = optionsTransform.Find("Save Button");
-            if (saveButtonTransform != null)
+            if (!detailsTitleObject.activeSelf)
             {
-                saveButtonTransform.gameObject.SetActive(true);
+                detailsTitleObject.SetActive(true);
             }
+            detailsTitleObject.GetComponent<Text>().text = businessName;
+
+            if (!detailsSubtitleObject.activeSelf)
+            {
+                detailsSubtitleObject.SetActive(true);
+            }
+            detailsSubtitleObject.GetComponent<Text>().text = subTitleText;
 
             // Update Maximum Launder Input
             Transform maxLaunderInputTransform = optionsTransform.Find("Maximum Launder Horizontal Container/Maximum Launder Input");
@@ -1245,28 +1361,59 @@ namespace MoreRealisticLaundering.PhoneApp
         {
             if (parentTransform == null)
             {
-                MelonLogger.Error("detailEntriesTransform is null! Cannot add options.");
+                MelonLogger.Error("parentTransform is null! Cannot add options.");
                 return;
             }
 
-            VerticalLayoutGroup optionVerticalLayout = parentTransform.GetComponent<VerticalLayoutGroup>();
-            if (optionVerticalLayout == null)
+            GameObject optionsObject = new GameObject("Options");
+
+            //  LayoutElement layoutElement = generalSettingsObject.AddComponent<LayoutElement>();
+            VerticalLayoutGroup contentVerticalLayout = optionsObject.GetComponent<VerticalLayoutGroup>();
+            if (contentVerticalLayout == null)
             {
-                optionVerticalLayout = parentTransform.gameObject.AddComponent<VerticalLayoutGroup>();
+                contentVerticalLayout = optionsObject.gameObject.AddComponent<VerticalLayoutGroup>();
+            }
+            contentVerticalLayout.childAlignment = TextAnchor.UpperLeft;
+            contentVerticalLayout.spacing = 15f; // Abstand zwischen den Optionen 
+            contentVerticalLayout.childControlWidth = true;
+            contentVerticalLayout.childControlHeight = true;
+            contentVerticalLayout.childForceExpandWidth = false;
+            contentVerticalLayout.childForceExpandHeight = false;
+            // Add padding to the VerticalLayoutGroup using RectOffset
+            contentVerticalLayout.padding = new RectOffset(15, 15, 15, 15); // Left: 15, Right: 15, Top: 0, Bottom: 0
+
+            // Spacing from left
+            RectTransform optionsRect = optionsObject.GetComponent<RectTransform>();
+            if (optionsRect != null)
+            {
+                optionsRect.offsetMin = new Vector2(60, optionsRect.offsetMin.y + 60);
+                // Layout -> RectOffset -> padding
             }
 
-            optionVerticalLayout.childControlWidth = true;
-            optionVerticalLayout.childForceExpandWidth = false;
-            optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -25f; // Abstand zwischen den Optionen
+            // Füge einen ContentSizeFitter hinzu
+            ContentSizeFitter contentSizeFitter = optionsObject.GetComponent<ContentSizeFitter>();
+            if (contentSizeFitter == null)
+            {
+                contentSizeFitter = optionsObject.AddComponent<ContentSizeFitter>();
+            }
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize; // Passt die Höhe an den Inhalt an
+            contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained; // Keine Anpassung der Breite
+            optionsObject.transform.SetParent(parentTransform, false);
+            optionsTransform = optionsObject.transform;
 
             // Füge die Optionen hinzu
-            AddLabelInputPair("Maximum Launder", parentTransform, "$");
-            AddLabelInputPair("Launder Time", parentTransform, "hr");
-            AddLabelInputPair("Taxation", parentTransform, "%");
-            AddSaveButton(parentTransform, "BusinessDetails");
+            AddLabelInputPair("Maximum Launder", optionsTransform, "$");
+            AddLabelInputPair("Launder Time", optionsTransform, "hr");
+            AddLabelInputPair("Taxation", optionsTransform, "%");
+            AddSaveButton(optionsTransform, "BusinessDetails");
 
-            //   MelonLogger.Msg("Added options for business to detailEntriesTransform.");
+            if (parentTransform.FindChild("Space") != null)
+            {
+                parentTransform.FindChild("Space").SetAsLastSibling();
+            }
+            optionsObject.SetActive(false);
+
+            //   MelonLogger.Msg("Added options for business to optionsTransform.");
         }
 
         void AddLabelInputPair(string labelText, Transform parentTransform, string prefixText)
@@ -1277,17 +1424,23 @@ namespace MoreRealisticLaundering.PhoneApp
                 return;
             }
 
+            if (string.IsNullOrEmpty(labelText))
+            {
+                MelonLogger.Error("Label text is null or empty!");
+                return;
+            }
+
             // Erstelle einen Container für das Label und das Inputfeld
             GameObject container = new GameObject($"{labelText} Horizontal Container");
             container.transform.SetParent(parentTransform, false);
-            container.SetActive(false);
+            //  container.SetActive(false);
 
             // Füge eine HorizontalLayoutGroup hinzu, falls sie nicht existiert
             HorizontalLayoutGroup horizontalContainerGroup = container.GetComponent<HorizontalLayoutGroup>();
             if (horizontalContainerGroup == null)
             {
                 horizontalContainerGroup = container.AddComponent<HorizontalLayoutGroup>();
-                horizontalContainerGroup.spacing = 10f; // Abstand zwischen den Elementen
+                horizontalContainerGroup.spacing = 30f; // Abstand zwischen den Elementen
                 horizontalContainerGroup.childAlignment = TextAnchor.MiddleLeft; // Elemente linksbündig ausrichten
                 horizontalContainerGroup.childForceExpandWidth = false; // Breite der Kinder nicht erzwingen
                 horizontalContainerGroup.childForceExpandHeight = false; // Höhe der Kinder nicht erzwingen
@@ -1314,16 +1467,21 @@ namespace MoreRealisticLaundering.PhoneApp
             if (labelRect == null)
             {
                 labelRect = labelObject.AddComponent<RectTransform>();
-                labelRect.sizeDelta = new Vector2(250, 30); // Breite und Höhe des Labels
             }
+            labelRect.sizeDelta = new Vector2(325, 30); // Breite und Höhe des Labels
+            labelRect.anchorMin = new Vector2(0, 0.5f);
+            labelRect.anchorMax = new Vector2(0, 0.5f);
+            labelRect.pivot = new Vector2(0, 0.5f);
 
             // Füge ein LayoutElement hinzu, falls es nicht existiert
-            LayoutElement labelLayoutElement = labelObject.GetComponent<LayoutElement>();
-            if (labelLayoutElement == null)
+            LayoutElement layoutElement = labelObject.GetComponent<LayoutElement>();
+            if (layoutElement == null)
             {
-                labelLayoutElement = labelObject.AddComponent<LayoutElement>();
-                labelLayoutElement.minWidth = 250; // Mindestbreite des Labels
-                labelLayoutElement.preferredWidth = 250; // Bevorzugte Breite des Labels
+                layoutElement = labelObject.AddComponent<LayoutElement>();
+                layoutElement.minWidth = 325; // Mindestbreite des Input-Felds
+                layoutElement.preferredWidth = 325; // Bevorzugte Breite des Input-Felds
+                layoutElement.minHeight = 30; // Mindesthöhe des Input-Felds
+                layoutElement.preferredHeight = 30; // Bevorzugte Höhe des Input-Felds
             }
 
             // Erstelle ein neues GameObject für das Inputfeld
@@ -1369,15 +1527,29 @@ namespace MoreRealisticLaundering.PhoneApp
                 inputFieldComponent = inputObject.AddComponent<InputField>();
             }
 
-            // Füge ein LayoutElement hinzu, falls es nicht existiert
-            LayoutElement layoutElement = inputObject.GetComponent<LayoutElement>();
-            if (layoutElement == null)
+            // Stelle sicher, dass das RectTransform des Input-Felds korrekt ist
+            RectTransform inputRect = inputObject.GetComponent<RectTransform>();
+            if (inputRect == null)
             {
-                layoutElement = inputObject.AddComponent<LayoutElement>();
-                layoutElement.minWidth = 100; // Mindestbreite des Input-Felds
-                layoutElement.preferredWidth = 100; // Bevorzugte Breite des Input-Felds
+                inputRect = inputObject.AddComponent<RectTransform>();
             }
+            inputRect.sizeDelta = new Vector2(100, 30); // Setze die Größe des Input-Felds auf die gleiche Größe wie der Hintergrund
+            inputRect.anchorMin = new Vector2(0, 0.5f);
+            inputRect.anchorMax = new Vector2(0, 0.5f);
+            inputRect.pivot = new Vector2(0, 0.5f);
+            inputRect.anchoredPosition = new Vector2(0, 0);
 
+            // Füge ein LayoutElement hinzu, falls es nicht existiert
+            LayoutElement layoutElementInput = inputObject.GetComponent<LayoutElement>();
+            if (layoutElementInput == null)
+            {
+                layoutElementInput = inputObject.AddComponent<LayoutElement>();
+                layoutElementInput.minWidth = 100; // Mindestbreite des Input-Felds
+                layoutElementInput.preferredWidth = 100; // Bevorzugte Breite des Input-Felds
+                layoutElementInput.minHeight = 30; // Mindesthöhe des Input-Felds
+                layoutElementInput.preferredHeight = 30; // Bevorzugte Höhe des Input-Felds
+            }
+            // Füge eine Text-Komponente hinzu, falls sie nicht existiert
             // Erstelle ein neues GameObject für den Text des Inputfelds
             GameObject inputTextObject = new GameObject($"{labelText} Input Text");
             inputTextObject.transform.SetParent(inputObject.transform, false);
@@ -1390,7 +1562,7 @@ namespace MoreRealisticLaundering.PhoneApp
                 inputTextComponent.font = FontLoader.openSansSemiBold ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
                 inputTextComponent.fontSize = 18;
                 inputTextComponent.color = ColorUtil.GetColor("Bright Green");
-                inputTextComponent.alignment = TextAnchor.MiddleLeft;
+                inputTextComponent.alignment = TextAnchor.MiddleRight;
             }
 
             // Weise den Text dem InputField zu
@@ -1407,6 +1579,8 @@ namespace MoreRealisticLaundering.PhoneApp
 
             // Erstelle ein neues GameObject für das "$"-Symbol
             GameObject prefixObject = new GameObject($"{labelText} Prefix");
+
+            // Setze die Größe des Prefix-Objekts
             prefixObject.transform.SetParent(inputObject.transform, false);
 
             // Füge eine Text-Komponente für das "$"-Symbol hinzu
@@ -1423,19 +1597,23 @@ namespace MoreRealisticLaundering.PhoneApp
             {
                 prefixRect = prefixObject.AddComponent<RectTransform>();
             }
+            prefixRect.sizeDelta = new Vector2(20, 30); // Leicht nach rechts verschoben
             prefixRect.anchorMin = new Vector2(0, 0.5f);
             prefixRect.anchorMax = new Vector2(0, 0.5f);
             prefixRect.pivot = new Vector2(0, 0.5f);
-            prefixRect.anchoredPosition = new Vector2(5, 0); // Leicht nach rechts verschoben
+            prefixRect.anchoredPosition = new Vector2(5, 0);
 
             // Verschiebe den Text des Inputfelds nach rechts, um Platz für das "$"-Symbol zu schaffen
             RectTransform inputTextRect = inputTextObject.GetComponent<RectTransform>();
             if (inputTextRect != null)
             {
-                inputTextRect.offsetMin = new Vector2(-20, -50); // Verschiebe den linken Rand nach rechts
+                inputTextRect.sizeDelta = new Vector2(100, 30); // Setze die Größe des Text-Objekts auf die gleiche Größe wie das Input-Feld
+                inputTextRect.offsetMin = new Vector2(-20, inputTextRect.offsetMin.y);
+                inputTextRect.offsetMax = new Vector2(40, inputTextRect.offsetMax.y); // Verschiebe den linken Rand nach rechts
             }
 
             //  MelonLogger.Msg($"Added Label, Prefix '$', and InputField for '{labelText}' to Horizontal Container.");
+
         }
 
         void onEndEditCheck(InputField inputFieldComponent, string value, string labelText)
@@ -1546,22 +1724,14 @@ namespace MoreRealisticLaundering.PhoneApp
             GameObject saveSpaceObject = new GameObject("SaveSpace");
             saveSpaceObject.transform.SetParent(parentTransform, false);
             RectTransform saveSpaceRect = saveSpaceObject.AddComponent<RectTransform>();
-            if (saveString == "RealEstate" || saveString == "Vehicles")
-            {
-                saveSpaceRect.sizeDelta = new Vector2(100, 75); // Abstand zwischen dem letzten Element und dem Button
-            }
-            else
-            {
-                saveSpaceRect.sizeDelta = new Vector2(100, 50); // Abstand zwischen dem letzten Element und dem Button
-            }
-
+            saveSpaceRect.sizeDelta = new Vector2(100, 50); // Abstand zwischen dem letzten Element und dem Button
 
             LayoutElement spaceLayoutElement = saveSpaceObject.GetComponent<LayoutElement>();
             if (spaceLayoutElement == null)
             {
                 spaceLayoutElement = saveSpaceObject.AddComponent<LayoutElement>();
-                spaceLayoutElement.minHeight = 35; // Mindesthöhe des Space
-                spaceLayoutElement.preferredHeight = 35; // Bevorzugte Höhe des Space
+                spaceLayoutElement.minHeight = 0; // Mindesthöhe des Space
+                spaceLayoutElement.preferredHeight = 0; // Bevorzugte Höhe des Space
                 spaceLayoutElement.minWidth = 100; // Mindestbreite des Space
                 spaceLayoutElement.preferredWidth = 100; // Bevorzugte Breite des Space
             }
@@ -1569,14 +1739,14 @@ namespace MoreRealisticLaundering.PhoneApp
             // Erstelle ein neues GameObject für den Button
             GameObject saveButtonObject = new GameObject("Save Button");
             saveButtonObject.transform.SetParent(parentTransform, false);
-            saveButtonObject.SetActive(false); // Deaktiviere den Button vorübergehend
+            saveButtonObject.SetActive(true);
 
             // Füge ein RectTransform hinzu, falls es nicht existiert
             RectTransform buttonRect = saveButtonObject.GetComponent<RectTransform>();
             if (buttonRect == null)
             {
                 buttonRect = saveButtonObject.AddComponent<RectTransform>();
-                buttonRect.sizeDelta = new Vector2(360, 35); // Standardgröße des Buttons
+                buttonRect.sizeDelta = new Vector2(455, 30); // Standardgröße des Buttons
             }
 
             // Füge ein Button-Objekt hinzu
@@ -1652,7 +1822,7 @@ namespace MoreRealisticLaundering.PhoneApp
                 layoutElement.minHeight = 35; // Mindesthöhe des Buttons
                 layoutElement.preferredHeight = 35; // Bevorzugte Höhe des Buttons
                 layoutElement.minWidth = 200; // Mindestbreite des Buttons
-                layoutElement.preferredWidth = 360; // Bevorzugte Breite des Buttons
+                layoutElement.preferredWidth = 455; // Bevorzugte Breite des Buttons
             }
 
 
@@ -2317,7 +2487,7 @@ namespace MoreRealisticLaundering.PhoneApp
             isSaveStillRunning = false;
         }
 
-        public void AddPriceOptionsForHomeProperties(Transform parentTransform)
+        public void AddPriceOptionsWithToggleButton(Transform parentTransform)
         {
             if (parentTransform == null)
             {
@@ -2325,23 +2495,78 @@ namespace MoreRealisticLaundering.PhoneApp
                 return;
             }
 
-            GameObject toggleSpaceObject = new GameObject("ToggleSpace");
-            toggleSpaceObject.transform.SetParent(parentTransform, false);
-            RectTransform toggleSpaceRect = toggleSpaceObject.AddComponent<RectTransform>();
-            toggleSpaceRect.sizeDelta = new Vector2(0, 50); // Spacing above Toggle Buttons
+            GameObject priceOptionsObject = new GameObject("PriceOptions");
+
+            VerticalLayoutGroup contentVerticalLayout = priceOptionsObject.GetComponent<VerticalLayoutGroup>();
+            if (contentVerticalLayout == null)
+            {
+                contentVerticalLayout = priceOptionsObject.gameObject.AddComponent<VerticalLayoutGroup>();
+            }
+            contentVerticalLayout.childAlignment = TextAnchor.UpperLeft;
+            contentVerticalLayout.spacing = 15f; // Abstand zwischen den Optionen 
+            contentVerticalLayout.childControlWidth = true;
+            contentVerticalLayout.childControlHeight = true;
+            contentVerticalLayout.childForceExpandWidth = false;
+            contentVerticalLayout.childForceExpandHeight = false;
+            // Add padding to the VerticalLayoutGroup using RectOffset
+            contentVerticalLayout.padding = new RectOffset(15, 15, 15, 15); // Left: 15, Right: 15, Top: 0, Bottom: 0
+
+            // Spacing from left
+            RectTransform priceOptionsRect = priceOptionsObject.GetComponent<RectTransform>();
+            if (priceOptionsRect != null)
+            {
+                priceOptionsRect.offsetMin = new Vector2(60, priceOptionsRect.offsetMin.y + 60);
+                // Layout -> RectOffset -> padding
+            }
+
+            // Füge einen ContentSizeFitter hinzu
+            ContentSizeFitter contentSizeFitter = priceOptionsObject.GetComponent<ContentSizeFitter>();
+            if (contentSizeFitter == null)
+            {
+                contentSizeFitter = priceOptionsObject.AddComponent<ContentSizeFitter>();
+            }
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize; // Passt die Höhe an den Inhalt an
+            contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained; // Keine Anpassung der Breite
+
+            priceOptionsObject.transform.SetParent(parentTransform, false);
+            priceOptionsTransform = priceOptionsObject.transform;
+
+
+            /*
+                GameObject toggleSpaceObject = new GameObject("ToggleSpace");
+                toggleSpaceObject.transform.SetParent(priceOptionsTransform, false);
+
+                RectTransform toggleSpaceRect = toggleSpaceObject.AddComponent<RectTransform>();
+                toggleSpaceRect.sizeDelta = new Vector2(0, 35); // Spacing above Toggle Buttons */
 
             GameObject toggleContainer = new GameObject("ToggleContainer");
-            toggleContainer.transform.SetParent(parentTransform, false);
+            toggleContainer.transform.SetParent(priceOptionsTransform, false);
 
-            // Füge ein LayoutElement hinzu, um die Integration in die VerticalLayoutGroup zu gewährleisten
-            LayoutElement layoutElementToggleContainer = toggleContainer.GetComponent<LayoutElement>();
-            if (layoutElementToggleContainer == null)
+            // Füge eine HorizontalLayoutGroup hinzu, falls sie nicht existiert
+            HorizontalLayoutGroup horizontalContainerGroup = toggleContainer.GetComponent<HorizontalLayoutGroup>();
+            float horizontalSpacing = 5f; // Abstand zwischen den Elementen
+            if (horizontalContainerGroup == null)
             {
-                layoutElementToggleContainer = toggleContainer.AddComponent<LayoutElement>();
-                layoutElementToggleContainer.minHeight = 35; // Mindesthöhe des Buttons
-                layoutElementToggleContainer.preferredHeight = 35; // Bevorzugte Höhe des Buttons
-                layoutElementToggleContainer.minWidth = 180; // Mindestbreite des Buttons
-                layoutElementToggleContainer.preferredWidth = 180; // Bevorzugte Breite des Buttons
+                horizontalContainerGroup = toggleContainer.AddComponent<HorizontalLayoutGroup>();
+                horizontalContainerGroup.spacing = horizontalSpacing; // Abstand zwischen den Elementen
+                horizontalContainerGroup.childAlignment = TextAnchor.MiddleLeft; // Elemente linksbündig ausrichten
+                horizontalContainerGroup.childForceExpandWidth = false; // Breite der Kinder nicht erzwingen
+                horizontalContainerGroup.childForceExpandHeight = false; // Höhe der Kinder nicht erzwingen
+            }
+
+            GameObject toggleSpaceObject = new GameObject("ToggleSpace");
+            toggleSpaceObject.transform.SetParent(priceOptionsTransform, false);
+            RectTransform saveSpaceRect = toggleSpaceObject.AddComponent<RectTransform>();
+            saveSpaceRect.sizeDelta = new Vector2(100, 50); // Abstand zwischen dem letzten Element und dem Button
+
+            LayoutElement spaceLayoutElement = toggleSpaceObject.GetComponent<LayoutElement>();
+            if (spaceLayoutElement == null)
+            {
+                spaceLayoutElement = toggleSpaceObject.AddComponent<LayoutElement>();
+                spaceLayoutElement.minHeight = 0; // Mindesthöhe des Space
+                spaceLayoutElement.preferredHeight = 0; // Bevorzugte Höhe des Space
+                spaceLayoutElement.minWidth = 100; // Mindestbreite des Space
+                spaceLayoutElement.preferredWidth = 100; // Bevorzugte Breite des Space
             }
 
             // Erstelle ein neues GameObject für den Button
@@ -2354,7 +2579,7 @@ namespace MoreRealisticLaundering.PhoneApp
             if (buttonRect == null)
             {
                 buttonRect = toggleButtonObject.AddComponent<RectTransform>();
-                buttonRect.sizeDelta = new Vector2(180, 35); // Standardgröße des Buttons
+                buttonRect.sizeDelta = new Vector2((455 - horizontalSpacing) / 2, 35); // Standardgröße des Buttons
             }
 
             // Füge ein Button-Objekt hinzu
@@ -2430,10 +2655,8 @@ namespace MoreRealisticLaundering.PhoneApp
                 layoutElement.minHeight = 35; // Mindesthöhe des Buttons
                 layoutElement.preferredHeight = 35; // Bevorzugte Höhe des Buttons
                 layoutElement.minWidth = 100; // Mindestbreite des Buttons
-                layoutElement.preferredWidth = 180; // Bevorzugte Breite des Buttons
+                layoutElement.preferredWidth = 455 / 2; // Bevorzugte Breite des Buttons
             }
-
-
 
             //////////////////////
 
@@ -2447,7 +2670,7 @@ namespace MoreRealisticLaundering.PhoneApp
             if (secondButtonRect == null)
             {
                 secondButtonRect = secondToggleButtonObject.AddComponent<RectTransform>();
-                secondButtonRect.sizeDelta = new Vector2(180, 35); // Standardgröße des Buttons
+                secondButtonRect.sizeDelta = new Vector2(455 / 2, 35); // Standardgröße des Buttons
             }
 
             // Positioniere den zweiten Button rechts neben dem ersten
@@ -2505,8 +2728,8 @@ namespace MoreRealisticLaundering.PhoneApp
                 secondLayoutElement = secondToggleButtonObject.AddComponent<LayoutElement>();
                 secondLayoutElement.minHeight = 35; // Mindesthöhe des Buttons
                 secondLayoutElement.preferredHeight = 35; // Bevorzugte Höhe des Buttons
-                secondLayoutElement.minWidth = 100; // Mindestbreite des Buttons
-                secondLayoutElement.preferredWidth = 180; // Bevorzugte Breite des Buttons
+                secondLayoutElement.minWidth = 455 / 2; // Mindestbreite des Buttons
+                secondLayoutElement.preferredWidth = 455 / 2; // Bevorzugte Breite des Buttons
             }
 
             void FuncThatCallsFunc() => ShowBusinessRealEstates(secondToggleButtonObject, toggleButtonObject);
@@ -2515,6 +2738,8 @@ namespace MoreRealisticLaundering.PhoneApp
             // Füge eine Aktion für den zweiten Button hinzu
             void SecondButtonAction() => ShowHomeRealEstates(secondToggleButtonObject, toggleButtonObject);
             secondToggleButton.onClick.AddListener((UnityAction)SecondButtonAction);
+
+            AddPriceOptionsContentForRealEstate(priceOptionsTransform);
         }
 
         void ShowHomeRealEstates(GameObject homeButtonObject, GameObject businessButtonObject)
@@ -2621,6 +2846,30 @@ namespace MoreRealisticLaundering.PhoneApp
             if (barnContainer != null) barnContainer.gameObject.SetActive(true);
             if (docksContainer != null) docksContainer.gameObject.SetActive(true);
             if (manorContainer != null) manorContainer.gameObject.SetActive(true);
+
+            ForceLayoutUpdate(priceOptionsTransform);
+        }
+
+        public void ForceLayoutUpdate(Transform parentTransform)
+        {
+            if (parentTransform == null) return;
+
+            // Deaktiviere und aktiviere das GameObject, um das Layout neu zu berechnen
+            Canvas.ForceUpdateCanvases();
+
+            foreach (var layoutGroup in parentTransform.GetComponentsInChildren<LayoutGroup>(true))
+            {
+                layoutGroup.enabled = false;
+                layoutGroup.enabled = true;
+            }
+
+            foreach (var contentSizeFitter in parentTransform.GetComponentsInChildren<ContentSizeFitter>(true))
+            {
+                contentSizeFitter.enabled = false;
+                contentSizeFitter.enabled = true;
+            }
+
+            Canvas.ForceUpdateCanvases();
         }
 
         void ShowBusinessRealEstates(GameObject homeButtonObject, GameObject businessButtonObject)
@@ -2726,48 +2975,42 @@ namespace MoreRealisticLaundering.PhoneApp
             if (barnContainer != null) barnContainer.gameObject.SetActive(false);
             if (docksContainer != null) docksContainer.gameObject.SetActive(false);
             if (mannorContainer != null) mannorContainer.gameObject.SetActive(false);
+
+            ForceLayoutUpdate(priceOptionsTransform);
         }
 
-        public void AddPriceOptionsForRealEstate(Transform parentTransform)
+        public void AddPriceOptionsContentForRealEstate(Transform parentTransform)
         {
-            priceOptionsTransform = parentTransform;
             if (parentTransform == null)
             {
-                MelonLogger.Error("detailEntriesTransform is null! Cannot add price options.");
+                MelonLogger.Error("parentTransform is null! Cannot add price options.");
                 return;
             }
 
-            // Füge ein VerticalLayoutGroup hinzu, falls es nicht existiert
-            VerticalLayoutGroup optionVerticalLayout = priceOptionsTransform.GetComponent<VerticalLayoutGroup>();
-            if (optionVerticalLayout == null)
-            {
-                optionVerticalLayout = priceOptionsTransform.gameObject.AddComponent<VerticalLayoutGroup>();
-            }
-
-            // Konfiguriere das Layout
-            optionVerticalLayout.childControlWidth = true;
-            optionVerticalLayout.childForceExpandWidth = false;
-            optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -45f; // Abstand zwischen den Optionen
-
             // Füge die Label-Input-Paare für die vier Unternehmen hinzu
-            AddLabelInputPair("Laundromat", priceOptionsTransform, "$");
-            AddLabelInputPair("Post Office", priceOptionsTransform, "$");
-            AddLabelInputPair("Car Wash", priceOptionsTransform, "$");
-            AddLabelInputPair("Taco Ticklers", priceOptionsTransform, "$");
+            AddLabelInputPair("Laundromat", parentTransform, "$");
+            AddLabelInputPair("Post Office", parentTransform, "$");
+            AddLabelInputPair("Car Wash", parentTransform, "$");
+            AddLabelInputPair("Taco Ticklers", parentTransform, "$");
 
-            AddLabelInputPair("Storage Unit", priceOptionsTransform, "$");
-            AddLabelInputPair("Motel", priceOptionsTransform, "$");
-            AddLabelInputPair("Sweatshop", priceOptionsTransform, "$");
-            AddLabelInputPair("Bungalow", priceOptionsTransform, "$");
-            AddLabelInputPair("Barn", priceOptionsTransform, "$");
-            AddLabelInputPair("Docks Warehouse", priceOptionsTransform, "$");
+            AddLabelInputPair("Storage Unit", parentTransform, "$");
+            AddLabelInputPair("Motel", parentTransform, "$");
+            AddLabelInputPair("Sweatshop", parentTransform, "$");
+            AddLabelInputPair("Bungalow", parentTransform, "$");
+            AddLabelInputPair("Barn", parentTransform, "$");
+            AddLabelInputPair("Docks Warehouse", parentTransform, "$");
 
             //Not yet ingame
-            AddLabelInputPair("Manor", priceOptionsTransform, "$");
+            AddLabelInputPair("Manor", parentTransform, "$");
 
             // Füge einen Save-Button hinzu
-            AddSaveButton(priceOptionsTransform, "RealEstate");
+            AddSaveButton(parentTransform, "RealEstate");
+
+            if (parentTransform.FindChild("Space") != null)
+            {
+                parentTransform.FindChild("Space").SetAsLastSibling();
+            }
+            parentTransform.gameObject.SetActive(false);
 
             // MelonLogger.Msg("Added price options for real estate to priceOptionsTransform.");
         }
@@ -2776,33 +3019,62 @@ namespace MoreRealisticLaundering.PhoneApp
         {
             if (parentTransform == null)
             {
-                MelonLogger.Error("detailEntriesTransform is null! Cannot add price options.");
+                MelonLogger.Error("parentTransform is null! Cannot add price options.");
                 return;
             }
 
-            // Füge ein VerticalLayoutGroup hinzu, falls es nicht existiert
-            VerticalLayoutGroup optionVerticalLayout = parentTransform.GetComponent<VerticalLayoutGroup>();
-            if (optionVerticalLayout == null)
+            GameObject vehicleOptionsObject = new GameObject("VehicleOptions");
+
+            //  LayoutElement layoutElement = generalSettingsObject.AddComponent<LayoutElement>();
+            VerticalLayoutGroup contentVerticalLayout = vehicleOptionsObject.GetComponent<VerticalLayoutGroup>();
+            if (contentVerticalLayout == null)
             {
-                optionVerticalLayout = parentTransform.gameObject.AddComponent<VerticalLayoutGroup>();
+                contentVerticalLayout = vehicleOptionsObject.gameObject.AddComponent<VerticalLayoutGroup>();
+            }
+            contentVerticalLayout.childAlignment = TextAnchor.UpperLeft;
+            contentVerticalLayout.spacing = 15f; // Abstand zwischen den Optionen 
+            contentVerticalLayout.childControlWidth = true;
+            contentVerticalLayout.childControlHeight = true;
+            contentVerticalLayout.childForceExpandWidth = false;
+            contentVerticalLayout.childForceExpandHeight = false;
+            // Add padding to the VerticalLayoutGroup using RectOffset
+            contentVerticalLayout.padding = new RectOffset(15, 15, 15, 15); // Left: 15, Right: 15, Top: 0, Bottom: 0
+
+            // Spacing from left
+            RectTransform optionsRect = vehicleOptionsObject.GetComponent<RectTransform>();
+            if (optionsRect != null)
+            {
+                optionsRect.offsetMin = new Vector2(60, optionsRect.offsetMin.y + 60);
+                // Layout -> RectOffset -> padding
             }
 
-            // Konfiguriere das Layout
-            optionVerticalLayout.childControlWidth = true;
-            optionVerticalLayout.childForceExpandWidth = false;
-            optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -35f; // Abstand zwischen den Optionen
+            // Füge einen ContentSizeFitter hinzu
+            ContentSizeFitter contentSizeFitter = vehicleOptionsObject.GetComponent<ContentSizeFitter>();
+            if (contentSizeFitter == null)
+            {
+                contentSizeFitter = vehicleOptionsObject.AddComponent<ContentSizeFitter>();
+            }
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize; // Passt die Höhe an den Inhalt an
+            contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained; // Keine Anpassung der Breite
+            vehicleOptionsObject.transform.SetParent(parentTransform, false);
+            vehicleOptionsTransform = vehicleOptionsObject.transform;
 
             // Füge die Label-Input-Paare für die vier Unternehmen hinzu
-            AddLabelInputPair("Shitbox", parentTransform, "$");
-            AddLabelInputPair("Veeper", parentTransform, "$");
-            AddLabelInputPair("Bruiser", parentTransform, "$");
-            AddLabelInputPair("Dinkler", parentTransform, "$");
-            AddLabelInputPair("Hounddog", parentTransform, "$");
-            AddLabelInputPair("Cheetah", parentTransform, "$");
+            AddLabelInputPair("Shitbox", vehicleOptionsTransform, "$");
+            AddLabelInputPair("Veeper", vehicleOptionsTransform, "$");
+            AddLabelInputPair("Bruiser", vehicleOptionsTransform, "$");
+            AddLabelInputPair("Dinkler", vehicleOptionsTransform, "$");
+            AddLabelInputPair("Hounddog", vehicleOptionsTransform, "$");
+            AddLabelInputPair("Cheetah", vehicleOptionsTransform, "$");
 
             // Füge einen Save-Button hinzu
-            AddSaveButton(parentTransform, "Vehicles");
+            AddSaveButton(vehicleOptionsTransform, "Vehicles");
+
+            if (parentTransform.FindChild("Space") != null)
+            {
+                parentTransform.FindChild("Space").SetAsLastSibling();
+            }
+            vehicleOptionsObject.SetActive(false);
         }
 
         public void AddSkateboardOptions(Transform parentTransform)
@@ -2813,42 +3085,75 @@ namespace MoreRealisticLaundering.PhoneApp
                 return;
             }
 
-            // Füge ein VerticalLayoutGroup hinzu, falls es nicht existiert
-            VerticalLayoutGroup optionVerticalLayout = parentTransform.GetComponent<VerticalLayoutGroup>();
-            if (optionVerticalLayout == null)
+            GameObject skateboardOptionsObject = new GameObject("SkateboardOptions");
+            //  LayoutElement layoutElement = generalSettingsObject.AddComponent<LayoutElement>();
+            VerticalLayoutGroup contentVerticalLayout = skateboardOptionsObject.GetComponent<VerticalLayoutGroup>();
+            if (contentVerticalLayout == null)
             {
-                optionVerticalLayout = parentTransform.gameObject.AddComponent<VerticalLayoutGroup>();
+                contentVerticalLayout = skateboardOptionsObject.gameObject.AddComponent<VerticalLayoutGroup>();
+            }
+            contentVerticalLayout.childAlignment = TextAnchor.UpperLeft;
+            contentVerticalLayout.spacing = 15f; // Abstand zwischen den Optionen 
+            contentVerticalLayout.childControlWidth = true;
+            contentVerticalLayout.childControlHeight = true;
+            contentVerticalLayout.childForceExpandWidth = false;
+            contentVerticalLayout.childForceExpandHeight = false;
+            // Add padding to the VerticalLayoutGroup using RectOffset
+            contentVerticalLayout.padding = new RectOffset(15, 15, 15, 15); // Left: 15, Right: 15, Top: 0, Bottom: 0
+
+            // Spacing from left
+            RectTransform optionsRect = skateboardOptionsObject.GetComponent<RectTransform>();
+            if (optionsRect != null)
+            {
+                optionsRect.offsetMin = new Vector2(60, optionsRect.offsetMin.y + 60);
+                // Layout -> RectOffset -> padding
             }
 
-            // Konfiguriere das Layout
-            optionVerticalLayout.childControlWidth = true;
-            optionVerticalLayout.childForceExpandWidth = false;
-            optionVerticalLayout.childAlignment = TextAnchor.UpperLeft;
-            optionVerticalLayout.spacing = -25f; // Abstand zwischen den Optionen
+            // Füge einen ContentSizeFitter hinzu
+            ContentSizeFitter contentSizeFitter = skateboardOptionsObject.GetComponent<ContentSizeFitter>();
+            if (contentSizeFitter == null)
+            {
+                contentSizeFitter = skateboardOptionsObject.AddComponent<ContentSizeFitter>();
+            }
+            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize; // Passt die Höhe an den Inhalt an
+            contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained; // Keine Anpassung der Breite
+            skateboardOptionsObject.transform.SetParent(parentTransform, false);
+            skateboardOptionsTransform = skateboardOptionsObject.transform;
 
             // Füge die Label-Input-Paare für die vier Unternehmen hinzu
-            AddLabelInputPair("Cheap Skateboard", parentTransform, "$");
-            AddLabelInputPair("Skateboard", parentTransform, "$");
-            AddLabelInputPair("Lightweight Board", parentTransform, "$");
-            AddLabelInputPair("Cruiser", parentTransform, "$");
-            AddLabelInputPair("Golden Skateboard", parentTransform, "$");
+            AddLabelInputPair("Cheap Skateboard", skateboardOptionsTransform, "$");
+            AddLabelInputPair("Skateboard", skateboardOptionsTransform, "$");
+            AddLabelInputPair("Lightweight Board", skateboardOptionsTransform, "$");
+            AddLabelInputPair("Cruiser", skateboardOptionsTransform, "$");
+            AddLabelInputPair("Golden Skateboard", skateboardOptionsTransform, "$");
 
             // Füge einen Save-Button hinzu
-            AddSaveButton(parentTransform, "Skateboards");
+            AddSaveButton(skateboardOptionsTransform, "Skateboards");
+
+            if (parentTransform.FindChild("Space") != null)
+            {
+                parentTransform.FindChild("Space").SetAsLastSibling();
+            }
+            skateboardOptionsObject.SetActive(false);
         }
 
-        public GameObject dansHardwareTemplate;
-        public GameObject gasMartWestTemplate;
+        public GameObject DansHardwareTemplate;
+        public GameObject GasMartWestTemplate;
         public GameObject viewPortContentSpaceTemplate;
         public Transform launderingAppViewportContentTransform;
         private static readonly string ConfigFolder = Path.Combine(MelonEnvironment.UserDataDirectory, "MoreRealisticLaundering");
         private static readonly string FilePath = Path.Combine(ConfigFolder, "LaunderingIcon.png");
         public static string _appName;
         public bool _isLaunderingAppLoaded = false;
+        private GameObject detailsTitleObject;
+        private GameObject InstructionsTextObject;
+        private GameObject detailsSubtitleObject;
+        private Transform settingsContentTransform;
         public Transform optionsTransform = null;
         public Transform priceOptionsTransform = null;
         public Transform vehicleOptionsTransform = null;
         public Transform skateboardOptionsTransform = null;
+        public GameObject checkboxTemplate = null;
         Sprite inputBackgroundSprite = null;
         Sprite saveButtonSprite = null;
         Sprite toggleButtonSprite = null;

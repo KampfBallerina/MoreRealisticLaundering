@@ -15,7 +15,7 @@ using Il2CppScheduleOne.Tools;
 using Il2CppScheduleOne.Management.Presets.Options;
 using UnityEngine.PlayerLoop;
 
-[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.2.3", "KampfBallerina", null)]
+[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.2.5", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MoreRealisticLaundering
@@ -181,8 +181,8 @@ namespace MoreRealisticLaundering
             {
                 launderingApp._isLaunderingAppLoaded = false;
                 launderingApp.launderingAppViewportContentTransform = null;
-                launderingApp.dansHardwareTemplate = null;
-                launderingApp.gasMartWestTemplate = null;
+                launderingApp.DansHardwareTemplate = null;
+                launderingApp.GasMartWestTemplate = null;
                 launderingApp.viewPortContentSpaceTemplate = null;
             }
 
@@ -240,11 +240,11 @@ namespace MoreRealisticLaundering
                     yield return new WaitForSeconds(1f);
                 }
                 string imagePath = Path.Combine(ConfigFolder, "Jeff.png");
-                MRLCore.launderingApp.AddEntryFromTemplate("Shred Shack", "Shred Shack", "We're all about the grind, bro — street and money.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Redpurple"), imagePath, null, true);
+                MRLCore.launderingApp.AddEntryFromTemplate("Shred Shack", "Shred Shack", "We're all about the grind, bro — street and money.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Redpurple"), imagePath, null, true);
                 imagePath = Path.Combine(ConfigFolder, "HylandAuto.png");
-                MRLCore.launderingApp.AddEntryFromTemplate("Hyland Auto", "Hyland Auto", "We make you drive crazy.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Dark Green"), imagePath, null, true);
+                MRLCore.launderingApp.AddEntryFromTemplate("Hyland Auto", "Hyland Auto", "We make you drive crazy.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Dark Green"), imagePath, null, true);
                 imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
-                MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.dansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
+                MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
             }
             ApplyPricesToProperties();
             ApplyPricesToPropertyListings();
@@ -351,15 +351,15 @@ namespace MoreRealisticLaundering
             }
 
             // Überprüfe, ob die Vorlage existiert
-            if (MRLCore.launderingApp.dansHardwareTemplate != null)
+            if (MRLCore.launderingApp.DansHardwareTemplate != null)
             {
                 // Wähle die richtige Vorlage basierend auf dem Business-Namen
                 GameObject template = business.name switch
                 {
-                    "Laundromat" => MRLCore.launderingApp.dansHardwareTemplate,
-                    "Taco Ticklers" => MRLCore.launderingApp.dansHardwareTemplate,
-                    "Car Wash" => MRLCore.launderingApp.dansHardwareTemplate,
-                    "PostOffice" => MRLCore.launderingApp.dansHardwareTemplate,
+                    "Laundromat" => MRLCore.launderingApp.DansHardwareTemplate,
+                    "Taco Ticklers" => MRLCore.launderingApp.DansHardwareTemplate,
+                    "Car Wash" => MRLCore.launderingApp.DansHardwareTemplate,
+                    "PostOffice" => MRLCore.launderingApp.DansHardwareTemplate,
                     _ => null
                 };
 
