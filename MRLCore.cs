@@ -870,41 +870,46 @@ namespace MoreRealisticLaundering
 
         public void ApplyPricesToVehicles()
         {
-
             if (vehicleManager == null)
             {
-                MelonLogger.Warning("VehicleManager not found. Cannot apply prices to vehicles.");
-                return;
+                MelonLogger.Warning("VehicleManager not found. Attempting to find it again...");
+                MRLCore.Instance.vehicleManager = UnityEngine.Object.FindObjectOfType<VehicleManager>();
+
+                if (vehicleManager == null)
+                {
+                    MelonLogger.Warning("VehicleManager still not found. Cannot apply prices to vehicles (most likely because of Multiplayer).");
+                }
             }
-
-            // Setze die Preise für die Fahrzeuge
-            foreach (LandVehicle vehicle in vehicleManager.VehiclePrefabs)
+            if (vehicleManager != null)
             {
-                if (vehicle == null)
+                // Setze die Preise für die Fahrzeuge
+                foreach (LandVehicle vehicle in vehicleManager.VehiclePrefabs)
                 {
-                    MelonLogger.Warning("Encountered a null vehicle. Skipping...");
-                    continue;
-                }
-                // MelonLogger.Msg($"{vehicle.name}: {vehicle.vehiclePrice}, {vehicle.vehicleCode}");
-                if (MRLCore.Instance.vehicleAliasMap.TryGetValue(vehicle.name, out string key))
-                {
-                    float price = key switch
+                    if (vehicle == null)
                     {
-                        "Shitbox" => MRLCore.Instance.config.Vehicles.Shitbox_Price,
-                        "Veeper" => MRLCore.Instance.config.Vehicles.Veeper_Price,
-                        "Bruiser" => MRLCore.Instance.config.Vehicles.Bruiser_Price,
-                        "Dinkler" => MRLCore.Instance.config.Vehicles.Dinkler_Price,
-                        "Hounddog" => MRLCore.Instance.config.Vehicles.Hounddog_Price,
-                        "Cheetah" => MRLCore.Instance.config.Vehicles.Cheetah_Price,
-                        _ => 1000f // Standardwert, falls das Fahrzeug nicht gefunden wird
-                    };
-                    vehicle.vehiclePrice = price;
-                    // MelonLogger.Msg($"Changed to - {vehicle.name}: {vehicle.vehiclePrice}, {vehicle.vehicleCode}");
-                }
-                else
-                {
-                    MelonLogger.Warning($"Vehicle '{vehicle.name}' not found in vehicleAliasMap. Skipping price assignment.");
-
+                        MelonLogger.Warning("Encountered a null vehicle. Skipping...");
+                        continue;
+                    }
+                    // MelonLogger.Msg($"{vehicle.name}: {vehicle.vehiclePrice}, {vehicle.vehicleCode}");
+                    if (MRLCore.Instance.vehicleAliasMap.TryGetValue(vehicle.name, out string key))
+                    {
+                        float price = key switch
+                        {
+                            "Shitbox" => MRLCore.Instance.config.Vehicles.Shitbox_Price,
+                            "Veeper" => MRLCore.Instance.config.Vehicles.Veeper_Price,
+                            "Bruiser" => MRLCore.Instance.config.Vehicles.Bruiser_Price,
+                            "Dinkler" => MRLCore.Instance.config.Vehicles.Dinkler_Price,
+                            "Hounddog" => MRLCore.Instance.config.Vehicles.Hounddog_Price,
+                            "Cheetah" => MRLCore.Instance.config.Vehicles.Cheetah_Price,
+                            _ => 1000f // Standardwert, falls das Fahrzeug nicht gefunden wird
+                        };
+                        vehicle.vehiclePrice = price;
+                        // MelonLogger.Msg($"Changed to - {vehicle.name}: {vehicle.vehiclePrice}, {vehicle.vehicleCode}");
+                    }
+                    else
+                    {
+                        MelonLogger.Warning($"Vehicle '{vehicle.name}' not found in vehicleAliasMap. Skipping price assignment.");
+                    }
                 }
             }
             UpdateVehicleSignPrices();
