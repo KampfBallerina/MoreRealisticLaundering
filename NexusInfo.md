@@ -1,16 +1,17 @@
 [size=6][center]MoreRealisticLaundering[/center][/size]
 [center][img]https://github.com/user-attachments/assets/5c807458-11ea-47bb-a13a-af9b8e534587[/img][/center]
 
+[size=5]My other mods[/size]
+- [b][url=https://www.nexusmods.com/schedule1/mods/909?tab=description]MoreRealisticSleeping[/url][/b]
+
 [size=5]Known Incompatiblities / Issues[/size]
 - Not compatible with most translation mods
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
-[size=5]What's new in Version 1.2.4?[/size]
-- Updated for Beta Branch Release v0.3.5
-- You do not need to update this mod yet if you're not playing on the beta branch
-- Added [b]Storage Unit to Ray's Real Estate[/b] Section
-- Added above for Legit Version
-- Fixed the MoreRealisticLaundering Config to automatically detect and save missing fields again
+[size=5]What's new in Version 1.2.5?[/size]
+- Recreated the app structure to be compatible with nearly all other mods (e.g. [url=https://www.nexusmods.com/schedule1/mods/521][b]DeliveryApp Improvements[/b][/url] etc)
+- Made the Detail Side of the App scrollable
+- Changed some Config Settings (e.g. lowered Motel Price, lowered minimum Motel Price)
 
 [center][img]https://github.com/user-attachments/assets/a3e44a3a-2994-4b14-92d0-ef16d85fa986[/img][/center]
 

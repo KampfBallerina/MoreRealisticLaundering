@@ -4,23 +4,18 @@
 
 MoreRealisticLaundering enhances the in-game money laundering mechanics by introducing more detailed customization and management options for business and private properties. Additionally, you're now able to manage the prices of your future vehicles.
 
+## My other mods
+- [MoreRealisticSleeping](https://www.nexusmods.com/schedule1/mods/909?tab=description)
+
 ## Known Incompatiblities / Issues
 - Not compatible with most translation mods
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
 
-## What's new in Version 1.2.4?
-- Updated for Beta Branch Release v0.3.5
-- You do not need to update this mod yet if you're not playing on the beta branch
-- Added `Storage Unit to Ray's Real Estate` Section
-- Added above for Legit Version
-- Fixed the MoreRealisticLaundering Config to automatically detect and save missing fields again
-
-![Rays Real Estate](https://github.com/user-attachments/assets/a3e44a3a-2994-4b14-92d0-ef16d85fa986)
-
-![Storage Unit Sign](https://github.com/user-attachments/assets/ef3643a4-e529-4562-b195-353d71b378cb)
-
-![Properties Whiteboard](https://github.com/user-attachments/assets/badd26b2-b363-43c3-aec7-65d8fd3f1a20)
+## What's new in Version 1.2.5?
+- Recreated the app structure to be compatible with nearly all other mods (e.g. [DeliveryApp Improvements](https://www.nexusmods.com/schedule1/mods/521) etc)
+- Made the Detail Side of the App scrollable
+- Changed some Config Settings (e.g. lowered Motel Price, lowered minimum Motel Price)
 
 
 ## Installation
