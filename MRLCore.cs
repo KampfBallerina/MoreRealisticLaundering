@@ -272,7 +272,12 @@ namespace MoreRealisticLaundering
 
         public void RegisterApp(GameObject App, string Title = "Unknown App")
         {
-            GameObject appIcons = GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons");
+            GameObject appIcons = Util.Utils.FindAppIconsContainer();
+            if (appIcons == null)
+            {
+                ((MelonBase)this).LoggerInstance.Error("Could not find AppIcons container to register " + Title);
+                return;
+            }
             App.transform.SetParent(appIcons.transform, worldPositionStays: false);
             ((MelonBase)this).LoggerInstance.Msg("Added " + Title + " to Homescreen.");
         }

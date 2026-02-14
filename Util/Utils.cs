@@ -10,11 +10,35 @@ namespace MoreRealisticLaundering.Util
 {
     public static class Utils
     {
+        /// <summary>
+        /// Finds the AppIcons container, handling S1API 2.9.6+ scroll view compatibility.
+        /// S1API moves icons into HomeScreen/AppIconsScrollView/Viewport/AppIcons,
+        /// leaving a stub at the original path. We target the real container first.
+        /// </summary>
+        public static GameObject FindAppIconsContainer()
+        {
+            GameObject scrollViewIcons = GameObject.Find(
+                "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIconsScrollView/Viewport/AppIcons");
+            if (scrollViewIcons != null)
+                return scrollViewIcons;
+
+            return GameObject.Find(
+                "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons");
+        }
+
         public static GameObject GetAppIconByName(string Name, int? Index, string newObjectName = null)
         {
             // MelonLogger.Msg($"Searching for AppIcon with Name: {Name} and Index: {Index}");
             int valueOrDefault = Index.GetValueOrDefault();
-            var appIcons = (from t in (IEnumerable<Transform>)GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons/").GetComponentsInChildren<Transform>(includeInactive: true)
+
+            GameObject iconsContainer = FindAppIconsContainer();
+            if (iconsContainer == null)
+            {
+                MelonLogger.Error("Could not find AppIcons container.");
+                return null;
+            }
+
+            var appIcons = (from t in (IEnumerable<Transform>)iconsContainer.GetComponentsInChildren<Transform>(includeInactive: true)
                             let labelTransform = t.gameObject.transform.Find("Label")
                             let textComponent = (labelTransform != null) ? labelTransform.GetComponent<Text>() : null
                             where textComponent != null && textComponent.text != null && textComponent.text.StartsWith(Name)
