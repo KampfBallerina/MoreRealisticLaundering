@@ -15,7 +15,7 @@ using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Tools;
 
 
-[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering (Forked by HazDS)", "1.2.8", "KampfBallerina", null)]
+[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.2.8", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MoreRealisticLaundering
@@ -206,7 +206,7 @@ namespace MoreRealisticLaundering
 
         private void ResetAllVariables()
         {
-            LoggerInstance.Msg("Resetting all variables to default values..");
+            //LoggerInstance.Msg("Resetting all variables to default values..");
             // Setze die Konfiguration zurück
             MRLCore.Instance.config = null;
             isLegitVersion = false;
