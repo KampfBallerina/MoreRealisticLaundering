@@ -1,35 +1,27 @@
 # MoreRealisticLaundering
 ![LaunderingIcon](https://github.com/user-attachments/assets/5c807458-11ea-47bb-a13a-af9b8e534587)
 ## Summary
-
 MoreRealisticLaundering enhances the in-game money laundering mechanics by introducing more detailed customization and management options for business and private properties. Additionally, you're now able to manage the prices of your future vehicles.
 
 ## Known Incompatiblities / Issues
 - Not compatible with most translation mods
-- Not compatible with most mods that modify the Deliveries App
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
-
-## What's new in Version 1.2.1?
-- Introducing `Hyland Auto` where you can now adjust the prices for all Vehicles that you can buy
-- Vehicle Price Support for Legit Mode
-- Adaption of all Vehicle Price Signs dynamically
-- Fixed that Ray's Real Estate was not appearing, when all 4 businesses where already bought (will now always appear)
-  
-![Hyland Auto](https://github.com/user-attachments/assets/53770a7e-7b9d-4bac-9ebe-1990dfe3468a)
-
+## What's new in Version 1.2.7?
+- Property and business prices now update dynamically during NPC dialogues
+- Improved price application logic for businesses
+- Enhanced compatibility with other mods (e.g., Product Manager Filter)
+- UI input fields now support more digits and better reflect config values
 
 ## Installation
-1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.
+1. Download the latest release from the [GitHub Releases](https://github.com/HazDS/MoreRealisticLaundering/releases) page.
 2. Extract the `Mods` and `UserData` folders of the ZIP file into your game's directory.
-3. Launch the game, and the mod will automatically initialize.
-
+3. Launch the game, and the mod will automatically initialize after joining your first game.
 
 ## Configuration
 - The mod generates a configuration file (`MoreRealisticLaundering.json`) in the `UserData` folder.
 - You can edit this file to customize the default settings for each business / property; however this is optional as long as you're not using the legit mode.
 - Use the custom app ingame to modify everything dynamically without any restarts
-
 
 ---
 
@@ -51,6 +43,15 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 ### Automatic Business Detection:
 - Automatically detects newly owned businesses and adds them to the app for management.
 - Ensures that all businesses are processed and updated dynamically.
+
+### Enhanced Jeff's Shred Shack:
+- Introduces a dedicated "Shred Shack" section in the app for managing Skateboard prices.
+- Allows players to view and adjust the prices of Skateboards dynamically from the app.
+- Adapts the related price signs automatically
+
+![Shred Shack](https://github.com/user-attachments/assets/4699d890-c6ab-42dc-a673-d42f40580e6d)
+
+![SkateboardSigns](https://github.com/user-attachments/assets/556f6d2c-008c-4b6d-a1bc-df69152cd9a4)
 
 ### Enhanced Hyland Auto Management:
 - Introduces a dedicated "Hyland Auto" section in the app for managing vehicle prices.
@@ -83,13 +84,13 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 - Introduces a dedicated "Ray's Real Estate" section in the app for managing property prices.
 - Allows players to view and adjust the prices of unowned (and owned) properties directly from the app.
   
-![Rays Real Estate](https://github.com/user-attachments/assets/7841e4b3-8fc0-431a-b5c0-a2e5938faf49)
+![Rays Real Estate](https://github.com/user-attachments/assets/a3e44a3a-2994-4b14-92d0-ef16d85fa986)
 
 ### Property Listings Price Updates:
 - Automatically updates the prices displayed on the property listings in "Ray's Real Estate Office" based on the player's configuration.
 - Ensures that the displayed prices are always accurate and reflect the latest settings.
   
-![Properties Whiteboard](https://github.com/user-attachments/assets/96145491-afef-4aa5-abb4-a9b506e21d9c)
+![Properties Whiteboard](https://github.com/user-attachments/assets/badd26b2-b363-43c3-aec7-65d8fd3f1a20)
 
 ### Sell Sign Price Updates:
 - Updates the prices displayed on the "For Sale" signs for each property.
@@ -109,6 +110,11 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 
 ---
 
-## Download Mirrors
-- **[NexusMods](https://www.nexusmods.com/schedule1/mods/775?tab=description)**
-- **[ThunderStore](https://thunderstore.io/c/schedule-i/p/KampfBallerina/MoreRealisticLaundering/)**
+## Credits
+
+This mod was originally created by **KampfBallerina**. This version is a continuation released with their permission.
+
+- **Original Author:** [KampfBallerina](https://github.com/KampfBallerina)
+- **Original NexusMods Page:** [MoreRealisticLaundering](https://www.nexusmods.com/schedule1/mods/775)
+- **Original Thunderstore Page:** [MoreRealisticLaundering](https://thunderstore.io/c/schedule-i/p/KampfBallerina/MoreRealisticLaundering/)
+

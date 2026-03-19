@@ -43,10 +43,10 @@ namespace MoreRealisticLaundering.Patches
                 {
                     int launderingTime = businessName switch
                     {
-                        "Laundromat" => MRLCore.Instance.config.Laundromat_Laundering_time_hours,
-                        "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Laundering_time_hours,
-                        "Car Wash" => MRLCore.Instance.config.Car_Wash_Laundering_time_hours,
-                        "PostOffice" => MRLCore.Instance.config.Post_Office_Laundering_time_hours,
+                        "Laundromat" => MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Laundering_time_hours,
+                        "Taco Ticklers" => MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours,
+                        "Car Wash" => MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Laundering_time_hours,
+                        "PostOffice" => MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Laundering_time_hours,
                         _ => 24 // Standardwert
                     };
 
@@ -96,10 +96,10 @@ namespace MoreRealisticLaundering.Patches
                     {
                         int launderingTime = businessName switch
                         {
-                            "Laundromat" => MRLCore.Instance.config.Laundromat_Laundering_time_hours,
-                            "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Laundering_time_hours,
-                            "Car Wash" => MRLCore.Instance.config.Car_Wash_Laundering_time_hours,
-                            "PostOffice" => MRLCore.Instance.config.Post_Office_Laundering_time_hours,
+                            "Laundromat" => MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Laundering_time_hours,
+                            "Taco Ticklers" => MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours,
+                            "Car Wash" => MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Laundering_time_hours,
+                            "PostOffice" => MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Laundering_time_hours,
                             _ => 24 // Standardwert
                         };
                         if (launderingTime.ToString() == twelveHrs)
@@ -121,10 +121,10 @@ namespace MoreRealisticLaundering.Patches
                     {
                         int launderingTime = businessName switch
                         {
-                            "Laundromat" => MRLCore.Instance.config.Laundromat_Laundering_time_hours,
-                            "Taco Ticklers" => MRLCore.Instance.config.Taco_Ticklers_Laundering_time_hours,
-                            "Car Wash" => MRLCore.Instance.config.Car_Wash_Laundering_time_hours,
-                            "PostOffice" => MRLCore.Instance.config.Post_Office_Laundering_time_hours,
+                            "Laundromat" => MRLCore.Instance.config.Businesses.Laundromat.Laundromat_Laundering_time_hours,
+                            "Taco Ticklers" => MRLCore.Instance.config.Businesses.TacoTicklers.Taco_Ticklers_Laundering_time_hours,
+                            "Car Wash" => MRLCore.Instance.config.Businesses.CarWash.Car_Wash_Laundering_time_hours,
+                            "PostOffice" => MRLCore.Instance.config.Businesses.PostOffice.Post_Office_Laundering_time_hours,
                             _ => 24 // Standardwert
                         };
                         if (launderingTime.ToString() == twentyFourHrs)
