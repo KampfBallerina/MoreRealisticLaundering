@@ -106,6 +106,8 @@ namespace MoreRealisticLaundering.Config
 		public float Hounddog_Price = 42000f;
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Cheetah_Price = 120000f;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Hotbox_Price = 55000f;
 	}
 
 	public class SkateboardSettings
@@ -120,5 +122,7 @@ namespace MoreRealisticLaundering.Config
 		public float Lightweight_Board_Price = 2850f;
 		[JsonConverter(typeof(CleanFloatConverter))]
 		public float Golden_Skateboard_Price = 5000f;
+		[JsonConverter(typeof(CleanFloatConverter))]
+		public float Offroad_Skateboard_Price = 3500f;
 	}
 }

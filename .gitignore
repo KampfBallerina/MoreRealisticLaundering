@@ -1,0 +1,39 @@
+.idea/
+*.dll
+*.zip
+obj/
+bin/
+*.user
+.vs/
+
+# Build props
+local.*
+ci.*
+
+# Local assembly references
+ScheduleOneAssemblies/
+yt-series/
+*.bin
+
+nuget-upload.txt
+AGENTS.md
+.claude/
+
+# DocFX
+**/S1API/_site/
+**/S1API/api/
+**/S1API/.docfx/
+**/.docfx/
+**/docfx.json.bak
+**/xrefmap.yml
+
+# Coverage Analyzer outputs
+tools/S1APICoverageAnalyzer/bin/
+tools/S1APICoverageAnalyzer/obj/
+tools/S1APICoverageAnalyzer/coverage-report.json
+tools/S1APICoverageAnalyzer/coverage-report.txt
+coverage-report.json
+coverage-badge.md
+
+# Documentation for assemblies repo (tracked separately)
+ASSEMBLIES.md

@@ -1,10 +1,11 @@
 ﻿﻿using System.Collections;
+using System.Linq;
 using Il2CppScheduleOne.Property;
 using MelonLoader;
 using UnityEngine;
 using Il2CppScheduleOne.Money;
 using Il2CppScheduleOne.UI;
-using MelonLoader.Utils;
+
 using UnityEngine.UI;
 using MoreRealisticLaundering.Util;
 using Il2CppTMPro;
@@ -12,10 +13,9 @@ using Il2CppScheduleOne.Dialogue;
 using MoreRealisticLaundering.Config;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Tools;
-using Il2CppScheduleOne.Management.Presets.Options;
-using UnityEngine.PlayerLoop;
 
-[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering", "1.2.5", "KampfBallerina", null)]
+
+[assembly: MelonInfo(typeof(MoreRealisticLaundering.MRLCore), "MoreRealisticLaundering (Forked by HazDS)", "1.2.8", "KampfBallerina", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MoreRealisticLaundering
@@ -28,13 +28,49 @@ namespace MoreRealisticLaundering
         public override void OnInitializeMelon()
         {
             LoggerInstance.Msg("Initialized.");
+
+            // Register Harmony patches
+            var harmony = new HarmonyLib.Harmony("com.mrlcore.morerealisticlaundering");
+            harmony.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
+            LoggerInstance.Msg("Harmony patches applied.");
+
+            // Manual patching for DialogueHandler_EstateAgent (PatchAll doesn't work for these)
+            try
+            {
+                var estateAgentType = typeof(Il2CppScheduleOne.Dialogue.DialogueHandler_EstateAgent);
+                var bindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
+
+                // Patch ModifyChoiceText
+                var modifyChoiceTextMethod = estateAgentType.GetMethod("ModifyChoiceText", bindingFlags);
+                var modifyChoiceTextPrefix = typeof(MRLCore).GetMethod("ModifyChoiceText_Prefix", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+                if (modifyChoiceTextMethod != null && modifyChoiceTextPrefix != null)
+                {
+                    harmony.Patch(modifyChoiceTextMethod, prefix: new HarmonyLib.HarmonyMethod(modifyChoiceTextPrefix));
+                }
+
+                // Patch CheckChoice
+                var checkChoiceMethod = estateAgentType.GetMethod("CheckChoice", bindingFlags);
+                var checkChoicePrefix = typeof(MRLCore).GetMethod("CheckChoice_Prefix", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+                if (checkChoiceMethod != null && checkChoicePrefix != null)
+                {
+                    harmony.Patch(checkChoiceMethod, prefix: new HarmonyLib.HarmonyMethod(checkChoicePrefix));
+                }
+
+                LoggerInstance.Msg("DialogueHandler_EstateAgent patches applied.");
+            }
+            catch (Exception ex)
+            {
+                LoggerInstance.Error($"Failed to patch DialogueHandler_EstateAgent: {ex.Message}");
+            }
             MRLCore.Instance = this;
             MRLCore.Instance.maxiumumLaunderValues = new System.Collections.Generic.Dictionary<string, float>();
             MRLCore.Instance.aliasMap = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "Laundromat", "Laundromat" },
                 { "Taco Ticklers", "Taco Ticklers" },
+                { "TacoTicklers", "Taco Ticklers" },
                 { "Car Wash", "Car Wash" },
+                { "CarWash", "Car Wash" },
                 { "Post Office", "Post Office" },
                 { "PostOffice", "Post Office" },
                 { "Motel", "Motel"},
@@ -65,12 +101,14 @@ namespace MoreRealisticLaundering
                 { "Pickup_Police", "Dinkler"},
                 { "Dinkler", "Dinkler" },
 
-
                 { "Hounddog", "Hounddog" },
                 { "Sedan", "Hounddog" },
 
                 { "Cheetah", "Cheetah" },
-                { "Coupe", "Cheetah"}
+                { "Coupe", "Cheetah"},
+
+                { "BoxSUV", "Hotbox"},
+                { "Hotbox", "Hotbox"}
             };
             MRLCore.Instance.skateboardAliasMap = new System.Collections.Generic.Dictionary<string, string>
             {
@@ -89,7 +127,10 @@ namespace MoreRealisticLaundering
                 { "LightweightSkateboard", "Lightweight Board" },
 
                 { "Golden Skateboard", "Golden Skateboard" },
-                { "GoldenSkateboard", "Golden Skateboard" }
+                { "GoldenSkateboard", "Golden Skateboard" },
+
+                { "Offroad Skateboard", "Offroad Skateboard" },
+                { "OffroadSkateboard", "Offroad Skateboard" }
             };
         }
 
@@ -109,9 +150,17 @@ namespace MoreRealisticLaundering
                 }
                 MRLCore.Instance.FillCapDictionary();
                 MRLCore.Instance.InitializeListeners();
+                // Find managers in scene - more reliable for Il2Cpp
                 MRLCore.Instance.moneyManager = UnityEngine.Object.FindObjectOfType<MoneyManager>();
                 MRLCore.Instance.notificationsManager = UnityEngine.Object.FindObjectOfType<NotificationsManager>();
                 MRLCore.Instance.vehicleManager = UnityEngine.Object.FindObjectOfType<VehicleManager>();
+
+                if (MRLCore.Instance.moneyManager == null)
+                    LoggerInstance.Warning("MoneyManager not found in scene");
+                if (MRLCore.Instance.notificationsManager == null)
+                    LoggerInstance.Warning("NotificationsManager not found in scene");
+                if (MRLCore.Instance.vehicleManager == null)
+                    LoggerInstance.Warning("VehicleManager not found in scene");
                 MelonCoroutines.Start(StartCoroutinesAfterDelay());
                 isFirstStart = false;
             }
@@ -126,10 +175,9 @@ namespace MoreRealisticLaundering
         {
             try
             {
-                Business.onOperationStarted = new Action<LaunderingOperation>(this.OnLaunderingStarted);
-                //LoggerInstance.Msg("Registered 'Laundering Started' Listener.");
-                Business.onOperationFinished = new Action<LaunderingOperation>(this.OnLaunderingFinished);
-                //LoggerInstance.Msg("Registered 'Laundering Finished' Listener.");
+                // Use += to add listeners without overwriting existing handlers
+                Business.onOperationStarted += new Action<LaunderingOperation>(this.OnLaunderingStarted);
+                Business.onOperationFinished += new Action<LaunderingOperation>(this.OnLaunderingFinished);
             }
             catch (Exception ex)
             {
@@ -189,16 +237,16 @@ namespace MoreRealisticLaundering
             // Setze die CreditCardIcon zurück
             MRLCore.Instance.CreditCardIcon = null;
 
-            // Entferne alle Listener
-            Business.onOperationStarted = null;
-            Business.onOperationFinished = null;
+            // Unsubscribe listeners properly
+            Business.onOperationStarted -= new Action<LaunderingOperation>(this.OnLaunderingStarted);
+            Business.onOperationFinished -= new Action<LaunderingOperation>(this.OnLaunderingFinished);
         }
 
-        public void ChangeAppIconImage(GameObject appIcon, string ImagePath)
+        public void ChangeAppIconImage(GameObject appIcon, string resourceName)
         {
-            if (ImagePath == null)
+            if (resourceName == null)
             {
-                MelonLogger.Msg("ImagePath is null, skipping image change.");
+                MelonLogger.Msg("Resource name is null, skipping image change.");
                 return;
             }
             Transform transform = appIcon.transform.Find("Mask/Image");
@@ -210,22 +258,26 @@ namespace MoreRealisticLaundering
             Image component = gameObject.GetComponent<Image>();
             if (!(component == null))
             {
-                Texture2D texture2D = Utils.LoadCustomImage(ImagePath);
-                if (!(texture2D == null))
+                Sprite sprite = Utils.LoadEmbeddedSprite(resourceName);
+                if (sprite != null)
                 {
-                    Sprite sprite = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
                     component.sprite = sprite;
                 }
                 else
                 {
-                    ((MelonBase)this).LoggerInstance.Msg("Custom image failed to load");
+                    ((MelonBase)this).LoggerInstance.Msg($"Failed to load embedded resource: {resourceName}");
                 }
             }
         }
 
         public void RegisterApp(GameObject App, string Title = "Unknown App")
         {
-            GameObject appIcons = GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons");
+            GameObject appIcons = Util.Utils.FindAppIconsContainer();
+            if (appIcons == null)
+            {
+                ((MelonBase)this).LoggerInstance.Error("Could not find AppIcons container to register " + Title);
+                return;
+            }
             App.transform.SetParent(appIcons.transform, worldPositionStays: false);
             ((MelonBase)this).LoggerInstance.Msg("Added " + Title + " to Homescreen.");
         }
@@ -239,13 +291,23 @@ namespace MoreRealisticLaundering
                 {
                     yield return new WaitForSeconds(1f);
                 }
-                string imagePath = Path.Combine(ConfigFolder, "Jeff.png");
-                MRLCore.launderingApp.AddEntryFromTemplate("Shred Shack", "Shred Shack", "We're all about the grind, bro — street and money.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Redpurple"), imagePath, null, true);
-                imagePath = Path.Combine(ConfigFolder, "HylandAuto.png");
-                MRLCore.launderingApp.AddEntryFromTemplate("Hyland Auto", "Hyland Auto", "We make you drive crazy.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Dark Green"), imagePath, null, true);
-                imagePath = Path.Combine(ConfigFolder, "RaysRealEstate.png");
-                MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Light Purple"), imagePath, null, true);
+                MRLCore.launderingApp.AddEntryFromTemplate("Shred Shack", "Shred Shack", "We're all about the grind, bro — street and money.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Redpurple"), "Jeff.png", null, true);
+                MRLCore.launderingApp.AddEntryFromTemplate("Hyland Auto", "Hyland Auto", "We make you drive crazy.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Dark Green"), "HylandAuto.png", null, true);
+                MRLCore.launderingApp.AddEntryFromTemplate("Rays Real Estate", "Ray's Real Estate", "No credit check. No judgment. Just opportunity.", null, MRLCore.launderingApp.DansHardwareTemplate, ColorUtil.GetColor("Light Purple"), "RaysRealEstate.png", null, true);
             }
+            // Wait for businesses to be available before applying prices
+            // Check for either unowned OR owned businesses (in case of loaded save)
+            int waitAttempts = 0;
+            int unownedCount = Business.UnownedBusinesses?.Count ?? 0;
+            int ownedCount = Business.OwnedBusinesses?.Count ?? 0;
+            while ((unownedCount + ownedCount) == 0 && waitAttempts < 30)
+            {
+                yield return new WaitForSeconds(0.5f);
+                waitAttempts++;
+                unownedCount = Business.UnownedBusinesses?.Count ?? 0;
+                ownedCount = Business.OwnedBusinesses?.Count ?? 0;
+            }
+
             ApplyPricesToProperties();
             ApplyPricesToPropertyListings();
             ApplyPricesToVehicles();
@@ -374,22 +436,22 @@ namespace MoreRealisticLaundering
                     {
                         case "Laundromat":
                             color = ColorUtil.GetColor("Yellow");
-                            imagePath = Path.Combine(ConfigFolder, "Laundromat.png");
+                            imagePath = "Laundromat.png";
                             subTitle = "Efficient, subtle, and always turning dirty into clean.";
                             break;
                         case "Taco Ticklers":
                             color = ColorUtil.GetColor("Orange");
-                            imagePath = Path.Combine(ConfigFolder, "TacoTickler.png");
+                            imagePath = "TacoTickler.png";
                             subTitle = "We wrap more than burritos.";
                             break;
                         case "Car Wash":
                             color = ColorUtil.GetColor("Dark Blue");
-                            imagePath = Path.Combine(ConfigFolder, "CarWash.png");
+                            imagePath = "CarWash.png";
                             subTitle = "From powder to polish – all clean.";
                             break;
                         case "PostOffice":
                             color = ColorUtil.GetColor("Light Blue");
-                            imagePath = Path.Combine(ConfigFolder, "PostOffice.png");
+                            imagePath = "PostOffice.png";
                             subTitle = "Dead drops, fake names but real profits.";
                             break;
                         default:
@@ -561,42 +623,52 @@ namespace MoreRealisticLaundering
 
         public void ApplyPricesToProperties()
         {
-            if (Business.UnownedBusinesses != null)
+            // Apply prices to unowned businesses (for purchasing)
+            if (Business.UnownedBusinesses != null && Business.UnownedBusinesses.Count > 0)
             {
                 foreach (Business business in Business.UnownedBusinesses)
                 {
-                    if (business == null)
-                    {
-                        MelonLogger.Warning("Encountered a null business in UnownedBusinesses. Skipping...");
-                        continue;
-                    }
-
-                    if (MRLCore.Instance.aliasMap.TryGetValue(business.name, out string key))
-                    {
-                        float price = key switch
-                        {
-                            "Laundromat" => MRLCore.Instance.config.Properties.BusinessProperties.Laundromat_Price,
-                            "Taco Ticklers" => MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price,
-                            "Car Wash" => MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price,
-                            "PostOffice" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
-                            "Post Office" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
-                            _ => 1000f // Standardwert
-                        };
-
-                        business.Price = price;
-                        //   MelonLogger.Msg($"Set price for unowned business '{business.name}' to {price:C}.");
-                    }
-                    else
-                    {
-                        MelonLogger.Warning($"Business '{business.name}' not found in aliasMap. Skipping price assignment.");
-                    }
+                    ApplyPriceToBusiness(business);
                 }
+            }
+
+            // Also apply prices to owned businesses (for consistency in displays/values)
+            if (Business.OwnedBusinesses != null && Business.OwnedBusinesses.Count > 0)
+            {
+                foreach (Business business in Business.OwnedBusinesses)
+                {
+                    ApplyPriceToBusiness(business);
+                }
+            }
+
+            ApplyPricesForHomeProperties();
+        }
+
+        private void ApplyPriceToBusiness(Business business)
+        {
+            if (business == null)
+            {
+                MelonLogger.Warning("Encountered a null business. Skipping...");
+                return;
+            }
+
+            if (MRLCore.Instance.aliasMap.TryGetValue(business.name, out string key))
+            {
+                float price = key switch
+                {
+                    "Laundromat" => MRLCore.Instance.config.Properties.BusinessProperties.Laundromat_Price,
+                    "Taco Ticklers" => MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price,
+                    "Car Wash" => MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price,
+                    "Post Office" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
+                    _ => 1000f
+                };
+
+                business.Price = price;
             }
             else
             {
-                MelonLogger.Warning("UnownedBusinesses is null. Cannot apply prices.");
+                MelonLogger.Warning($"Business '{business.name}' not found in aliasMap. Skipping price assignment.");
             }
-            ApplyPricesForHomeProperties();
         }
 
         public void ApplyPricesForHomeProperties()
@@ -632,7 +704,11 @@ namespace MoreRealisticLaundering
                     }
                     else
                     {
-                        MelonLogger.Warning($"Property '{property.name}' / '{property.propertyName}' not found in aliasMap. Skipping price assignment.");
+                        // Skip non-purchasable properties silently
+                        if (property.name != "RV" && property.name != "Sewer office")
+                        {
+                            MelonLogger.Warning($"Property '{property.name}' / '{property.propertyName}' not found in aliasMap. Skipping price assignment.");
+                        }
                     }
                 }
 
@@ -667,11 +743,8 @@ namespace MoreRealisticLaundering
                         }
                         else
                         {
-                            if (property.name == "RV")
-                            {
-                                // Don't do shit with the RV for other mods
-                            }
-                            else
+                            // Skip non-purchasable properties silently
+                            if (property.name != "RV" && property.name != "Sewer office")
                             {
                                 MelonLogger.Warning($"Property '{property.name}' not found in aliasMap. Skipping price assignment.");
                             }
@@ -700,24 +773,58 @@ namespace MoreRealisticLaundering
 
         public void ApplyPricesToPropertyListings()
         {
-            // Suche nach dem "RE Office"-Objekt im Spiel
+            // Try multiple paths to find the RE Office whiteboard for business listings
             GameObject reOfficeWhiteboard = GameObject.Find("Map/Container/RE Office/Interior/Whiteboard (1)");
             if (reOfficeWhiteboard == null)
             {
-                MelonLogger.Warning("RE Office not found. Cannot apply prices to PropertyListings.");
-                return;
+                // Try alternative paths
+                reOfficeWhiteboard = GameObject.Find("RE Office/Interior/Whiteboard (1)");
+            }
+            if (reOfficeWhiteboard == null)
+            {
+                // Try finding RE Office first, then navigate to whiteboard
+                GameObject reOffice = GameObject.Find("RE Office");
+                if (reOffice == null)
+                {
+                    // Try to find RE Office using FindObjectsOfType
+                    var allTransforms = UnityEngine.Object.FindObjectsOfType<Transform>();
+                    foreach (var t in allTransforms)
+                    {
+                        if (t.name == "RE Office")
+                        {
+                            reOffice = t.gameObject;
+                            break;
+                        }
+                    }
+                }
+                if (reOffice != null)
+                {
+                    Transform interior = reOffice.transform.Find("Interior");
+                    if (interior != null)
+                    {
+                        Transform wb = interior.Find("Whiteboard (1)");
+                        if (wb != null)
+                            reOfficeWhiteboard = wb.gameObject;
+                    }
+                }
+            }
+            if (reOfficeWhiteboard == null)
+            {
+                MelonLogger.Warning("RE Office Whiteboard (1) not found. Cannot apply prices to business PropertyListings.");
             }
 
-            // Suche nach allen PropertyListing-Objekten unter "RE Office"
-            Transform[] propertyListings = new Transform[]
+            // Find PropertyListing objects for businesses under the whiteboard
+            if (reOfficeWhiteboard != null)
             {
-                reOfficeWhiteboard.transform.Find("PropertyListing Laundromat"),
-                reOfficeWhiteboard.transform.Find("PropertyListing Taco Ticklers"),
-                reOfficeWhiteboard.transform.Find("PropertyListing Car Wash"),
-                reOfficeWhiteboard.transform.Find("PropertyListing Post Office")
-            };
+                Transform[] propertyListings = new Transform[]
+                {
+                    reOfficeWhiteboard.transform.Find("PropertyListing Laundromat"),
+                    reOfficeWhiteboard.transform.Find("PropertyListing Taco Ticklers"),
+                    reOfficeWhiteboard.transform.Find("PropertyListing Car Wash"),
+                    reOfficeWhiteboard.transform.Find("PropertyListing Post Office")
+                };
 
-            foreach (Transform propertyListing in propertyListings)
+                foreach (Transform propertyListing in propertyListings)
             {
                 if (propertyListing == null)
                 {
@@ -763,29 +870,63 @@ namespace MoreRealisticLaundering
                 {
                     MelonLogger.Warning($"Business '{listingName}' not found in aliasMap. Skipping price assignment.");
                 }
+                }
             }
 
+            // Try multiple paths to find the RE Office whiteboard for home listings
             GameObject reOfficeWhiteboardHomes = GameObject.Find("Map/Container/RE Office/Interior/Whiteboard");
             if (reOfficeWhiteboardHomes == null)
             {
-                MelonLogger.Warning("RE Office not found. Cannot apply prices to PropertyListings.");
-                return;
+                reOfficeWhiteboardHomes = GameObject.Find("RE Office/Interior/Whiteboard");
+            }
+            if (reOfficeWhiteboardHomes == null)
+            {
+                // Try finding RE Office first, then navigate to whiteboard
+                GameObject reOffice = GameObject.Find("RE Office");
+                if (reOffice == null)
+                {
+                    var allTransforms = UnityEngine.Object.FindObjectsOfType<Transform>();
+                    foreach (var t in allTransforms)
+                    {
+                        if (t.name == "RE Office")
+                        {
+                            reOffice = t.gameObject;
+                            break;
+                        }
+                    }
+                }
+                if (reOffice != null)
+                {
+                    Transform interior = reOffice.transform.Find("Interior");
+                    if (interior != null)
+                    {
+                        Transform wb = interior.Find("Whiteboard");
+                        if (wb != null)
+                            reOfficeWhiteboardHomes = wb.gameObject;
+                    }
+                }
+            }
+            if (reOfficeWhiteboardHomes == null)
+            {
+                MelonLogger.Warning("RE Office Whiteboard not found. Cannot apply prices to home PropertyListings.");
             }
 
-            // Suche nach allen PropertyListing-Objekten unter "RE Office"
-            Transform[] homePropertyListings = new Transform[]
+            // Find PropertyListing objects for homes under the whiteboard
+            if (reOfficeWhiteboardHomes != null)
             {
-                reOfficeWhiteboardHomes.transform.Find("PropertyListing Motel Room"),
-                reOfficeWhiteboardHomes.transform.Find("PropertyListing Sweatshop"),
-                reOfficeWhiteboardHomes.transform.Find("PropertyListing Bungalow"),
-                reOfficeWhiteboardHomes.transform.Find("PropertyListing Barn"),
-                reOfficeWhiteboardHomes.transform.Find("PropertyListing Docks Warehouse"),
-                reOfficeWhiteboardHomes.transform.Find("PropertyListing Manor"),
-                reOfficeWhiteboardHomes.transform.Find("PropertyListing Storage Unit")
-            };
+                Transform[] homePropertyListings = new Transform[]
+                {
+                    reOfficeWhiteboardHomes.transform.Find("PropertyListing Motel Room"),
+                    reOfficeWhiteboardHomes.transform.Find("PropertyListing Sweatshop"),
+                    reOfficeWhiteboardHomes.transform.Find("PropertyListing Bungalow"),
+                    reOfficeWhiteboardHomes.transform.Find("PropertyListing Barn"),
+                    reOfficeWhiteboardHomes.transform.Find("PropertyListing Docks Warehouse"),
+                    reOfficeWhiteboardHomes.transform.Find("PropertyListing Manor"),
+                    reOfficeWhiteboardHomes.transform.Find("PropertyListing Storage Unit")
+                };
 
-            foreach (Transform homePropertyListing in homePropertyListings)
-            {
+                foreach (Transform homePropertyListing in homePropertyListings)
+                {
                 if (homePropertyListing == null)
                 {
                     //MelonLogger.Warning("A PropertyListing was not found. Skipping...");
@@ -832,39 +973,46 @@ namespace MoreRealisticLaundering
                 {
                     MelonLogger.Warning($"Property '{listingName}' not found in aliasMap. Skipping price assignment.");
                 }
+                }
             }
             UpdateSellSignPrices();
         }
 
         private void UpdateSellSignPrices()
         {
-            // Suche nach den Verkaufsschildern
-            GameObject sellSignPostOffice = GameObject.Find("@Businesses/PostOffice/ForSaleSign_Blue (1)");
-            GameObject sellSignCarWash = GameObject.Find("@Businesses/Car Wash/ForSaleSign_Blue");
-            GameObject sellSignLaundromat = GameObject.Find("@Businesses/Laundromat/ForSaleSign_Blue (1)");
-            GameObject sellSignTacoTicklers = GameObject.Find("@Businesses/Taco Ticklers/ForSaleSign_Blue (1)");
+            // Update ForSaleSign prices for unowned businesses using their ForSaleSign field directly
+            if (Business.UnownedBusinesses != null)
+            {
+                foreach (Business business in Business.UnownedBusinesses)
+                {
+                    if (business == null || business.ForSaleSign == null)
+                        continue;
 
-            GameObject sellSignMotelRoom = GameObject.Find("@Properties/MotelRoom/ForSaleSign");
-            GameObject sellSignSweatshop = GameObject.Find("@Properties/Sweatshop/ForSaleSign");
-            GameObject sellSignBungalow = GameObject.Find("@Properties/Bungalow/ForSaleSign");
-            GameObject sellSignBarn = GameObject.Find("@Properties/Barn/ForSaleSign");
-            GameObject sellSignDocksWarehouse = GameObject.Find("@Properties/DocksWarehouse/ForSaleSign");
-            GameObject sellSignManor = GameObject.Find("@Properties/Manor/ForSaleSign (1)");
-            GameObject sellSignStorageUnit = GameObject.Find("@Properties/StorageUnit/ForSaleSign");
+                    if (MRLCore.Instance.aliasMap.TryGetValue(business.name, out string key))
+                    {
+                        UpdateSignPrice(business.ForSaleSign, key);
+                    }
+                }
+            }
 
-            // Aktualisiere die Preise für jedes Schild
-            UpdateSignPrice(sellSignPostOffice, "Post Office");
-            UpdateSignPrice(sellSignCarWash, "Car Wash");
-            UpdateSignPrice(sellSignLaundromat, "Laundromat");
-            UpdateSignPrice(sellSignTacoTicklers, "Taco Ticklers");
+            // Update ForSaleSign prices for unowned properties using their ForSaleSign field directly
+            if (Property.UnownedProperties != null)
+            {
+                foreach (Property property in Property.UnownedProperties)
+                {
+                    if (property == null || property.ForSaleSign == null)
+                        continue;
 
-            UpdateSignPrice(sellSignMotelRoom, "Motel Room");
-            UpdateSignPrice(sellSignSweatshop, "Sweatshop");
-            UpdateSignPrice(sellSignBungalow, "Bungalow");
-            UpdateSignPrice(sellSignBarn, "Barn");
-            UpdateSignPrice(sellSignDocksWarehouse, "Docks Warehouse");
-            UpdateSignPrice(sellSignManor, "Manor");
-            UpdateSignPrice(sellSignStorageUnit, "Storage Unit");
+                    // Skip businesses (they're handled above)
+                    if (property is Business)
+                        continue;
+
+                    if (MRLCore.Instance.aliasMap.TryGetValue(property.name, out string key))
+                    {
+                        UpdateSignPrice(property.ForSaleSign, key);
+                    }
+                }
+            }
             // MelonLogger.Msg("Updated all sell sign prices.");
         }
 
@@ -901,6 +1049,7 @@ namespace MoreRealisticLaundering
                             "Dinkler" => MRLCore.Instance.config.Vehicles.Dinkler_Price,
                             "Hounddog" => MRLCore.Instance.config.Vehicles.Hounddog_Price,
                             "Cheetah" => MRLCore.Instance.config.Vehicles.Cheetah_Price,
+                            "Hotbox" => MRLCore.Instance.config.Vehicles.Hotbox_Price,
                             _ => 1000f // Standardwert, falls das Fahrzeug nicht gefunden wird
                         };
                         vehicle.vehiclePrice = price;
@@ -938,6 +1087,7 @@ namespace MoreRealisticLaundering
                                 "Dinkler" => MRLCore.Instance.config.Vehicles.Dinkler_Price,
                                 "Hounddog" => MRLCore.Instance.config.Vehicles.Hounddog_Price,
                                 "Cheetah" => MRLCore.Instance.config.Vehicles.Cheetah_Price,
+                                "Hotbox" => MRLCore.Instance.config.Vehicles.Hotbox_Price,
                                 _ => 1000f // Default fallback price
                             };
                             priceLabel.text = $"${price}";
@@ -983,6 +1133,7 @@ namespace MoreRealisticLaundering
                                     "Cruiser" => MRLCore.Instance.config.Skateboards.Cruiser_Price,
                                     "Lightweight Board" => MRLCore.Instance.config.Skateboards.Lightweight_Board_Price,
                                     "Golden Skateboard" => MRLCore.Instance.config.Skateboards.Golden_Skateboard_Price,
+                                    "Offroad Skateboard" => MRLCore.Instance.config.Skateboards.Offroad_Skateboard_Price,
                                     _ => 1000f // Standardwert, falls das Skateboard nicht gefunden wird
                                 };
                                 option.Price = price;
@@ -1000,18 +1151,59 @@ namespace MoreRealisticLaundering
 
         private void UpdateSkateboardSign()
         {
-            GameObject sellSignCheapSkateboard = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (1)/Text (TMP)");
-            GameObject sellSignSkateboard = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (2)/Text (TMP)");
-            GameObject sellSignCruiser = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (3)/Text (TMP)");
-            GameObject sellSignLightweightBoard = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (4)/Text (TMP)");
-            GameObject sellSignGoldenSkateboard = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog/Paper (5)/Text (TMP)");
+            // Try to find the Catalog object containing skateboard price papers
+            GameObject catalog = GameObject.Find("Map/Container/North town/Jeff's Shred Shack/Shred Shack/Catalog");
+            if (catalog == null)
+            {
+                // Try alternative paths
+                catalog = GameObject.Find("Jeff's Shred Shack/Shred Shack/Catalog");
+            }
+            if (catalog == null)
+            {
+                // Try to find Shred Shack using FindObjectsOfType
+                var allTransforms = UnityEngine.Object.FindObjectsOfType<Transform>();
+                foreach (var t in allTransforms)
+                {
+                    if (t.name == "Shred Shack")
+                    {
+                        Transform cat = t.Find("Catalog");
+                        if (cat != null)
+                        {
+                            catalog = cat.gameObject;
+                            break;
+                        }
+                    }
+                }
+            }
 
-            // Aktualisiere die Preise für jedes Schild
+            if (catalog == null)
+            {
+                MelonLogger.Warning("Shred Shack Catalog not found. Cannot update skateboard sign prices.");
+                return;
+            }
+
+            // Find Paper objects under Catalog
+            Transform paper1 = catalog.transform.Find("Paper (1)");
+            Transform paper2 = catalog.transform.Find("Paper (2)");
+            Transform paper3 = catalog.transform.Find("Paper (3)");
+            Transform paper4 = catalog.transform.Find("Paper (4)");
+            Transform paper5 = catalog.transform.Find("Paper (5)");
+            Transform paper6 = catalog.transform.Find("Paper (6)");
+
+            GameObject sellSignCheapSkateboard = paper1?.Find("Text (TMP)")?.gameObject;
+            GameObject sellSignSkateboard = paper2?.Find("Text (TMP)")?.gameObject;
+            GameObject sellSignCruiser = paper3?.Find("Text (TMP)")?.gameObject;
+            GameObject sellSignLightweightBoard = paper4?.Find("Text (TMP)")?.gameObject;
+            GameObject sellSignGoldenSkateboard = paper5?.Find("Text (TMP)")?.gameObject;
+            GameObject sellSignOffroadSkateboard = paper6?.Find("Text (TMP)")?.gameObject;
+
+            // Update prices for each sign
             UpdateSignPrice(sellSignCheapSkateboard, "Cheap Skateboard");
             UpdateSignPrice(sellSignSkateboard, "Skateboard");
             UpdateSignPrice(sellSignCruiser, "Cruiser_Skateboard");
             UpdateSignPrice(sellSignLightweightBoard, "Lightweight Board");
             UpdateSignPrice(sellSignGoldenSkateboard, "Golden Skateboard");
+            UpdateSignPrice(sellSignOffroadSkateboard, "Offroad Skateboard");
             // MelonLogger.Msg("Updated all skateboard sign prices.");
         }
 
@@ -1056,6 +1248,7 @@ namespace MoreRealisticLaundering
                     "Dinkler" => MRLCore.Instance.config.Vehicles.Dinkler_Price,
                     "Hounddog" => MRLCore.Instance.config.Vehicles.Hounddog_Price,
                     "Cheetah" => MRLCore.Instance.config.Vehicles.Cheetah_Price,
+                    "Hotbox" => MRLCore.Instance.config.Vehicles.Hotbox_Price,
                     _ => 1000f
                 };
             }
@@ -1068,6 +1261,7 @@ namespace MoreRealisticLaundering
                     "Cruiser" => MRLCore.Instance.config.Skateboards.Cruiser_Price,
                     "Lightweight Board" => MRLCore.Instance.config.Skateboards.Lightweight_Board_Price,
                     "Golden Skateboard" => MRLCore.Instance.config.Skateboards.Golden_Skateboard_Price,
+                    "Offroad Skateboard" => MRLCore.Instance.config.Skateboards.Offroad_Skateboard_Price,
                     _ => 1000f
                 };
             }
@@ -1117,6 +1311,74 @@ namespace MoreRealisticLaundering
             }
         }
 
+        // Static prefix methods for Harmony patches on DialogueHandler_EstateAgent
+        public static void ModifyChoiceText_Prefix(string choiceLabel, string choiceText)
+        {
+            UpdateEstateAgentPrices(choiceLabel);
+        }
+
+        public static void CheckChoice_Prefix(string choiceLabel)
+        {
+            UpdateEstateAgentPrices(choiceLabel);
+        }
+
+        private static void UpdateEstateAgentPrices(string choiceLabel)
+        {
+            if (string.IsNullOrEmpty(choiceLabel) || MRLCore.Instance?.config == null)
+                return;
+
+            // Update business prices
+            if (Business.UnownedBusinesses != null)
+            {
+                foreach (Business business in Business.UnownedBusinesses)
+                {
+                    if (business == null) continue;
+                    if (business.PropertyCode.ToLower() == choiceLabel.ToLower())
+                    {
+                        string normalized = business.name.ToLower().Replace(" ", "").Replace("_", "");
+                        float price = normalized switch
+                        {
+                            "laundromat" => MRLCore.Instance.config.Properties.BusinessProperties.Laundromat_Price,
+                            "tacoticklers" => MRLCore.Instance.config.Properties.BusinessProperties.Taco_Ticklers_Price,
+                            "carwash" => MRLCore.Instance.config.Properties.BusinessProperties.Car_Wash_Price,
+                            "postoffice" => MRLCore.Instance.config.Properties.BusinessProperties.Post_Office_Price,
+                            _ => 1000f
+                        };
+                        business.Price = price;
+                        return;
+                    }
+                }
+            }
+
+            // Update property prices
+            if (Property.UnownedProperties != null)
+            {
+                foreach (Property property in Property.UnownedProperties)
+                {
+                    if (property == null) continue;
+                    if (property is Business) continue;
+                    if (property.PropertyCode.ToLower() == choiceLabel.ToLower())
+                    {
+                        string normalized = property.name.ToLower().Replace(" ", "").Replace("_", "");
+                        float price = normalized switch
+                        {
+                            "motelroom" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                            "motel" => MRLCore.Instance.config.Properties.PrivateProperties.Motel_Room_Price,
+                            "sweatshop" => MRLCore.Instance.config.Properties.PrivateProperties.Sweatshop_Price,
+                            "bungalow" => MRLCore.Instance.config.Properties.PrivateProperties.Bungalow_Price,
+                            "barn" => MRLCore.Instance.config.Properties.PrivateProperties.Barn_Price,
+                            "dockswarehouse" => MRLCore.Instance.config.Properties.PrivateProperties.Docks_Warehouse_Price,
+                            "manor" => MRLCore.Instance.config.Properties.PrivateProperties.Manor_Price,
+                            "storageunit" => MRLCore.Instance.config.Properties.PrivateProperties.Storage_Unit_Price,
+                            _ => 1000f
+                        };
+                        property.Price = price;
+                        return;
+                    }
+                }
+            }
+        }
+
         public Sprite CreditCardIcon;
         public Config.ConfigState config;
         public static PhoneApp.LaunderingApp launderingApp = new PhoneApp.LaunderingApp();
@@ -1126,7 +1388,6 @@ namespace MoreRealisticLaundering
         public System.Collections.Generic.Dictionary<string, string> skateboardAliasMap;
         private readonly System.Collections.Generic.HashSet<string> createdAppEntries = new System.Collections.Generic.HashSet<string>();
         public bool isWaitAndApplyCapsRunning = false;
-        private static readonly string ConfigFolder = Path.Combine(MelonEnvironment.UserDataDirectory, "MoreRealisticLaundering");
         private readonly System.Collections.Generic.HashSet<LaunderingOperation> boostedOperations = new System.Collections.Generic.HashSet<LaunderingOperation>();
         public DialogueController_SkateboardSeller shackShopDialogueController;
         public MoneyManager moneyManager;

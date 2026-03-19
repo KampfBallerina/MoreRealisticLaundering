@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Reflection;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using MelonLoader.Utils;
 using MelonLoader;
@@ -9,11 +10,35 @@ namespace MoreRealisticLaundering.Util
 {
     public static class Utils
     {
+        /// <summary>
+        /// Finds the AppIcons container, handling S1API 2.9.6+ scroll view compatibility.
+        /// S1API moves icons into HomeScreen/AppIconsScrollView/Viewport/AppIcons,
+        /// leaving a stub at the original path. We target the real container first.
+        /// </summary>
+        public static GameObject FindAppIconsContainer()
+        {
+            GameObject scrollViewIcons = GameObject.Find(
+                "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIconsScrollView/Viewport/AppIcons");
+            if (scrollViewIcons != null)
+                return scrollViewIcons;
+
+            return GameObject.Find(
+                "Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons");
+        }
+
         public static GameObject GetAppIconByName(string Name, int? Index, string newObjectName = null)
         {
             // MelonLogger.Msg($"Searching for AppIcon with Name: {Name} and Index: {Index}");
             int valueOrDefault = Index.GetValueOrDefault();
-            var appIcons = (from t in (IEnumerable<Transform>)GameObject.Find("Player_Local/CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/HomeScreen/AppIcons/").GetComponentsInChildren<Transform>(includeInactive: true)
+
+            GameObject iconsContainer = FindAppIconsContainer();
+            if (iconsContainer == null)
+            {
+                MelonLogger.Error("Could not find AppIcons container.");
+                return null;
+            }
+
+            var appIcons = (from t in (IEnumerable<Transform>)iconsContainer.GetComponentsInChildren<Transform>(includeInactive: true)
                             let labelTransform = t.gameObject.transform.Find("Label")
                             let textComponent = (labelTransform != null) ? labelTransform.GetComponent<Text>() : null
                             where textComponent != null && textComponent.text != null && textComponent.text.StartsWith(Name)
@@ -45,12 +70,21 @@ namespace MoreRealisticLaundering.Util
                 MelonLogger.Error("AppIcon name or new label is null or empty.");
                 return null;
             }
+
+            // Try index 1 first (for when clones exist), fallback to 0
             GameObject appIconByName = Utils.GetAppIconByName(appIconName, 1, newLabel);
-            Transform labelTransform = appIconByName.transform.Find("Label");
-            GameObject labelObject = appIconByName != null ? labelTransform.gameObject : null;
-            if (labelObject != null)
+            appIconByName ??= Utils.GetAppIconByName(appIconName, 0, newLabel);
+
+            if (appIconByName == null)
             {
-                Text labelText = labelObject.GetComponent<Text>();
+                MelonLogger.Error($"Could not find app icon: {appIconName}");
+                return null;
+            }
+
+            Transform labelTransform = appIconByName.transform.Find("Label");
+            if (labelTransform != null)
+            {
+                Text labelText = labelTransform.GetComponent<Text>();
                 if (labelText != null)
                 {
                     labelText.text = newLabel;
@@ -127,6 +161,64 @@ namespace MoreRealisticLaundering.Util
             return result;
         }
 
+        /// <summary>
+        /// Loads an embedded resource image from the assembly and returns it as a byte array.
+        /// </summary>
+        /// <param name="resourceName">The name of the resource file (e.g., "LaunderingIcon.png")</param>
+        /// <returns>Byte array of the image data, or null if not found</returns>
+        public static byte[] LoadEmbeddedResource(string resourceName)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            // Resource names are prefixed with namespace and folder: MoreRealisticLaundering.Assets.filename.png
+            string fullResourceName = $"MoreRealisticLaundering.Assets.{resourceName}";
 
+            using (var stream = assembly.GetManifestResourceStream(fullResourceName))
+            {
+                if (stream == null)
+                {
+                    MelonLogger.Warning($"Embedded resource not found: {fullResourceName}");
+                    return null;
+                }
+
+                byte[] buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, buffer.Length);
+                return buffer;
+            }
+        }
+
+        /// <summary>
+        /// Loads an embedded resource image and creates a Texture2D from it.
+        /// </summary>
+        /// <param name="resourceName">The name of the resource file (e.g., "LaunderingIcon.png")</param>
+        /// <returns>Texture2D or null if resource not found</returns>
+        public static Texture2D LoadEmbeddedTexture(string resourceName)
+        {
+            byte[] imageData = LoadEmbeddedResource(resourceName);
+            if (imageData == null)
+                return null;
+
+            Texture2D texture = new Texture2D(2, 2);
+            if (ImageConversion.LoadImage(texture, imageData))
+            {
+                return texture;
+            }
+
+            MelonLogger.Error($"Failed to load texture from embedded resource: {resourceName}");
+            return null;
+        }
+
+        /// <summary>
+        /// Loads an embedded resource image and creates a Sprite from it.
+        /// </summary>
+        /// <param name="resourceName">The name of the resource file (e.g., "LaunderingIcon.png")</param>
+        /// <returns>Sprite or null if resource not found</returns>
+        public static Sprite LoadEmbeddedSprite(string resourceName)
+        {
+            Texture2D texture = LoadEmbeddedTexture(resourceName);
+            if (texture == null)
+                return null;
+
+            return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        }
     }
 }

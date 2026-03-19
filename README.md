@@ -1,34 +1,27 @@
 # MoreRealisticLaundering
 ![LaunderingIcon](https://github.com/user-attachments/assets/5c807458-11ea-47bb-a13a-af9b8e534587)
 ## Summary
-
 MoreRealisticLaundering enhances the in-game money laundering mechanics by introducing more detailed customization and management options for business and private properties. Additionally, you're now able to manage the prices of your future vehicles.
-
-## My other mods
-- [MoreRealisticSleeping](https://www.nexusmods.com/schedule1/mods/909?tab=description)
 
 ## Known Incompatiblities / Issues
 - Not compatible with most translation mods
 - Custom app takes long to be visible: Allows other mods to load their custom apps before
 
-
-## What's new in Version 1.2.5?
-- Recreated the app structure to be compatible with nearly all other mods (e.g. [DeliveryApp Improvements](https://www.nexusmods.com/schedule1/mods/521) etc)
-- Made the Detail Side of the App scrollable
-- Changed some Config Settings (e.g. lowered Motel Price, lowered minimum Motel Price)
-
+## What's new in Version 1.2.7?
+- Property and business prices now update dynamically during NPC dialogues
+- Improved price application logic for businesses
+- Enhanced compatibility with other mods (e.g., Product Manager Filter)
+- UI input fields now support more digits and better reflect config values
 
 ## Installation
-1. Download the latest release from the [GitHub Releases](https://github.com/user/MoreRealisticLaundering/releases) page.
+1. Download the latest release from the [GitHub Releases](https://github.com/HazDS/MoreRealisticLaundering/releases) page.
 2. Extract the `Mods` and `UserData` folders of the ZIP file into your game's directory.
 3. Launch the game, and the mod will automatically initialize after joining your first game.
-
 
 ## Configuration
 - The mod generates a configuration file (`MoreRealisticLaundering.json`) in the `UserData` folder.
 - You can edit this file to customize the default settings for each business / property; however this is optional as long as you're not using the legit mode.
 - Use the custom app ingame to modify everything dynamically without any restarts
-
 
 ---
 
@@ -117,6 +110,11 @@ MoreRealisticLaundering enhances the in-game money laundering mechanics by intro
 
 ---
 
-## Download Mirrors
-- **[NexusMods](https://www.nexusmods.com/schedule1/mods/775?tab=description)**
-- **[ThunderStore](https://thunderstore.io/c/schedule-i/p/KampfBallerina/MoreRealisticLaundering/)**
+## Credits
+
+This mod was originally created by **KampfBallerina**. This version is a continuation released with their permission.
+
+- **Original Author:** [KampfBallerina](https://github.com/KampfBallerina)
+- **Original NexusMods Page:** [MoreRealisticLaundering](https://www.nexusmods.com/schedule1/mods/775)
+- **Original Thunderstore Page:** [MoreRealisticLaundering](https://thunderstore.io/c/schedule-i/p/KampfBallerina/MoreRealisticLaundering/)
+
